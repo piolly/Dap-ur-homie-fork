@@ -93,7 +93,7 @@ public class KickClientHandler {
     }
     private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.options.hideGui) return;
+        if (client.player == null || client.gui.hud.isHidden()) return;
         int sw      = context.guiWidth();
         int sh      = context.guiHeight();
         int centreX = sw / 2;
