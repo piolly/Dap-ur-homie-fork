@@ -1,6 +1,6 @@
 package com.cooptest;
 
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -30,7 +30,7 @@ public class MahitoItems {
                 mahitoPotion
         );
 
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(content -> {
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(content -> {
             ItemStack potionStack = new ItemStack(Items.POTION);
             potionStack.set(DataComponents.POTION_CONTENTS,
                     new PotionContents(MAHITO_POTION));

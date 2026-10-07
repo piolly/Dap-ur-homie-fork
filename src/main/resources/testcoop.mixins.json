@@ -12,7 +12,6 @@
     "PlayerRidingMixin"
   ],
   "client": [
-    "client.HeldItemRendererMixin",
     "client.MovementFreezeMixin",
     "client.PlayerEntityRendererMixin",
     "client.InputAccessor"

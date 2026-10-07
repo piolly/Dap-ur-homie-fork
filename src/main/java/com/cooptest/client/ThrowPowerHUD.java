@@ -22,7 +22,7 @@ public class ThrowPowerHUD {
     private static final float LERP_SPEED = 0.15f;
 
     public static void register() {
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "throwpowerhud_render"), throwpowerhud::render);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "throwpowerhud_render"), ThrowPowerHUD::render);
     }
 
     private static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
@@ -54,7 +54,7 @@ public class ThrowPowerHUD {
         
         context.fill(barX - 2, barY - 2, barX + BAR_WIDTH + 2, barY + BAR_HEIGHT + 2, BG_COLOR);
         
-        context.renderOutline(barX - 2, barY - 2, BAR_WIDTH + 4, BAR_HEIGHT + 4, BORDER_COLOR);
+        context.outline(barX - 2, barY - 2, BAR_WIDTH + 4, BAR_HEIGHT + 4, BORDER_COLOR);
         
         int fillWidth = (int)(BAR_WIDTH * displayedCharge);
         

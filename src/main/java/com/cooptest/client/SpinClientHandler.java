@@ -57,7 +57,7 @@ public class SpinClientHandler {
                         if (isSpinner) localHasRider = false;
                     }
                 }));
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "spinclienthandler_renderhud"), spinclienthandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "spinclienthandler_renderhud"), SpinClientHandler::renderhud);
     }
     private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
         Minecraft client = Minecraft.getInstance();

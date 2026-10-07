@@ -78,47 +78,8 @@ public class TrajectoryRenderer {
     }
 
     private static void renderTrajectoryDots(LevelRenderContext context, Vec3[] points, float charge) {
-        Camera camera = context.gameRenderer().getMainCamera();
-        Vec3 camPos = camera.position();
-
-        PoseStack matrices = context.matrices();
-        matrices.pushPose();
-        matrices.translate(-camPos.x, -camPos.y, -camPos.z);
-        Matrix4f matrix = matrices.last().pose();
-
-        VertexConsumer consumer = context.consumers().getBuffer(
-                RenderType.create("trajectory", RenderSetup.builder(
-                        RenderPipelines.DEBUG_FILLED_BOX
-                ).createRenderSetup())
-        );
-
-        int r = (int)(charge * 255);
-        int g = (int)((1 - charge) * 255);
-        int b = 50;
-
-        for (int i = 0; i < points.length && points[i] != null; i++) {
-            Vec3 point = points[i];
-            int fadeAlpha = (int)(200 * (1.0f - (float)i / points.length));
-            float size = DOT_SIZE * (1.0f - (float)i / points.length * 0.5f);
-            float x = (float)point.x;
-            float y = (float)point.y;
-            float z = (float)point.z;
-
-            consumer.addVertex(matrix, x-size, y-size, z+size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x+size, y-size, z+size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x+size, y+size, z+size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x-size, y+size, z+size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x+size, y-size, z-size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x-size, y-size, z-size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x-size, y+size, z-size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x+size, y+size, z-size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x-size, y+size, z-size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x-size, y+size, z+size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x+size, y+size, z+size).setColor(r, g, b, fadeAlpha);
-            consumer.addVertex(matrix, x+size, y+size, z-size).setColor(r, g, b, fadeAlpha);
-        }
-
-        matrices.popPose();
-        // context.consumers() flushes automatically at end of frame — no manual draw call needed
+        // TODO(26.3 port): DISABLED. context.matrices(), consumers() and getMainCamera() no longer exist.
+        // Re-implement with the new level render context (poseStack + submitNodeCollector).
+        // The original body is in git history, in the commit before this one.
     }
 }

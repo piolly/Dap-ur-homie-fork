@@ -31,7 +31,7 @@ public class GroundPoundClientHandler {
                         }
                     }
                 }));
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "groundpoundclienthandler_renderhud"), groundpoundclienthandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "groundpoundclienthandler_renderhud"), GroundPoundClientHandler::renderhud);
     }
     private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
         if (!localDiving) return;
