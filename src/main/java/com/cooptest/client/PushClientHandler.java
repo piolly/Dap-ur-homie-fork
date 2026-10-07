@@ -1,8 +1,8 @@
 package com.cooptest.client;
 import com.cooptest.PushInteractionHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionHand;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -13,17 +13,17 @@ public class PushClientHandler {
         ClientPlayNetworking.registerGlobalReceiver(PushInteractionHandler.PushAnimPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
                     pushAnimStart.put(payload.playerId(), System.currentTimeMillis());
-                    MinecraftClient client = context.client();
-                    if (client.world != null) {
-                        for (var player : client.world.getPlayers()) {
-                            if (player.getUuid().equals(payload.playerId())) {
+                    Minecraft client = context.client();
+                    if (client.level != null) {
+                        for (var player : client.level.players()) {
+                            if (player.getUUID().equals(payload.playerId())) {
                                 CoopAnimationHandler.playPushAnimation(player);
                                 break;
                             }
                         }
                     }
-                    if (client.player != null && client.player.getUuid().equals(payload.playerId())) {
-                        client.player.swingHand(Hand.MAIN_HAND);
+                    if (client.player != null && client.player.getUUID().equals(payload.playerId())) {
+                        client.player.swing(InteractionHand.MAIN_HAND);
                     }
                 }));
     }

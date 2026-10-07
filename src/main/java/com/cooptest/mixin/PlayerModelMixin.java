@@ -4,13 +4,6 @@ import com.cooptest.ArmPoseTracker;
 import com.cooptest.GrabInputHandler;
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +11,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * ==================================================================================
@@ -40,7 +40,7 @@ import java.util.UUID;
  *
  * ==================================================================================
  */
-@Mixin(PlayerEntityModel.class)
+@Mixin(PlayerModel.class)
 public class PlayerModelMixin<T extends LivingEntity> {
 
 
@@ -101,18 +101,18 @@ public class PlayerModelMixin<T extends LivingEntity> {
     // END ADJUSTABLE SETTINGS
     // ==================================================================================
 
-    @Inject(method = "setAngles(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;)V", at = @At("TAIL"))
-    private void injectPose(PlayerEntityRenderState state, CallbackInfo ci) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
-        Entity entity = client.world.getEntityById(state.id);
-        if (!(entity instanceof PlayerEntity player)) return;
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
+    private void injectPose(AvatarRenderState state, CallbackInfo ci) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) return;
+        Entity entity = client.level.getEntity(state.id);
+        if (!(entity instanceof Player player)) return;
 
-        UUID playerId = player.getUuid();
+        UUID playerId = player.getUUID();
         PoseState pose = PoseNetworking.poseStates.getOrDefault(playerId, PoseState.NONE);
         PoseState lastPose = ArmPoseTracker.lastPose.getOrDefault(playerId, PoseState.NONE);
 
-        PlayerEntityModel model = (PlayerEntityModel) (Object) this;
+        PlayerModel model = (PlayerModel) (Object) this;
         ModelPart rightArm = model.rightArm;
         ModelPart leftArm = model.leftArm;
         ModelPart body = model.body;
@@ -121,12 +121,12 @@ public class PlayerModelMixin<T extends LivingEntity> {
         ModelPart leftLeg = model.leftLeg;
 
         // Store base angles (from vanilla animations like walking)
-        float baseRightPitch = rightArm.pitch;
-        float baseLeftPitch = leftArm.pitch;
-        float baseRightYaw = rightArm.yaw;
-        float baseLeftYaw = leftArm.yaw;
+        float baseRightPitch = rightArm.xRot;
+        float baseLeftPitch = leftArm.xRot;
+        float baseRightYaw = rightArm.yRot;
+        float baseLeftYaw = leftArm.yRot;
 
-        boolean isSwinging = player.handSwinging;
+        boolean isSwinging = player.swinging;
         boolean isUsingItem = player.isUsingItem();
 
         // ==================== GRABBED/THROWN POSE (superman) ====================
@@ -135,42 +135,42 @@ public class PlayerModelMixin<T extends LivingEntity> {
         if (pose == PoseState.GRABBED) {
             // Check if player is riding an armor stand (shield mode)
             // In shield mode, PAL handles the animation, so skip superman pose
-            if (player.hasVehicle() && !(player.getVehicle() instanceof PlayerEntity)) {
+            if (player.isPassenger() && !(player.getVehicle() instanceof Player)) {
                 // Riding armor stand (shield mode) - let PAL handle animation
                 ArmPoseTracker.lastPose.put(playerId, pose);
                 return;
             }
 
-            body.pitch = 0;
-            body.yaw = 0;
-            body.roll = 0;
+            body.xRot = 0;
+            body.yRot = 0;
+            body.zRot = 0;
 
-            head.pitch = (float) Math.toRadians(SUPERMAN_HEAD_PITCH);
-            head.yaw = 0;
-            head.roll = 0;
+            head.xRot = (float) Math.toRadians(SUPERMAN_HEAD_PITCH);
+            head.yRot = 0;
+            head.zRot = 0;
 
-            rightArm.pitch = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_PITCH);
-            rightArm.yaw = 0;
-            rightArm.roll = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_ROLL);
+            rightArm.xRot = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_PITCH);
+            rightArm.yRot = 0;
+            rightArm.zRot = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_ROLL);
 
-            leftArm.pitch = (float) Math.toRadians(SUPERMAN_LEFT_ARM_PITCH);
-            leftArm.yaw = 0;
-            leftArm.roll = (float) Math.toRadians(SUPERMAN_LEFT_ARM_ROLL);
+            leftArm.xRot = (float) Math.toRadians(SUPERMAN_LEFT_ARM_PITCH);
+            leftArm.yRot = 0;
+            leftArm.zRot = (float) Math.toRadians(SUPERMAN_LEFT_ARM_ROLL);
 
-            rightLeg.pitch = 0;
-            rightLeg.yaw = 0;
-            rightLeg.roll = (float) Math.toRadians(SUPERMAN_LEG_ROLL);
+            rightLeg.xRot = 0;
+            rightLeg.yRot = 0;
+            rightLeg.zRot = (float) Math.toRadians(SUPERMAN_LEG_ROLL);
 
-            leftLeg.pitch = 0;
-            leftLeg.yaw = 0;
-            leftLeg.roll = (float) Math.toRadians(-SUPERMAN_LEG_ROLL);
+            leftLeg.xRot = 0;
+            leftLeg.yRot = 0;
+            leftLeg.zRot = (float) Math.toRadians(-SUPERMAN_LEG_ROLL);
 
-            model.rightSleeve.setTransform(rightArm.getTransform());
-            model.leftSleeve.setTransform(leftArm.getTransform());
-            model.rightPants.setTransform(rightLeg.getTransform());
-            model.leftPants.setTransform(leftLeg.getTransform());
-            model.jacket.setTransform(body.getTransform());
-            model.hat.setTransform(head.getTransform());
+            model.rightSleeve.loadPose(rightArm.storePose());
+            model.leftSleeve.loadPose(leftArm.storePose());
+            model.rightPants.loadPose(rightLeg.storePose());
+            model.leftPants.loadPose(leftLeg.storePose());
+            model.jacket.loadPose(body.storePose());
+            model.hat.loadPose(head.storePose());
 
             ArmPoseTracker.lastPose.put(playerId, pose);
             return;
@@ -178,40 +178,40 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
         // ==================== THROWN PLAYER (superman pose) ====================
         // Check if player was recently thrown (not riding anymore but in air)
-        if (pose == PoseState.NONE && !player.isOnGround() && !player.hasVehicle()) {
+        if (pose == PoseState.NONE && !player.onGround() && !player.isPassenger()) {
             // Check if this player is being tracked as thrown
             if (com.cooptest.GrabMechanic.isPlayerThrown(playerId)) {
                 // Apply superman pose
-                body.pitch = 0;
-                body.yaw = 0;
-                body.roll = 0;
+                body.xRot = 0;
+                body.yRot = 0;
+                body.zRot = 0;
 
-                head.pitch = (float) Math.toRadians(SUPERMAN_HEAD_PITCH);
-                head.yaw = 0;
-                head.roll = 0;
+                head.xRot = (float) Math.toRadians(SUPERMAN_HEAD_PITCH);
+                head.yRot = 0;
+                head.zRot = 0;
 
-                rightArm.pitch = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_PITCH);
-                rightArm.yaw = 0;
-                rightArm.roll = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_ROLL);
+                rightArm.xRot = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_PITCH);
+                rightArm.yRot = 0;
+                rightArm.zRot = (float) Math.toRadians(SUPERMAN_RIGHT_ARM_ROLL);
 
-                leftArm.pitch = (float) Math.toRadians(SUPERMAN_LEFT_ARM_PITCH);
-                leftArm.yaw = 0;
-                leftArm.roll = (float) Math.toRadians(SUPERMAN_LEFT_ARM_ROLL);
+                leftArm.xRot = (float) Math.toRadians(SUPERMAN_LEFT_ARM_PITCH);
+                leftArm.yRot = 0;
+                leftArm.zRot = (float) Math.toRadians(SUPERMAN_LEFT_ARM_ROLL);
 
-                rightLeg.pitch = 0;
-                rightLeg.yaw = 0;
-                rightLeg.roll = (float) Math.toRadians(SUPERMAN_LEG_ROLL);
+                rightLeg.xRot = 0;
+                rightLeg.yRot = 0;
+                rightLeg.zRot = (float) Math.toRadians(SUPERMAN_LEG_ROLL);
 
-                leftLeg.pitch = 0;
-                leftLeg.yaw = 0;
-                leftLeg.roll = (float) Math.toRadians(-SUPERMAN_LEG_ROLL);
+                leftLeg.xRot = 0;
+                leftLeg.yRot = 0;
+                leftLeg.zRot = (float) Math.toRadians(-SUPERMAN_LEG_ROLL);
 
-                model.rightSleeve.setTransform(rightArm.getTransform());
-                model.leftSleeve.setTransform(leftArm.getTransform());
-                model.rightPants.setTransform(rightLeg.getTransform());
-                model.leftPants.setTransform(leftLeg.getTransform());
-                model.jacket.setTransform(body.getTransform());
-                model.hat.setTransform(head.getTransform());
+                model.rightSleeve.loadPose(rightArm.storePose());
+                model.leftSleeve.loadPose(leftArm.storePose());
+                model.rightPants.loadPose(rightLeg.storePose());
+                model.leftPants.loadPose(leftLeg.storePose());
+                model.jacket.loadPose(body.storePose());
+                model.hat.loadPose(head.storePose());
 
                 ArmPoseTracker.lastPose.put(playerId, pose);
                 return;
@@ -220,9 +220,9 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
 
         if (pose == PoseState.GRAB_HOLDING) {
-            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-            boolean isLocalPlayer = mc.player != null && mc.player.getUuid().equals(playerId);
-            boolean isFirstPerson = mc.options.getPerspective().isFirstPerson();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            boolean isLocalPlayer = mc.player != null && mc.player.getUUID().equals(playerId);
+            boolean isFirstPerson = mc.options.getCameraType().isFirstPerson();
 
             if (!isLocalPlayer || !isFirstPerson) {
                 // Let PAL handle third person
@@ -233,9 +233,9 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
 
         if (pose == PoseState.GRAB_READY) {
-            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-            boolean isLocalPlayer = mc.player != null && mc.player.getUuid().equals(playerId);
-            boolean isFirstPerson = mc.options.getPerspective().isFirstPerson();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            boolean isLocalPlayer = mc.player != null && mc.player.getUUID().equals(playerId);
+            boolean isFirstPerson = mc.options.getCameraType().isFirstPerson();
 
             if (!isLocalPlayer || !isFirstPerson) {
                 // Let PAL handle third person
@@ -246,9 +246,9 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
 
         if (pose == PoseState.PUSH_IDLE || pose == PoseState.PUSH_ACTION || pose == PoseState.PUSH_RETURN) {
-            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-            boolean isLocalPlayer = mc.player != null && mc.player.getUuid().equals(playerId);
-            boolean isFirstPerson = mc.options.getPerspective().isFirstPerson();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            boolean isLocalPlayer = mc.player != null && mc.player.getUUID().equals(playerId);
+            boolean isFirstPerson = mc.options.getCameraType().isFirstPerson();
 
             if (!isLocalPlayer || !isFirstPerson) {
                 ArmPoseTracker.lastPose.put(playerId, pose);
@@ -259,16 +259,16 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
         boolean hasHandRaised = com.cooptest.HighFiveHandler.hasHandRaised(playerId);
         if (hasHandRaised) {
-            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-            boolean isLocalPlayer = mc.player != null && mc.player.getUuid().equals(playerId);
-            boolean isFirstPerson = mc.options.getPerspective().isFirstPerson();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            boolean isLocalPlayer = mc.player != null && mc.player.getUUID().equals(playerId);
+            boolean isFirstPerson = mc.options.getCameraType().isFirstPerson();
 
             if (isLocalPlayer && isFirstPerson) {
-                rightArm.pitch = (float) Math.toRadians(-100f);  // Arm up
-                rightArm.yaw = (float) Math.toRadians(30f);      // Slightly out
-                rightArm.roll = 0f;
+                rightArm.xRot = (float) Math.toRadians(-100f);  // Arm up
+                rightArm.yRot = (float) Math.toRadians(30f);      // Slightly out
+                rightArm.zRot = 0f;
 
-                model.rightSleeve.setTransform(rightArm.getTransform());
+                model.rightSleeve.loadPose(rightArm.storePose());
                 ArmPoseTracker.lastPose.put(playerId, pose);
                 return;
             }
@@ -408,9 +408,9 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
         } else if (com.cooptest.client.ChargedDapClientHandler.isPlayerCharging(playerId)) {
 
-            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-            boolean isLocalPlayer = mc.player != null && mc.player.getUuid().equals(playerId);
-            boolean isFirstPerson = mc.options.getPerspective().isFirstPerson();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            boolean isLocalPlayer = mc.player != null && mc.player.getUUID().equals(playerId);
+            boolean isFirstPerson = mc.options.getCameraType().isFirstPerson();
 
             if (!isLocalPlayer || !isFirstPerson) {
                 ArmPoseTracker.lastPose.put(playerId, pose);
@@ -533,30 +533,30 @@ public class PlayerModelMixin<T extends LivingEntity> {
 
         if (useAbsoluteAngles) {
 
-            rightArm.pitch = currRightPitch + (float) Math.toRadians(directJitterPitch);
-            leftArm.pitch = currLeftPitch;
-            rightArm.yaw = currRightYaw + (float) Math.toRadians(directJitterYaw);
-            leftArm.yaw = currLeftYaw;
-            rightArm.roll = currRightRoll + (float) Math.toRadians(directJitterRoll);
-            leftArm.roll = currLeftRoll;
+            rightArm.xRot = currRightPitch + (float) Math.toRadians(directJitterPitch);
+            leftArm.xRot = currLeftPitch;
+            rightArm.yRot = currRightYaw + (float) Math.toRadians(directJitterYaw);
+            leftArm.yRot = currLeftYaw;
+            rightArm.zRot = currRightRoll + (float) Math.toRadians(directJitterRoll);
+            leftArm.zRot = currLeftRoll;
         } else {
-            rightArm.pitch = baseRightPitch + currRightPitch;
-            leftArm.pitch = baseLeftPitch + currLeftPitch;
-            rightArm.yaw = baseRightYaw + currRightYaw;
-            leftArm.yaw = baseLeftYaw + currLeftYaw;
-            rightArm.roll += currRightRoll;
-            leftArm.roll += currLeftRoll;
+            rightArm.xRot = baseRightPitch + currRightPitch;
+            leftArm.xRot = baseLeftPitch + currLeftPitch;
+            rightArm.yRot = baseRightYaw + currRightYaw;
+            leftArm.yRot = baseLeftYaw + currLeftYaw;
+            rightArm.zRot += currRightRoll;
+            leftArm.zRot += currLeftRoll;
         }
 
 
         boolean shouldApplyBodyLean = inThrowAnimation || (pose == PoseState.GRAB_HOLDING && isCharging);
         if (shouldApplyBodyLean && Math.abs(currBodyLean) > 0.01f) {
-            body.pitch += currBodyLean;
-            model.jacket.setTransform(body.getTransform());
+            body.xRot += currBodyLean;
+            model.jacket.loadPose(body.storePose());
         }
 
-        model.rightSleeve.setTransform(rightArm.getTransform());
-        model.leftSleeve.setTransform(leftArm.getTransform());
+        model.rightSleeve.loadPose(rightArm.storePose());
+        model.leftSleeve.loadPose(leftArm.storePose());
 
         ArmPoseTracker.lastPose.put(playerId, pose);
     }

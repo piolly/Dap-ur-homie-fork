@@ -5,19 +5,18 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
-
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,19 +32,19 @@ public class FallCatchHandler {
     private static final Map<UUID, Long> catchReadyTime = new HashMap<>();
     private static final Map<UUID, Long> catchCooldowns = new HashMap<>();
     private static final Map<UUID, Boolean> successfulCatch = new HashMap<>();
-    public static final Identifier CATCH_ANIM_ID = Identifier.of("cooptest", "catch_anim");
-    public record CatchAnimPayload(UUID catcherId, UUID caughtId) implements CustomPayload {
-        public static final Id<CatchAnimPayload> ID = new Id<>(CATCH_ANIM_ID);
-        public static final PacketCodec<PacketByteBuf, CatchAnimPayload> CODEC =
-                PacketCodec.of(
+    public static final Identifier CATCH_ANIM_ID = Identifier.fromNamespaceAndPath("cooptest", "catch_anim");
+    public record CatchAnimPayload(UUID catcherId, UUID caughtId) implements CustomPacketPayload {
+        public static final Type<CatchAnimPayload> ID = new Type<>(CATCH_ANIM_ID);
+        public static final StreamCodec<FriendlyByteBuf, CatchAnimPayload> CODEC =
+                StreamCodec.ofMember(
                         (payload, buf) -> {
-                            buf.writeUuid(payload.catcherId);
-                            buf.writeUuid(payload.caughtId);
+                            buf.writeUUID(payload.catcherId);
+                            buf.writeUUID(payload.caughtId);
                         },
-                        buf -> new CatchAnimPayload(buf.readUuid(), buf.readUuid())
+                        buf -> new CatchAnimPayload(buf.readUUID(), buf.readUUID())
                 );
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
     public static void registerPayloads() {
@@ -67,9 +66,9 @@ public class FallCatchHandler {
                     if (!successfulCatch.getOrDefault(playerId, false)) {
                         catchCooldowns.put(playerId, now + CATCH_COOLDOWN_MS);
 
-                        ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerId);
+                        ServerPlayer player = server.getPlayerList().getPlayer(playerId);
                         if (player != null) {
-                            player.sendMessage(net.minecraft.text.Text.literal("§c✗ Catch missed! 1 sec cooldown"), true);
+                            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Catch missed! 1 sec cooldown"), true);
                         }
                     }
                     it.remove();
@@ -77,8 +76,8 @@ public class FallCatchHandler {
                 }
             }
 
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                UUID playerId = player.getUuid();
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                UUID playerId = player.getUUID();
                 PoseState pose = PoseNetworking.poseStates.getOrDefault(playerId, PoseState.NONE);
 
                 if (pose == PoseState.GRAB_READY && !catchReadyTime.containsKey(playerId)) {
@@ -89,14 +88,14 @@ public class FallCatchHandler {
         });
 
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
-            if (!(entity instanceof ServerPlayerEntity fallingPlayer)) return true;
-            if (!source.isOf(DamageTypes.FALL)) return true;
+            if (!(entity instanceof ServerPlayer fallingPlayer)) return true;
+            if (!source.is(DamageTypes.FALL)) return true;
 
-            ServerPlayerEntity catcher = findCatcher(fallingPlayer);
+            ServerPlayer catcher = findCatcher(fallingPlayer);
             if (catcher != null) {
                 playCatchEffects(fallingPlayer, catcher);
 
-                successfulCatch.put(catcher.getUuid(), true);
+                successfulCatch.put(catcher.getUUID(), true);
 
                 return false; 
             }
@@ -129,12 +128,12 @@ public class FallCatchHandler {
         return !isOnCatchCooldown(playerId);
     }
 
-    private static ServerPlayerEntity findCatcher(ServerPlayerEntity fallingPlayer) {
-        ServerWorld world = fallingPlayer.getEntityWorld();
+    private static ServerPlayer findCatcher(ServerPlayer fallingPlayer) {
+        ServerLevel world = fallingPlayer.level();
         long now = System.currentTimeMillis();
 
         // Search in a generous area around the falling player
-        Box searchBox = new Box(
+        AABB searchBox = new AABB(
                 fallingPlayer.getX() - CATCH_RANGE_HORIZONTAL,
                 fallingPlayer.getY() - 2, // Below
                 fallingPlayer.getZ() - CATCH_RANGE_HORIZONTAL,
@@ -143,11 +142,11 @@ public class FallCatchHandler {
                 fallingPlayer.getZ() + CATCH_RANGE_HORIZONTAL
         );
 
-        for (PlayerEntity player : world.getPlayers()) {
+        for (Player player : world.players()) {
             if (player == fallingPlayer) continue;
-            if (!(player instanceof ServerPlayerEntity catcher)) continue;
+            if (!(player instanceof ServerPlayer catcher)) continue;
 
-            UUID catcherId = catcher.getUuid();
+            UUID catcherId = catcher.getUUID();
 
             // Check if player is in GRAB_READY pose
             PoseState pose = PoseNetworking.poseStates.getOrDefault(catcherId, PoseState.NONE);
@@ -158,7 +157,7 @@ public class FallCatchHandler {
             Long readyTime = catchReadyTime.get(catcherId);
             if (readyTime == null) continue;
 
-            if (!searchBox.contains(catcher.getEntityPos())) continue;
+            if (!searchBox.contains(catcher.position())) continue;
 
             double dx = fallingPlayer.getX() - catcher.getX();
             double dz = fallingPlayer.getZ() - catcher.getZ();
@@ -172,41 +171,41 @@ public class FallCatchHandler {
         return null;
     }
 
-    private static void playCatchEffects(ServerPlayerEntity caught, ServerPlayerEntity catcher) {
-        ServerWorld world = catcher.getEntityWorld();
+    private static void playCatchEffects(ServerPlayer caught, ServerPlayer catcher) {
+        ServerLevel world = catcher.level();
         double x = (caught.getX() + catcher.getX()) / 2;
         double y = catcher.getY() + 1.5;
         double z = (caught.getZ() + catcher.getZ()) / 2;
 
         world.playSound(null, x, y, z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, SoundCategory.PLAYERS, 1.2f, 0.7f);
+                SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 1.2f, 0.7f);
         world.playSound(null, x, y, z,
-                SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 1.0f, 1.2f);
+                SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.2f);
         world.playSound(null, x, y, z,
-                SoundEvents.BLOCK_WOOL_FALL, SoundCategory.PLAYERS, 1.0f, 0.8f);
+                SoundEvents.WOOL_FALL, SoundSource.PLAYERS, 1.0f, 0.8f);
 
-        world.spawnParticles(ParticleTypes.CLOUD,
+        world.sendParticles(ParticleTypes.CLOUD,
                 x, y, z, 12, 0.4, 0.3, 0.4, 0.02);
-        world.spawnParticles(ParticleTypes.CRIT,
+        world.sendParticles(ParticleTypes.CRIT,
                 x, y, z, 8, 0.3, 0.3, 0.3, 0.1);
-        world.spawnParticles(ParticleTypes.WAX_ON,
+        world.sendParticles(ParticleTypes.WAX_ON,
                 x, y, z, 6, 0.2, 0.2, 0.2, 0.02);
 
-        caught.setVelocity(0, 0, 0);
-        caught.knockedBack = true;
+        caught.setDeltaMovement(0, 0, 0);
+        caught.hurtMarked = true;
 
-        CatchAnimPayload payload = new CatchAnimPayload(catcher.getUuid(), caught.getUuid());
-        for (ServerPlayerEntity nearby : PlayerLookup.tracking(catcher)) {
+        CatchAnimPayload payload = new CatchAnimPayload(catcher.getUUID(), caught.getUUID());
+        for (ServerPlayer nearby : PlayerLookup.tracking(catcher)) {
             ServerPlayNetworking.send(nearby, payload);
         }
         ServerPlayNetworking.send(catcher, payload);
         ServerPlayNetworking.send(caught, payload);
 
-        PoseNetworking.poseStates.put(catcher.getUuid(), PoseState.NONE);
-        PoseNetworking.broadcastPoseChange(catcher.getEntityWorld().getServer(), catcher.getUuid(), PoseState.NONE);
+        PoseNetworking.poseStates.put(catcher.getUUID(), PoseState.NONE);
+        PoseNetworking.broadcastPoseChange(catcher.level().getServer(), catcher.getUUID(), PoseState.NONE);
 
-        caught.sendMessage(net.minecraft.text.Text.literal("§a§l✓ " + catcher.getName().getString() + " caught you!"), true);
-        catcher.sendMessage(net.minecraft.text.Text.literal("§a§l✓ PERFECT CATCH! " + caught.getName().getString()), true);
+        caught.displayClientMessage(net.minecraft.network.chat.Component.literal("§a§l✓ " + catcher.getName().getString() + " caught you!"), true);
+        catcher.displayClientMessage(net.minecraft.network.chat.Component.literal("§a§l✓ PERFECT CATCH! " + caught.getName().getString()), true);
     }
 
    

@@ -2,11 +2,10 @@ package com.cooptest.client;
 import com.cooptest.SpinHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -23,9 +22,9 @@ public class SpinClientHandler {
                     UUID id = payload.playerId();
                     boolean spinning = payload.spinning();
                     spinningPlayers.put(id, spinning);
-                    MinecraftClient client = context.client();
+                    Minecraft client = context.client();
                     if (client.player == null) return;
-                    boolean isLocal = client.player.getUuid().equals(id);
+                    boolean isLocal = client.player.getUUID().equals(id);
                     if (isLocal) {
                         localSpinning = spinning;
                         if (spinning) {
@@ -35,9 +34,9 @@ public class SpinClientHandler {
                             FirstPersonAnimationTest.stop();
                         }
                     }
-                    if (client.world != null) {
-                        for (var player : client.world.getPlayers()) {
-                            if (player.getUuid().equals(id)) {
+                    if (client.level != null) {
+                        for (var player : client.level.players()) {
+                            if (player.getUUID().equals(id)) {
                                 if (spinning) {
                                     CoopAnimationHandler.playSpinAnimation(player);
                                 }
@@ -48,9 +47,9 @@ public class SpinClientHandler {
                 }));
         ClientPlayNetworking.registerGlobalReceiver(SpinHandler.HelicopterLaunchPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
-                    MinecraftClient client = context.client();
+                    Minecraft client = context.client();
                     if (client.player == null) return;
-                    UUID localId = client.player.getUuid();
+                    UUID localId = client.player.getUUID();
                     boolean isSpinner = localId.equals(payload.spinnerId());
                     boolean isRider   = localId.equals(payload.riderId());
                     if (isSpinner || isRider) {
@@ -61,11 +60,11 @@ public class SpinClientHandler {
                 }));
         HudRenderCallback.EVENT.register(SpinClientHandler::renderHUD);
     }
-    private static void renderHUD(DrawContext context, RenderTickCounter tc) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.options.hudHidden) return;
-        int sw = context.getScaledWindowWidth();
-        int sh = context.getScaledWindowHeight();
+    private static void renderHUD(GuiGraphics context, DeltaTracker tc) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || client.options.hideGui) return;
+        int sw = context.guiWidth();
+        int sh = context.guiHeight();
         if (launchFlashActive) {
             long e = System.currentTimeMillis() - launchFlashStart;
             if (e > LAUNCH_FLASH_MS) {
@@ -81,8 +80,8 @@ public class SpinClientHandler {
         float pulse = (float)(Math.sin(System.currentTimeMillis() / 180.0) * 0.2 + 0.8);
         int a = (int)(pulse * 200) << 24;
         String label = localHasRider ? "↻ SPINNING  [SHIFT] LAUNCH!" : "↻ SPINNING";
-        int lx = (sw - client.textRenderer.getWidth(label)) / 2;
-        context.drawText(client.textRenderer, Text.literal((localHasRider ? "§e§l" : "§b") + label),
+        int lx = (sw - client.font.width(label)) / 2;
+        context.drawString(client.font, Component.literal((localHasRider ? "§e§l" : "§b") + label),
                 lx, sh / 2 - 30, a | 0xFFFFFF, true);
     }
     public static void onRiderAttached()                         { localHasRider = true; }
@@ -91,8 +90,8 @@ public class SpinClientHandler {
     public static void forceStopLocalSpin()                     { localSpinning = false; }
     public static void cleanup(UUID id) {
         spinningPlayers.remove(id);
-        MinecraftClient c = MinecraftClient.getInstance();
-        if (c.player != null && c.player.getUuid().equals(id)) {
+        Minecraft c = Minecraft.getInstance();
+        if (c.player != null && c.player.getUUID().equals(id)) {
             localSpinning = false;
             localHasRider = false;
         }

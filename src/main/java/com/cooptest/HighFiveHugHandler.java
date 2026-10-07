@@ -2,20 +2,20 @@ package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 public class HighFiveHugHandler {
     private static final double HUG_DISTANCE = 4.0;
@@ -32,13 +32,13 @@ public class HighFiveHugHandler {
         HUGGING,
         ENDING
     }
-    public static final Identifier HUG_HOLD_ID = Identifier.of("cooptest", "hug_hold");
-    public record HugHoldPayload() implements CustomPayload {
-        public static final Id<HugHoldPayload> ID = new Id<>(HUG_HOLD_ID);
-        public static final PacketCodec<PacketByteBuf, HugHoldPayload> CODEC =
-                PacketCodec.unit(new HugHoldPayload());
+    public static final Identifier HUG_HOLD_ID = Identifier.fromNamespaceAndPath("cooptest", "hug_hold");
+    public record HugHoldPayload() implements CustomPacketPayload {
+        public static final Type<HugHoldPayload> ID = new Type<>(HUG_HOLD_ID);
+        public static final StreamCodec<FriendlyByteBuf, HugHoldPayload> CODEC =
+                StreamCodec.unit(new HugHoldPayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
         PayloadTypeRegistry.playC2S().register(HugHoldPayload.ID, HugHoldPayload.CODEC);
@@ -48,22 +48,22 @@ public class HighFiveHugHandler {
     }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(HugHoldPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> {
                 onPlayerHoldingH(player);
             });
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> tick(server));
     }
-    public static void startHugHold(ServerPlayerEntity p1, ServerPlayerEntity p2) {
+    public static void startHugHold(ServerPlayer p1, ServerPlayer p2) {
         long now = System.currentTimeMillis();
-        hugHoldStart.put(p1.getUuid(), now);
-        hugHoldStart.put(p2.getUuid(), now);
-        hugPartner.put(p1.getUuid(), p2.getUuid());
-        hugPartner.put(p2.getUuid(), p1.getUuid());
+        hugHoldStart.put(p1.getUUID(), now);
+        hugHoldStart.put(p2.getUUID(), now);
+        hugPartner.put(p1.getUUID(), p2.getUUID());
+        hugPartner.put(p2.getUUID(), p1.getUUID());
     }
-    private static void onPlayerHoldingH(ServerPlayerEntity player) {
-        UUID playerId = player.getUuid();
+    private static void onPlayerHoldingH(ServerPlayer player) {
+        UUID playerId = player.getUUID();
         long now = System.currentTimeMillis();
         lastHUpdate.put(playerId, now);
         Long holdStart = hugHoldStart.get(playerId);
@@ -74,7 +74,7 @@ public class HighFiveHugHandler {
         }
         UUID partnerId = hugPartner.get(playerId);
         if (partnerId == null) return;
-        ServerPlayerEntity partner = player.getEntityWorld().getServer().getPlayerManager().getPlayer(partnerId);
+        ServerPlayer partner = player.level().getServer().getPlayerList().getPlayer(partnerId);
         if (partner == null) return;
         Long partnerHoldStart = hugHoldStart.get(partnerId);
         if (partnerHoldStart == null) return;
@@ -86,16 +86,16 @@ public class HighFiveHugHandler {
         if (partnerLastH == null || now - partnerLastH > 1000) {
             return;
         }
-        double distance = player.getEntityPos().distanceTo(partner.getEntityPos());
+        double distance = player.position().distanceTo(partner.position());
         if (distance > HUG_DISTANCE) {
-            player.sendMessage(Text.literal("§c❤ Get closer to hug! ❤"), true);
+            player.displayClientMessage(Component.literal("§c❤ Get closer to hug! ❤"), true);
             return;
         }
         startHug(player, partner);
     }
-    private static void startHug(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+    private static void startHug(ServerPlayer p1, ServerPlayer p2) {
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
         long now = System.currentTimeMillis();
         hugHoldStart.remove(id1);
         hugHoldStart.remove(id2);
@@ -105,8 +105,8 @@ public class HighFiveHugHandler {
         hugStartTime.put(id2, now);
         PoseNetworking.broadcastAnimState(p1, 32);
         PoseNetworking.broadcastAnimState(p2, 32);
-        p1.sendMessage(Text.literal("§d❤ Hugging... ❤"), true);
-        p2.sendMessage(Text.literal("§d❤ Hugging... ❤"), true);
+        p1.displayClientMessage(Component.literal("§d❤ Hugging... ❤"), true);
+        p2.displayClientMessage(Component.literal("§d❤ Hugging... ❤"), true);
     }
     private static void tick(MinecraftServer server) {
         long now = System.currentTimeMillis();
@@ -127,7 +127,7 @@ public class HighFiveHugHandler {
             if (processedPlayers.contains(playerId)) {
                 continue;
             }
-            ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerId);
+            ServerPlayer player = server.getPlayerList().getPlayer(playerId);
             if (player == null) {
                 hugState.remove(playerId);
                 hugPartner.remove(playerId);
@@ -142,7 +142,7 @@ public class HighFiveHugHandler {
                 lastHUpdate.remove(playerId);
                 continue;
             }
-            ServerPlayerEntity partner = server.getPlayerManager().getPlayer(partnerId);
+            ServerPlayer partner = server.getPlayerList().getPlayer(partnerId);
             if (partner == null) {
                 hugState.remove(playerId);
                 hugPartner.remove(playerId);
@@ -167,18 +167,18 @@ public class HighFiveHugHandler {
                     stateChanges.add(() -> endHug(player, partner));
                     continue;
                 }
-                double distance = player.getEntityPos().distanceTo(partner.getEntityPos());
+                double distance = player.position().distanceTo(partner.position());
                 if (distance > 1.0) {
-                    Vec3d playerPos = player.getEntityPos();
-                    Vec3d partnerPos = partner.getEntityPos();
-                    Vec3d direction = partnerPos.subtract(playerPos).normalize();
+                    Vec3 playerPos = player.position();
+                    Vec3 partnerPos = partner.position();
+                    Vec3 direction = partnerPos.subtract(playerPos).normalize();
                     double targetDistance = 0.8;
-                    Vec3d midpoint = playerPos.add(partnerPos).multiply(0.5);
-                    Vec3d offset = direction.multiply(targetDistance / 2.0);
-                    Vec3d targetPlayer = midpoint.subtract(offset);
-                    Vec3d targetPartner = midpoint.add(offset);
-                    player.teleport(player.getEntityWorld(), targetPlayer.x, targetPlayer.y, targetPlayer.z, java.util.Set.of(), player.getYaw(), player.getPitch(), false);
-                    partner.teleport(partner.getEntityWorld(), targetPartner.x, targetPartner.y, targetPartner.z, java.util.Set.of(), partner.getYaw(), partner.getPitch(), false);
+                    Vec3 midpoint = playerPos.add(partnerPos).scale(0.5);
+                    Vec3 offset = direction.scale(targetDistance / 2.0);
+                    Vec3 targetPlayer = midpoint.subtract(offset);
+                    Vec3 targetPartner = midpoint.add(offset);
+                    player.teleportTo(player.level(), targetPlayer.x, targetPlayer.y, targetPlayer.z, java.util.Set.of(), player.getYRot(), player.getXRot(), false);
+                    partner.teleportTo(partner.level(), targetPartner.x, targetPartner.y, targetPartner.z, java.util.Set.of(), partner.getYRot(), partner.getXRot(), false);
                 } else if (distance > HUG_DISTANCE + 0.5) {
                     stateChanges.add(() -> endHug(player, partner));
                     continue;
@@ -200,9 +200,9 @@ public class HighFiveHugHandler {
             change.run();
         }
     }
-    private static void transitionToHugging(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+    private static void transitionToHugging(ServerPlayer p1, ServerPlayer p2) {
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
         long now = System.currentTimeMillis();
         Random random = new Random();
         boolean useHugging2 = random.nextBoolean();
@@ -219,22 +219,22 @@ public class HighFiveHugHandler {
         }
         applyHugEffects(p1, p2);
     }
-    private static void applyHugEffects(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        p1.addStatusEffect(new StatusEffectInstance(
-                StatusEffects.REGENERATION, 40, 1, false, false));
-        p2.addStatusEffect(new StatusEffectInstance(
-                StatusEffects.REGENERATION, 40, 1, false, false));
-        Vec3d pos = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1, 0);
-        ServerWorld world = p1.getEntityWorld();
-        world.spawnParticles(ParticleTypes.HEART,
+    private static void applyHugEffects(ServerPlayer p1, ServerPlayer p2) {
+        p1.addEffect(new MobEffectInstance(
+                MobEffects.REGENERATION, 40, 1, false, false));
+        p2.addEffect(new MobEffectInstance(
+                MobEffects.REGENERATION, 40, 1, false, false));
+        Vec3 pos = p1.position().add(p2.position()).scale(0.5).add(0, 1, 0);
+        ServerLevel world = p1.level();
+        world.sendParticles(ParticleTypes.HEART,
                 pos.x, pos.y, pos.z,
                 5, 0.3, 0.3, 0.3, 0.1);
         world.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.1f, 1.5f);
+                SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.1f, 1.5f);
     }
-    private static void endHug(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+    private static void endHug(ServerPlayer p1, ServerPlayer p2) {
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
         long now = System.currentTimeMillis();
         hugState.put(id1, HugState.ENDING);
         hugState.put(id2, HugState.ENDING);
@@ -242,8 +242,8 @@ public class HighFiveHugHandler {
         hugStartTime.put(id2, now);
         PoseNetworking.broadcastAnimState(p1, 35);
         PoseNetworking.broadcastAnimState(p2, 35);
-        p1.sendMessage(Text.literal("§e Hug ended "), true);
-        p2.sendMessage(Text.literal("§e Hug ended "), true);
+        p1.displayClientMessage(Component.literal("§e Hug ended "), true);
+        p2.displayClientMessage(Component.literal("§e Hug ended "), true);
     }
     public static boolean isInHugFreeze(UUID playerId) {
         HugState state = hugState.get(playerId);

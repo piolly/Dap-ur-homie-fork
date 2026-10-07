@@ -1,12 +1,12 @@
 package com.cooptest.mixin.client;
 
-import net.minecraft.client.input.Input;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.world.phys.Vec2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(Input.class)
+@Mixin(ClientInput.class)
 public interface InputAccessor {
-    @Accessor("movementVector")
-    void setMovementVector(Vec2f vec);
+    @Accessor("moveVector")
+    void setMovementVector(Vec2 vec);
 }

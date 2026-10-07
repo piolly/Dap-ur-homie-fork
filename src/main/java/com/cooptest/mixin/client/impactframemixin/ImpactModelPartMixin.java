@@ -1,10 +1,9 @@
 package com.cooptest.mixin.client.impactframemixin;
 
 import com.cooptest.client.CoopImpactHandler;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumers;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -17,7 +16,7 @@ public abstract class ImpactModelPartMixin {
     }
 
     @ModifyVariable(
-            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;II)V",
+            method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
             at = @At("HEAD"),
             argsOnly = true,
             ordinal = 0  // light
@@ -27,18 +26,18 @@ public abstract class ImpactModelPartMixin {
     }
 
     @ModifyVariable(
-            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;II)V",
+            method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
             at = @At("HEAD"),
             argsOnly = true,
             ordinal = 1  // overlay
     )
     private int forceOverlay(int overlay) {
         if (!shouldFlash()) return overlay;
-        return CoopImpactHandler.whiteFrame ? OverlayTexture.DEFAULT_UV : 0;
+        return CoopImpactHandler.whiteFrame ? OverlayTexture.NO_OVERLAY : 0;
     }
 
     @ModifyVariable(
-            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;II)V",
+            method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
             at = @At("HEAD"),
             argsOnly = true
     )
@@ -48,41 +47,41 @@ public abstract class ImpactModelPartMixin {
 
         return new VertexConsumer() {
             @Override
-            public VertexConsumer vertex(float x, float y, float z) {
-                return original.vertex(x, y, z);
+            public VertexConsumer addVertex(float x, float y, float z) {
+                return original.addVertex(x, y, z);
             }
             @Override
-            public VertexConsumer color(int argb) {
-                return white ? original.color(0xFF000000) : original.color(0xFFFFFFFF);
+            public VertexConsumer setColor(int argb) {
+                return white ? original.setColor(0xFF000000) : original.setColor(0xFFFFFFFF);
             }
 
             @Override
-            public VertexConsumer texture(float u, float v) {
+            public VertexConsumer setUv(float u, float v) {
                 return null;
             }
 
             @Override
-            public VertexConsumer overlay(int u, int v) {
+            public VertexConsumer setUv1(int u, int v) {
                 return null;
             }
 
             @Override
-            public VertexConsumer light(int u, int v) {
+            public VertexConsumer setUv2(int u, int v) {
                 return null;
             }
 
             @Override
-            public VertexConsumer normal(float x, float y, float z) {
+            public VertexConsumer setNormal(float x, float y, float z) {
                 return null;
             }
 
             @Override
-            public VertexConsumer color(int r, int g, int b, int a) {
-                return white ? original.color(0, 0, 0, 255) : original.color(255, 255, 255, 255);
+            public VertexConsumer setColor(int r, int g, int b, int a) {
+                return white ? original.setColor(0, 0, 0, 255) : original.setColor(255, 255, 255, 255);
             }
             @Override
-            public VertexConsumer lineWidth(float width) {
-                return original.lineWidth(width);
+            public VertexConsumer setLineWidth(float width) {
+                return original.setLineWidth(width);
             }
         };
     }

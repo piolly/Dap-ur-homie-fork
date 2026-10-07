@@ -1,7 +1,7 @@
 package com.cooptest.client;
 import com.cooptest.MahitoTrollHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -13,9 +13,9 @@ public class MahitoClientHandler {
                     context.client().execute(() -> {
                         UUID playerId = payload.playerId();
                         mahitoStartTime.put(playerId, System.currentTimeMillis());
-                        if (context.client().world != null) {
-                            for (PlayerEntity player : context.client().world.getPlayers()) {
-                                if (player.getUuid().equals(playerId)) {
+                        if (context.client().level != null) {
+                            for (Player player : context.client().level.players()) {
+                                if (player.getUUID().equals(playerId)) {
                                     CoopAnimationHandler.playMahitoAnimation(player);
                                     break;
                                 }

@@ -1,24 +1,24 @@
 package com.cooptest;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 
-public record QTEButtonPressPayload(String button) implements CustomPayload {
+public record QTEButtonPressPayload(String button) implements CustomPacketPayload {
 
-    public static final Identifier QTE_BUTTON_PRESS_ID = Identifier.of("cooptest", "qte_button_press");
-    public static final Id<QTEButtonPressPayload> ID = new Id<>(QTE_BUTTON_PRESS_ID);
+    public static final Identifier QTE_BUTTON_PRESS_ID = Identifier.fromNamespaceAndPath("cooptest", "qte_button_press");
+    public static final Type<QTEButtonPressPayload> ID = new Type<>(QTE_BUTTON_PRESS_ID);
 
-    public static final PacketCodec<RegistryByteBuf, QTEButtonPressPayload> CODEC = PacketCodec.tuple(
-            PacketCodecs.STRING, QTEButtonPressPayload::button,
+    public static final StreamCodec<RegistryFriendlyByteBuf, QTEButtonPressPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, QTEButtonPressPayload::button,
             QTEButtonPressPayload::new
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

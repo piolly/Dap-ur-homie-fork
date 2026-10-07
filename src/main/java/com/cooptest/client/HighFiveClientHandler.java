@@ -3,23 +3,23 @@ import com.cooptest.ChargedDapHandler;
 import com.cooptest.HighFiveHandler;
 import com.cooptest.HighFiveHugHandler;
 import com.cooptest.ModKeyCategories;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import org.lwjgl.glfw.GLFW;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 public class HighFiveClientHandler {
-    private static KeyBinding highFiveKey;
+    private static KeyMapping highFiveKey;
     private static boolean wasKeyPressed = false;
     private static long flashStartTime = 0;
     private static int currentTier = 0;
@@ -34,15 +34,15 @@ public class HighFiveClientHandler {
     private static boolean hugCameraLocked = false;
     private static final Map<UUID, Boolean> frozenPlayers = new HashMap<>();
     public static void register() {
-        highFiveKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.coopmoves.highfive", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, ModKeyCategories.COOPMOVES
+        highFiveKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.coopmoves.highfive", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, ModKeyCategories.COOPMOVES
         ));
         ClientPlayNetworking.registerGlobalReceiver(HighFiveHandler.HandRaisedSyncPayload.ID,
                 (payload, context) -> {
                     context.client().execute(() -> {
                         raisedHands.put(payload.playerId(), payload.raised());
-                        MinecraftClient client = context.client();
-                        if (client.player != null && client.player.getUuid().equals(payload.playerId())) {
+                        Minecraft client = context.client();
+                        if (client.player != null && client.player.getUUID().equals(payload.playerId())) {
                         }
                     });
                 }
@@ -52,11 +52,11 @@ public class HighFiveClientHandler {
                     context.client().execute(() -> {
                         UUID playerId = payload.playerId();
                         int animState = payload.animState();
-                        MinecraftClient client = context.client();
-                        if (client.world != null) {
+                        Minecraft client = context.client();
+                        if (client.level != null) {
                             boolean found = false;
-                            for (net.minecraft.entity.player.PlayerEntity player : client.world.getPlayers()) {
-                                if (player.getUuid().equals(playerId)) {
+                            for (net.minecraft.world.entity.player.Player player : client.level.players()) {
+                                if (player.getUUID().equals(playerId)) {
                                     found = true;
                                     switch (animState) {
                                         case 1 -> CoopAnimationHandler.playHighFiveStart(player);
@@ -93,9 +93,9 @@ public class HighFiveClientHandler {
                 (payload, context) -> {
                     context.client().execute(() -> {
                         inComboWindow = false;
-                        MinecraftClient client = context.client();
+                        Minecraft client = context.client();
                         if (client.player != null) {
-                            UUID myId = client.player.getUuid();
+                            UUID myId = client.player.getUUID();
                             CoopAnimationHandler.syncAnimState(myId, CoopAnimationHandler.AnimState.NONE);
                         }
                     });
@@ -110,23 +110,23 @@ public class HighFiveClientHandler {
         );
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null) return;
-            UUID hugCheckId = client.player.getUuid();
+            UUID hugCheckId = client.player.getUUID();
             boolean inHug = CoopAnimationHandler.isInHugAnim(hugCheckId);
             boolean inHuddle = CoopAnimationHandler.isInHuddleAnim(hugCheckId);
             if (inHug || inHuddle) {
                 if (!hugCameraLocked) {
-                    lockedHugPitch  = client.player.getPitch();
-                    lockedHugYaw    = client.player.getYaw();
+                    lockedHugPitch  = client.player.getXRot();
+                    lockedHugYaw    = client.player.getYRot();
                     hugCameraLocked = true;
                 }
-                client.player.setPitch(lockedHugPitch);
-                client.player.setYaw(lockedHugYaw);
-                if (client.player.lastPitch != lockedHugPitch) client.player.lastPitch = lockedHugPitch;
-                if (client.player.lastYaw   != lockedHugYaw)   client.player.lastYaw   = lockedHugYaw;
+                client.player.setXRot(lockedHugPitch);
+                client.player.setYRot(lockedHugYaw);
+                if (client.player.xRotO != lockedHugPitch) client.player.xRotO = lockedHugPitch;
+                if (client.player.yRotO   != lockedHugYaw)   client.player.yRotO   = lockedHugYaw;
             } else {
                 hugCameraLocked = false;
             }
-            UUID myId = client.player.getUuid();
+            UUID myId = client.player.getUUID();
             Long animStart = highFiveAnimStart.get(myId);
             if (animStart != null) {
                 long elapsed = System.currentTimeMillis() - animStart;
@@ -141,7 +141,7 @@ public class HighFiveClientHandler {
                     }
                 }
             }
-            boolean isKeyPressed = highFiveKey.isPressed();
+            boolean isKeyPressed = highFiveKey.isDown();
             if (isKeyPressed && !wasKeyPressed) {
                 if (ChargedDapClientHandler.isPlayerFrozen() && !QTEClientHandler.isActive()) {
                     wasKeyPressed = true;
@@ -181,7 +181,7 @@ public class HighFiveClientHandler {
                 inComboWindow = false;
             }
             {
-                long win = MinecraftClient.getInstance().getWindow().getHandle();
+                long win = Minecraft.getInstance().getWindow().handle();
                 boolean fHeld = GLFW.glfwGetKey(win, GLFW.GLFW_KEY_F) == GLFW.GLFW_PRESS;
                 if (fHeld) {
                     ClientPlayNetworking.send(new HighFiveHugHandler.HugHoldPayload());
@@ -189,12 +189,12 @@ public class HighFiveClientHandler {
             }
             if (!inComboWindow && isKeyPressed && !wasKeyPressed) {
                 if (ChargedDapClientHandler.isLocalPlayerCharging()) {
-                    client.player.sendMessage(Text.literal("§cCan't high five while charging dap!"), true);
-                } else if (!client.player.getMainHandStack().isEmpty()) {
-                    client.player.sendMessage(Text.literal("§cHands must be empty for high five!"), true);
+                    client.player.displayClientMessage(Component.literal("§cCan't high five while charging dap!"), true);
+                } else if (!client.player.getMainHandItem().isEmpty()) {
+                    client.player.displayClientMessage(Component.literal("§cHands must be empty for high five!"), true);
                 } else {
-                    raisedHands.put(client.player.getUuid(), true);
-                    boolean rightClickHeld = client.options.useKey.isPressed();
+                    raisedHands.put(client.player.getUUID(), true);
+                    boolean rightClickHeld = client.options.keyUse.isDown();
                     if (rightClickHeld) {
                         ClientPlayNetworking.send(new HighFiveHandler.SikeRequestPayload());
                     } else {
@@ -207,9 +207,9 @@ public class HighFiveClientHandler {
         HudRenderCallback.EVENT.register(HighFiveClientHandler::renderHUD);
     }
     private static void onHighFiveSuccess(double x, double y, double z, UUID player1, UUID player2, int tier) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        UUID myId = client.player.getUuid();
+        UUID myId = client.player.getUUID();
         if (myId.equals(player1) || myId.equals(player2)) {
             boolean before = raisedHands.getOrDefault(myId, false);
         }
@@ -224,7 +224,7 @@ public class HighFiveClientHandler {
         if (myId.equals(player1) || myId.equals(player2)) {
             flashStartTime = now;
             currentTier = tier;
-            client.player.swingHand(Hand.MAIN_HAND);
+            client.player.swing(InteractionHand.MAIN_HAND);
             String message = switch (tier) {
                 case 0 -> "§6 High Five!";
                 case 1 -> "§e Nice High Five! ";
@@ -232,14 +232,14 @@ public class HighFiveClientHandler {
                 case 3 -> "§c§l⚡ EXPLOSIVE HIGH FIVE! ⚡";
                 default -> "§6 High Five!";
             };
-            client.player.sendMessage(Text.literal(message), true);
+            client.player.displayClientMessage(Component.literal(message), true);
         }
     }
-    private static void renderHUD(DrawContext context, RenderTickCounter tickCounter) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
         long flashDuration = switch (currentTier) {
             case 0 -> 200;
             case 1 -> 250;
@@ -267,19 +267,19 @@ public class HighFiveClientHandler {
             };
             context.fill(0, 0, screenWidth, screenHeight, flashColor);
         }
-        UUID myId = client.player.getUuid();
+        UUID myId = client.player.getUUID();
         boolean handRaised = raisedHands.getOrDefault(myId, false);
         if (handRaised) {
             if (System.currentTimeMillis() % 2000 < 50) {
             }
             String text = " Ready for High Five!";
-            int textWidth = client.textRenderer.getWidth(text);
+            int textWidth = client.font.width(text);
             int textX = (screenWidth - textWidth) / 2;
             int textY = screenHeight / 2 - 40;
             float pulse = (float) (Math.sin(System.currentTimeMillis() / 150.0) * 0.3 + 0.7);
             int alpha = (int) (pulse * 255);
             int color = (alpha << 24) | 0xFFFF00;
-            context.drawText(client.textRenderer, text, textX, textY, color, true);
+            context.drawString(client.font, text, textX, textY, color, true);
         }
         if (inComboWindow && !FusionClientHandler.isQTEOpen() && !FusionClientHandler.isGWindowOpen()) {
             long elapsed = System.currentTimeMillis() - comboWindowStart;
@@ -289,18 +289,18 @@ public class HighFiveClientHandler {
                 String hKey = "H";
                 try {
                     var ck = com.cooptest.client.ChargedDapClientHandler.getChargeKey();
-                    if (ck != null) gKey = ck.getBoundKeyLocalizedText().getString().toUpperCase();
+                    if (ck != null) gKey = ck.getTranslatedKeyMessage().getString().toUpperCase();
                 } catch (Exception ignored) {}
                 try {
-                    if (highFiveKey != null) hKey = highFiveKey.getBoundKeyLocalizedText().getString().toUpperCase();
+                    if (highFiveKey != null) hKey = highFiveKey.getTranslatedKeyMessage().getString().toUpperCase();
                 } catch (Exception ignored) {}
                 float pulse = (float)(Math.sin(System.currentTimeMillis() / 80.0) * 0.4 + 0.6);
                 int alpha = (int)(pulse * 255);
                 int color = ((float) elapsed / COMBO_WINDOW_MS) < 0.5f
                         ? (alpha << 24) | 0xFFFF00 : (alpha << 24) | 0xFF4400;
                 String text = "[" + gKey + " + " + hKey + "] Combo  [" + gKey + "] Hug";
-                int tw = client.textRenderer.getWidth(text);
-                context.drawText(client.textRenderer, text,
+                int tw = client.font.width(text);
+                context.drawString(client.font, text,
                         (screenWidth - tw) / 2, screenHeight / 2 + 10, color, true);
             }
         }
@@ -311,12 +311,12 @@ public class HighFiveClientHandler {
     public static boolean hasHandRaised(UUID playerId) {
         return raisedHands.getOrDefault(playerId, false);
     }
-    public static net.minecraft.client.option.KeyBinding getHighFiveKey() { return highFiveKey; }
+    public static net.minecraft.client.KeyMapping getHighFiveKey() { return highFiveKey; }
     public static String getHighFiveBlockReason() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return "unknown";
-        UUID myId = client.player.getUuid();
-        if (highFiveKey != null && highFiveKey.isPressed()) {
+        UUID myId = client.player.getUUID();
+        if (highFiveKey != null && highFiveKey.isDown()) {
             return "H key pressed";
         }
         if (raisedHands.getOrDefault(myId, false)) {
@@ -337,10 +337,10 @@ public class HighFiveClientHandler {
         return "unknown";
     }
     public static boolean isLocalPlayerInHighFive() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return false;
-        UUID myId = client.player.getUuid();
-        if (highFiveKey != null && highFiveKey.isPressed()) {
+        UUID myId = client.player.getUUID();
+        if (highFiveKey != null && highFiveKey.isDown()) {
             return true;
         }
         if (raisedHands.getOrDefault(myId, false)) {
@@ -382,9 +382,9 @@ public class HighFiveClientHandler {
         frozenPlayers.remove(playerId);
     }
     public static boolean isLocalPlayerFrozen() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return false;
-        return frozenPlayers.getOrDefault(client.player.getUuid(), false);
+        return frozenPlayers.getOrDefault(client.player.getUUID(), false);
     }
     public static boolean isPlayerFrozen(UUID playerId) {
         return frozenPlayers.getOrDefault(playerId, false);

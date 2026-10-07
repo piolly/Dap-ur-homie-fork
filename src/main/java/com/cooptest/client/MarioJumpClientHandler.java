@@ -3,12 +3,11 @@ package com.cooptest.client;
 import com.cooptest.MarioJumpHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 
@@ -18,9 +17,9 @@ public class MarioJumpClientHandler {
 
     public static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.world == null) return;
+            if (client.player == null || client.level == null) return;
 
-            boolean isJumpPressed = client.options.jumpKey.isPressed();
+            boolean isJumpPressed = client.options.keyJump.isDown();
 
             if (isJumpPressed && !wasJumpPressed) {
                 if (isOnPlayerHead(client)) {
@@ -33,26 +32,26 @@ public class MarioJumpClientHandler {
     }
 
 
-    private static boolean isOnPlayerHead(MinecraftClient client) {
-        ClientPlayerEntity player = client.player;
+    private static boolean isOnPlayerHead(Minecraft client) {
+        LocalPlayer player = client.player;
         if (player == null) return false;
 
-        Vec3d playerPos = player.getEntityPos();
+        Vec3 playerPos = player.position();
         double playerFeetY = playerPos.y;
 
-        Box searchBox = new Box(
+        AABB searchBox = new AABB(
             playerPos.x - 0.8, playerPos.y - 2.5, playerPos.z - 0.8,
             playerPos.x + 0.8, playerPos.y + 0.5, playerPos.z + 0.8
         );
 
-        List<PlayerEntity> nearby = client.world.getEntitiesByClass(
-            PlayerEntity.class, searchBox,
+        List<Player> nearby = client.level.getEntitiesOfClass(
+            Player.class, searchBox,
             p -> p != player && p.isAlive()
         );
 
-        for (PlayerEntity target : nearby) {
-            Vec3d targetEntityPos = target.getEntityPos();
-            double targetHeadY = targetEntityPos.y + target.getStandingEyeHeight() + 0.15;
+        for (Player target : nearby) {
+            Vec3 targetEntityPos = target.position();
+            double targetHeadY = targetEntityPos.y + target.getEyeHeight() + 0.15;
 
             double heightDiff = playerFeetY - targetHeadY;
             if (heightDiff >= -0.35 && heightDiff <= 0.5) {

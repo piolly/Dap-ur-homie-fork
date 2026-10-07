@@ -2,19 +2,19 @@ package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 import static java.util.Collections.emptySet;
 public class DapHoldHandler {
@@ -24,66 +24,66 @@ public class DapHoldHandler {
     private static final long J_WINDOW_END_MS   = 1330;
     private static final double STOP_DISTANCE   = 1.5;
     private static final double TP_SPEED        = 0.08;
-    public record DapHoldStartPayload(UUID playerId, UUID partnerId, int role) implements CustomPayload {
-        public static final Id<DapHoldStartPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_start"));
-        public static final PacketCodec<PacketByteBuf, DapHoldStartPayload> CODEC = PacketCodec.of(
-                (p, buf) -> { buf.writeUuid(p.playerId()); buf.writeUuid(p.partnerId()); buf.writeInt(p.role()); },
-                buf -> new DapHoldStartPayload(buf.readUuid(), buf.readUuid(), buf.readInt()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record DapHoldStartPayload(UUID playerId, UUID partnerId, int role) implements CustomPacketPayload {
+        public static final Type<DapHoldStartPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_start"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldStartPayload> CODEC = StreamCodec.ofMember(
+                (p, buf) -> { buf.writeUUID(p.playerId()); buf.writeUUID(p.partnerId()); buf.writeInt(p.role()); },
+                buf -> new DapHoldStartPayload(buf.readUUID(), buf.readUUID(), buf.readInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record DapHoldWindowPayload(boolean open) implements CustomPayload {
-        public static final Id<DapHoldWindowPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_window"));
-        public static final PacketCodec<PacketByteBuf, DapHoldWindowPayload> CODEC = PacketCodec.of(
+    public record DapHoldWindowPayload(boolean open) implements CustomPacketPayload {
+        public static final Type<DapHoldWindowPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_window"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldWindowPayload> CODEC = StreamCodec.ofMember(
                 (p, buf) -> buf.writeBoolean(p.open()), buf -> new DapHoldWindowPayload(buf.readBoolean()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record DapHoldLoopPayload(boolean looping) implements CustomPayload {
-        public static final Id<DapHoldLoopPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_loop"));
-        public static final PacketCodec<PacketByteBuf, DapHoldLoopPayload> CODEC = PacketCodec.of(
+    public record DapHoldLoopPayload(boolean looping) implements CustomPacketPayload {
+        public static final Type<DapHoldLoopPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_loop"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldLoopPayload> CODEC = StreamCodec.ofMember(
                 (p, buf) -> buf.writeBoolean(p.looping()), buf -> new DapHoldLoopPayload(buf.readBoolean()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record DapHoldEndPayload(boolean wasLooping) implements CustomPayload {
-        public static final Id<DapHoldEndPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_end"));
-        public static final PacketCodec<PacketByteBuf, DapHoldEndPayload> CODEC = PacketCodec.of(
+    public record DapHoldEndPayload(boolean wasLooping) implements CustomPacketPayload {
+        public static final Type<DapHoldEndPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_end"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldEndPayload> CODEC = StreamCodec.ofMember(
                 (p, buf) -> buf.writeBoolean(p.wasLooping()), buf -> new DapHoldEndPayload(buf.readBoolean()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record DapHoldFreezePayload(UUID playerId, boolean frozen) implements CustomPayload {
-        public static final Id<DapHoldFreezePayload> ID = new Id<>(Identifier.of("cooptest", "daphold_freeze"));
-        public static final PacketCodec<PacketByteBuf, DapHoldFreezePayload> CODEC = PacketCodec.of(
-                (p, buf) -> { buf.writeUuid(p.playerId()); buf.writeBoolean(p.frozen()); },
-                buf -> new DapHoldFreezePayload(buf.readUuid(), buf.readBoolean()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record DapHoldFreezePayload(UUID playerId, boolean frozen) implements CustomPacketPayload {
+        public static final Type<DapHoldFreezePayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_freeze"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldFreezePayload> CODEC = StreamCodec.ofMember(
+                (p, buf) -> { buf.writeUUID(p.playerId()); buf.writeBoolean(p.frozen()); },
+                buf -> new DapHoldFreezePayload(buf.readUUID(), buf.readBoolean()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record DapHoldJHoldPayload() implements CustomPayload {
-        public static final Id<DapHoldJHoldPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_jhold"));
-        public static final PacketCodec<PacketByteBuf, DapHoldJHoldPayload> CODEC = PacketCodec.unit(new DapHoldJHoldPayload());
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record DapHoldJHoldPayload() implements CustomPacketPayload {
+        public static final Type<DapHoldJHoldPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_jhold"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldJHoldPayload> CODEC = StreamCodec.unit(new DapHoldJHoldPayload());
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record DapHoldJReleasePayload() implements CustomPayload {
-        public static final Id<DapHoldJReleasePayload> ID = new Id<>(Identifier.of("cooptest", "daphold_jrelease"));
-        public static final PacketCodec<PacketByteBuf, DapHoldJReleasePayload> CODEC = PacketCodec.unit(new DapHoldJReleasePayload());
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record DapHoldJReleasePayload() implements CustomPacketPayload {
+        public static final Type<DapHoldJReleasePayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_jrelease"));
+        public static final StreamCodec<FriendlyByteBuf, DapHoldJReleasePayload> CODEC = StreamCodec.unit(new DapHoldJReleasePayload());
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record GroupJoinedPayload(UUID joinerId, UUID hfId, int memberCount) implements CustomPayload {
-        public static final Id<GroupJoinedPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_group_join"));
-        public static final PacketCodec<PacketByteBuf, GroupJoinedPayload> CODEC = PacketCodec.of(
-                (p, buf) -> { buf.writeUuid(p.joinerId()); buf.writeUuid(p.hfId()); buf.writeInt(p.memberCount()); },
-                buf -> new GroupJoinedPayload(buf.readUuid(), buf.readUuid(), buf.readInt()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record GroupJoinedPayload(UUID joinerId, UUID hfId, int memberCount) implements CustomPacketPayload {
+        public static final Type<GroupJoinedPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_group_join"));
+        public static final StreamCodec<FriendlyByteBuf, GroupJoinedPayload> CODEC = StreamCodec.ofMember(
+                (p, buf) -> { buf.writeUUID(p.joinerId()); buf.writeUUID(p.hfId()); buf.writeInt(p.memberCount()); },
+                buf -> new GroupJoinedPayload(buf.readUUID(), buf.readUUID(), buf.readInt()));
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record GroupResultPayload(boolean perfect, int memberCount) implements CustomPayload {
-        public static final Id<GroupResultPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_group_result"));
-        public static final PacketCodec<PacketByteBuf, GroupResultPayload> CODEC = PacketCodec.of(
+    public record GroupResultPayload(boolean perfect, int memberCount) implements CustomPacketPayload {
+        public static final Type<GroupResultPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_group_result"));
+        public static final StreamCodec<FriendlyByteBuf, GroupResultPayload> CODEC = StreamCodec.ofMember(
                 (p, buf) -> { buf.writeBoolean(p.perfect()); buf.writeInt(p.memberCount()); },
                 buf -> new GroupResultPayload(buf.readBoolean(), buf.readInt()));
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
-    public record GroupJoinPayload() implements CustomPayload {
-        public static final Id<GroupJoinPayload> ID = new Id<>(Identifier.of("cooptest", "daphold_group_join_req"));
-        public static final PacketCodec<PacketByteBuf, GroupJoinPayload> CODEC = PacketCodec.unit(new GroupJoinPayload());
-        @Override public Id<? extends CustomPayload> getId() { return ID; }
+    public record GroupJoinPayload() implements CustomPacketPayload {
+        public static final Type<GroupJoinPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "daphold_group_join_req"));
+        public static final StreamCodec<FriendlyByteBuf, GroupJoinPayload> CODEC = StreamCodec.unit(new GroupJoinPayload());
+        @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     private static final Map<UUID, UUID> activePairs   = new HashMap<>();
     private static final Map<UUID, Long> pairStartTime = new HashMap<>();
@@ -93,7 +93,7 @@ public class DapHoldHandler {
     private static final Set<UUID> endingAnimation     = new HashSet<>();
     private static final Map<UUID, Long> jHoldLastTick = new HashMap<>();
     private static final Map<UUID, Long> loopStartTime = new HashMap<>();
-    private static final Map<UUID, ArmorStandEntity> handStands = new HashMap<>();
+    private static final Map<UUID, ArmorStand> handStands = new HashMap<>();
     private static final Set<UUID> tpComplete          = new HashSet<>();
     private static final Map<UUID, Set<UUID>> groupJoiners  = new HashMap<>();
     private static final Map<UUID, UUID>      joinerGroup   = new HashMap<>();
@@ -122,51 +122,51 @@ public class DapHoldHandler {
                 (payload, ctx) -> ctx.server().execute(() -> onJRelease(ctx.player())));
         ServerPlayNetworking.registerGlobalReceiver(GroupJoinPayload.ID,
                 (payload, ctx) -> ctx.server().execute(() -> {
-                    ServerPlayerEntity player = ctx.player();
-                    UUID id = player.getUuid();
+                    ServerPlayer player = ctx.player();
+                    UUID id = player.getUUID();
                     if (isInDapHold(id)) return;
                     tryJoinGroup(player, System.currentTimeMillis());
                 }));
         ServerTickEvents.END_SERVER_TICK.register(DapHoldHandler::onServerTick);
     }
-    private static void makeFaceEachOther(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        Vec3d p1Pos = p1.getEntityPos();
-        Vec3d p2Pos = p2.getEntityPos();
-        p1.swingHand(net.minecraft.util.Hand.MAIN_HAND);
-        p2.swingHand(net.minecraft.util.Hand.MAIN_HAND);
+    private static void makeFaceEachOther(ServerPlayer p1, ServerPlayer p2) {
+        Vec3 p1Pos = p1.position();
+        Vec3 p2Pos = p2.position();
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
         System.out.println("[DapHold]  Left click swing - body rotation synced!");
         double dx = p2Pos.x - p1Pos.x;
         double dz = p2Pos.z - p1Pos.z;
         float yawP1 = (float) (Math.atan2(dz, dx) * 180 / Math.PI) - 90;
         float yawP2 = yawP1 + 180;
-        p1.setYaw(yawP1);
-        p1.setBodyYaw(yawP1);
-        p1.setHeadYaw(yawP1);
-        p1.teleport(p1.getEntityWorld(), p1Pos.x, p1Pos.y, p1Pos.z, java.util.Set.of(), yawP1, 0.0f, false);
-        p2.setYaw(yawP2);
-        p2.setBodyYaw(yawP2);
-        p2.setHeadYaw(yawP2);
-        p2.teleport(p2.getEntityWorld(), p2Pos.x, p2Pos.y, p2Pos.z, java.util.Set.of(), yawP2, 0.0f, false);
+        p1.setYRot(yawP1);
+        p1.setYBodyRot(yawP1);
+        p1.setYHeadRot(yawP1);
+        p1.teleportTo(p1.level(), p1Pos.x, p1Pos.y, p1Pos.z, java.util.Set.of(), yawP1, 0.0f, false);
+        p2.setYRot(yawP2);
+        p2.setYBodyRot(yawP2);
+        p2.setYHeadRot(yawP2);
+        p2.teleportTo(p2.level(), p2Pos.x, p2Pos.y, p2Pos.z, java.util.Set.of(), yawP2, 0.0f, false);
     }
-    private static boolean arePlayersFacingEachOther(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        net.minecraft.util.math.Vec3d p1Pos = p1.getEntityPos();
-        net.minecraft.util.math.Vec3d p2Pos = p2.getEntityPos();
-        net.minecraft.util.math.Vec3d directionTo = p2Pos.subtract(p1Pos).normalize();
-        net.minecraft.util.math.Vec3d p1Looking = p1.getRotationVector();
-        double dot1 = p1Looking.dotProduct(directionTo);
+    private static boolean arePlayersFacingEachOther(ServerPlayer p1, ServerPlayer p2) {
+        net.minecraft.world.phys.Vec3 p1Pos = p1.position();
+        net.minecraft.world.phys.Vec3 p2Pos = p2.position();
+        net.minecraft.world.phys.Vec3 directionTo = p2Pos.subtract(p1Pos).normalize();
+        net.minecraft.world.phys.Vec3 p1Looking = p1.getLookAngle();
+        double dot1 = p1Looking.dot(directionTo);
         if (dot1 < 0.85) return false;
-        net.minecraft.util.math.Vec3d directionBack = p1Pos.subtract(p2Pos).normalize();
-        net.minecraft.util.math.Vec3d p2Looking = p2.getRotationVector();
-        double dot2 = p2Looking.dotProduct(directionBack);
+        net.minecraft.world.phys.Vec3 directionBack = p1Pos.subtract(p2Pos).normalize();
+        net.minecraft.world.phys.Vec3 p2Looking = p2.getLookAngle();
+        double dot2 = p2Looking.dot(directionBack);
         return dot2 >= 0.85;
     }
-    public static void startDapHold(ServerPlayerEntity hfPlayer, ServerPlayerEntity dapPlayer) {
-        UUID hfId = hfPlayer.getUuid();
-        UUID dapId = dapPlayer.getUuid();
+    public static void startDapHold(ServerPlayer hfPlayer, ServerPlayer dapPlayer) {
+        UUID hfId = hfPlayer.getUUID();
+        UUID dapId = dapPlayer.getUUID();
         if (isInDapHold(hfId) || isInDapHold(dapId)) return;
         if (!arePlayersFacingEachOther(hfPlayer, dapPlayer)) {
-            hfPlayer.sendMessage(net.minecraft.text.Text.literal("§cNot facing each other!"), true);
-            dapPlayer.sendMessage(net.minecraft.text.Text.literal("§cNot facing each other!"), true);
+            hfPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§cNot facing each other!"), true);
+            dapPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§cNot facing each other!"), true);
             System.out.println("[DapHold]  FAILED - Players not facing each other!");
             return;
         }
@@ -182,15 +182,15 @@ public class DapHoldHandler {
         );
         activePairs.put(hfId, dapId);
         pairStartTime.put(hfId, System.currentTimeMillis());
-        sendFreeze(hfPlayer.getEntityWorld().getServer(), hfId,  true);
-        sendFreeze(hfPlayer.getEntityWorld().getServer(), dapId, true);
+        sendFreeze(hfPlayer.level().getServer(), hfId,  true);
+        sendFreeze(hfPlayer.level().getServer(), dapId, true);
         System.out.println("[DapHold] Sent freeze to both players");
         spawnHandStand(hfPlayer, dapPlayer);
         System.out.println("[DapHold] Sending DapHoldStartPayload:");
         System.out.println("  - HF player (" + hfPlayer.getName().getString() + "): role=0 (highfive_dap)");
         System.out.println("  - DAP player (" + dapPlayer.getName().getString() + "): role=1 (dap_high)");
-        sendToAll(hfPlayer.getEntityWorld().getServer(), new DapHoldStartPayload(hfId,  dapId, 0));
-        sendToAll(hfPlayer.getEntityWorld().getServer(), new DapHoldStartPayload(dapId, hfId,  1));
+        sendToAll(hfPlayer.level().getServer(), new DapHoldStartPayload(hfId,  dapId, 0));
+        sendToAll(hfPlayer.level().getServer(), new DapHoldStartPayload(dapId, hfId,  1));
         PoseNetworking.broadcastAnimState(hfPlayer, 38);
         PoseNetworking.broadcastAnimState(dapPlayer, 39);
     }
@@ -200,8 +200,8 @@ public class DapHoldHandler {
         for (Map.Entry<UUID, UUID> entry : activePairs.entrySet()) {
             UUID hfId  = entry.getKey();
             UUID dapId = entry.getValue();
-            ServerPlayerEntity hfPlayer  = server.getPlayerManager().getPlayer(hfId);
-            ServerPlayerEntity dapPlayer = server.getPlayerManager().getPlayer(dapId);
+            ServerPlayer hfPlayer  = server.getPlayerList().getPlayer(hfId);
+            ServerPlayer dapPlayer = server.getPlayerList().getPlayer(dapId);
             if (hfPlayer == null || dapPlayer == null) { toCleanup.add(hfId); continue; }
             Long startMs = pairStartTime.get(hfId);
             if (startMs == null) { toCleanup.add(hfId); continue; }
@@ -211,14 +211,14 @@ public class DapHoldHandler {
             }
             updateHandStand(hfPlayer, dapPlayer, hfId);
             if (elapsed % 500 < 50) {
-                hfPlayer.swingHand(net.minecraft.util.Hand.MAIN_HAND);
-                dapPlayer.swingHand(net.minecraft.util.Hand.MAIN_HAND);
+                hfPlayer.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+                dapPlayer.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
             }
             if (!windowOpen.contains(hfId) && elapsed >= J_WINDOW_START_MS) {
                 windowOpen.add(hfId);
                 sendToAll(server, new DapHoldWindowPayload(true));
-                hfPlayer.sendMessage(net.minecraft.text.Text.literal("§e⚡ HOLD J "), true);
-                dapPlayer.sendMessage(net.minecraft.text.Text.literal("§e⚡ HOLD J "), true);
+                hfPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ HOLD J "), true);
+                dapPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ HOLD J "), true);
             }
             if (!impactFired.contains(hfId) && elapsed >= IMPACT_MS) {
                 impactFired.add(hfId);
@@ -249,15 +249,15 @@ public class DapHoldHandler {
         }
         Set<UUID> groupResultNeeded = new HashSet<>();
         for (UUID hfId : looping) {
-            ServerPlayerEntity hfPlayer = server.getPlayerManager().getPlayer(hfId);
+            ServerPlayer hfPlayer = server.getPlayerList().getPlayer(hfId);
             UUID dapId = activePairs.get(hfId);
-            ServerPlayerEntity dapPlayer = server.getPlayerManager().getPlayer(dapId);
+            ServerPlayer dapPlayer = server.getPlayerList().getPlayer(dapId);
             if (hfPlayer == null || dapPlayer == null) continue;
-            ServerWorld world = hfPlayer.getEntityWorld();
-            ArmorStandEntity stand = handStands.get(hfId);
+            ServerLevel world = hfPlayer.level();
+            ArmorStand stand = handStands.get(hfId);
             if (stand != null && !stand.isRemoved()) {
-                Vec3d impactPos = stand.getEntityPos();
-                world.spawnParticles(net.minecraft.particle.ParticleTypes.CRIT,
+                Vec3 impactPos = stand.position();
+                world.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT,
                         impactPos.x, impactPos.y, impactPos.z, 2, 0.1, 0.1, 0.1, 0.02);
             }
             Set<UUID> joiners = groupJoiners.get(hfId);
@@ -277,27 +277,27 @@ public class DapHoldHandler {
                     joinerGroup.remove(jId);
                     joinerJLast.remove(jId);
                     sendFreeze(server, jId, false);
-                    ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
+                    ServerPlayer jp = server.getPlayerList().getPlayer(jId);
                     if (jp != null) {
                         PoseNetworking.broadcastAnimState(jp, 41);
-                        jp.sendMessage(net.minecraft.text.Text.literal("§7Left the group"), true);
+                        jp.displayClientMessage(net.minecraft.network.chat.Component.literal("§7Left the group"), true);
                     }
                 }
-                if (server.getTicks() % 4 == 0) {
+                if (server.getTickCount() % 4 == 0) {
                     faceGroupCenter(hfId, server);
-                    ServerPlayerEntity hfP2 = server.getPlayerManager().getPlayer(hfId);
+                    ServerPlayer hfP2 = server.getPlayerList().getPlayer(hfId);
                     UUID dapId2 = activePairs.get(hfId);
-                    ServerPlayerEntity dapP2 = server.getPlayerManager().getPlayer(dapId2);
-                    if (hfP2 != null)  hfP2.setHeadYaw(hfP2.getBodyYaw());
-                    if (dapP2 != null) dapP2.setHeadYaw(dapP2.getBodyYaw());
+                    ServerPlayer dapP2 = server.getPlayerList().getPlayer(dapId2);
+                    if (hfP2 != null)  hfP2.setYHeadRot(hfP2.getVisualRotationYInDegrees());
+                    if (dapP2 != null) dapP2.setYHeadRot(dapP2.getVisualRotationYInDegrees());
                     for (UUID jId : joiners) {
-                        ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
-                        if (jp != null) jp.setHeadYaw(jp.getBodyYaw());
+                        ServerPlayer jp = server.getPlayerList().getPlayer(jId);
+                        if (jp != null) jp.setYHeadRot(jp.getVisualRotationYInDegrees());
                     }
                 }
-                Vec3d mid = getGroupMidpoint(hfId, server);
+                Vec3 mid = getGroupMidpoint(hfId, server);
                 int chargeParticles = joiners.size() + 1;
-                world.spawnParticles(ParticleTypes.ENCHANTED_HIT,
+                world.sendParticles(ParticleTypes.ENCHANTED_HIT,
                         mid.x, mid.y + 1.2, mid.z, chargeParticles, 0.3, 0.2, 0.3, 0.05);
             }
         }
@@ -306,8 +306,8 @@ public class DapHoldHandler {
         }
         toCleanup.forEach(hfId -> cleanupPair(hfId, server));
     }
-    private static void onJHold(ServerPlayerEntity player) {
-        UUID id = player.getUuid();
+    private static void onJHold(ServerPlayer player) {
+        UUID id = player.getUUID();
         long now = System.currentTimeMillis();
         UUID hfId = getPairHfId(id);
         if (hfId != null && windowOpen.contains(hfId)) {
@@ -320,18 +320,18 @@ public class DapHoldHandler {
         }
         if (hfId == null) tryJoinGroup(player, now);
     }
-    private static void onJRelease(ServerPlayerEntity player) {
-        UUID id = player.getUuid();
+    private static void onJRelease(ServerPlayer player) {
+        UUID id = player.getUUID();
         jHoldLastTick.remove(id);
         joinerJLast.remove(id);
         UUID joinerHfId = joinerGroup.get(id);
         if (joinerHfId != null) {
-            logGroupRelease(id, joinerHfId, player.getEntityWorld().getServer());
+            logGroupRelease(id, joinerHfId, player.level().getServer());
             return;
         }
         UUID hfId = getPairHfId(id);
         if (hfId == null || !looping.contains(hfId)) return;
-        MinecraftServer server = player.getEntityWorld().getServer();
+        MinecraftServer server = player.level().getServer();
         if (server == null) return;
         if (groupJoiners.containsKey(hfId) && !groupJoiners.get(hfId).isEmpty()) {
             logGroupRelease(id, hfId, server);
@@ -342,26 +342,26 @@ public class DapHoldHandler {
         loopStartTime.remove(hfId);
         doUnfreeze(server, hfId, dapId);
         sendToAll(server, new DapHoldEndPayload(true));
-        ServerPlayerEntity hfP = server.getPlayerManager().getPlayer(hfId);
-        ServerPlayerEntity dapP = server.getPlayerManager().getPlayer(dapId);
+        ServerPlayer hfP = server.getPlayerList().getPlayer(hfId);
+        ServerPlayer dapP = server.getPlayerList().getPlayer(dapId);
         if (hfP  != null) PoseNetworking.broadcastAnimState(hfP,  41);
         if (dapP != null) PoseNetworking.broadcastAnimState(dapP, 41);
         pairStartTime.put(hfId, System.currentTimeMillis() + 100 - 1042L);
     }
-    private static void tryJoinGroup(ServerPlayerEntity player, long now) {
-        UUID id = player.getUuid();
+    private static void tryJoinGroup(ServerPlayer player, long now) {
+        UUID id = player.getUUID();
         for (UUID hfId : looping) {
             UUID dapId = activePairs.get(hfId);
             if (hfId.equals(id) || (dapId != null && dapId.equals(id))) continue;
-            Vec3d mid = getGroupMidpoint(hfId, player.getEntityWorld().getServer());
-            if (player.getEntityPos().distanceTo(mid) > GROUP_JOIN_RADIUS) continue;
+            Vec3 mid = getGroupMidpoint(hfId, player.level().getServer());
+            if (player.position().distanceTo(mid) > GROUP_JOIN_RADIUS) continue;
             addGroupJoiner(player, hfId);
             return;
         }
     }
-    private static void addGroupJoiner(ServerPlayerEntity joiner, UUID hfId) {
-        UUID id = joiner.getUuid();
-        MinecraftServer server = joiner.getEntityWorld().getServer();
+    private static void addGroupJoiner(ServerPlayer joiner, UUID hfId) {
+        UUID id = joiner.getUUID();
+        MinecraftServer server = joiner.level().getServer();
         groupJoiners.computeIfAbsent(hfId, k -> new HashSet<>()).add(id);
         joinerGroup.put(id, hfId);
         joinerJLast.put(id, System.currentTimeMillis());
@@ -371,9 +371,9 @@ public class DapHoldHandler {
         GroupJoinedPayload pkt = new GroupJoinedPayload(id, hfId, total);
         sendToAll(server, pkt);
         faceGroupCenter(hfId, server);
-        joiner.sendMessage(net.minecraft.text.Text.literal("§a§l⚡ JOINED GROUP DAP! (" + total + " players)"), true);
-        ServerPlayerEntity hfP = server.getPlayerManager().getPlayer(hfId);
-        if (hfP != null) hfP.sendMessage(net.minecraft.text.Text.literal("§e§l+" + joiner.getName().getString() + " joined! (" + total + " total)"), true);
+        joiner.displayClientMessage(net.minecraft.network.chat.Component.literal("§a§l⚡ JOINED GROUP DAP! (" + total + " players)"), true);
+        ServerPlayer hfP = server.getPlayerList().getPlayer(hfId);
+        if (hfP != null) hfP.displayClientMessage(net.minecraft.network.chat.Component.literal("§e§l+" + joiner.getName().getString() + " joined! (" + total + " total)"), true);
     }
     private static void logGroupRelease(UUID id, UUID hfId, MinecraftServer server) {
         if (server == null) return;
@@ -394,71 +394,71 @@ public class DapHoldHandler {
         UUID dapId = activePairs.get(hfId);
         Set<UUID> joiners = new HashSet<>(groupJoiners.getOrDefault(hfId, emptySet()));
         int memberCount = 2 + joiners.size();
-        java.util.List<ServerPlayerEntity> all = new java.util.ArrayList<>();
-        ServerPlayerEntity hfP  = server.getPlayerManager().getPlayer(hfId);
-        ServerPlayerEntity dapP = server.getPlayerManager().getPlayer(dapId);
+        java.util.List<ServerPlayer> all = new java.util.ArrayList<>();
+        ServerPlayer hfP  = server.getPlayerList().getPlayer(hfId);
+        ServerPlayer dapP = server.getPlayerList().getPlayer(dapId);
         if (hfP  != null) all.add(hfP);
         if (dapP != null) all.add(dapP);
         for (UUID jId : joiners) {
-            ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
+            ServerPlayer jp = server.getPlayerList().getPlayer(jId);
             if (jp != null) all.add(jp);
         }
-        Vec3d center = all.stream().map(ServerPlayerEntity::getEntityPos)
-                .reduce(Vec3d.ZERO, Vec3d::add)
-                .multiply(1.0 / Math.max(1, all.size()));
-        ServerWorld world = hfP != null ? hfP.getEntityWorld() : server.getOverworld();
+        Vec3 center = all.stream().map(ServerPlayer::position)
+                .reduce(Vec3.ZERO, Vec3::add)
+                .scale(1.0 / Math.max(1, all.size()));
+        ServerLevel world = hfP != null ? hfP.level() : server.overworld();
         if (perfect) {
-            for (ServerPlayerEntity p : all) {
+            for (ServerPlayer p : all) {
                 PoseNetworking.broadcastAnimState(p, 68);
             }
-            for (ServerPlayerEntity p : all) sendFreeze(server, p.getUuid(), false);
-            final java.util.List<ServerPlayerEntity> allFinal = all;
-            final Vec3d centerFinal = center;
-            final ServerWorld worldFinal = world;
+            for (ServerPlayer p : all) sendFreeze(server, p.getUUID(), false);
+            final java.util.List<ServerPlayer> allFinal = all;
+            final Vec3 centerFinal = center;
+            final ServerLevel worldFinal = world;
             final int mc = memberCount;
             new Thread(() -> {
                 try { Thread.sleep(1670); } catch (InterruptedException ignored) {}
                 server.execute(() -> {
-                    for (ServerPlayerEntity p : allFinal) {
+                    for (ServerPlayer p : allFinal) {
                         if (!p.isAlive()) continue;
-                        p.addVelocity(0, 0.4 + mc * 0.1, 0);
-                        p.knockedBack = true;
-                        p.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(
-                                net.minecraft.entity.effect.StatusEffects.SPEED, 120, Math.min(2, mc - 1)));
-                        p.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(
-                                net.minecraft.entity.effect.StatusEffects.JUMP_BOOST, 120, 0));
-                        p.sendMessage(net.minecraft.text.Text.literal("§6§l✨ PERFECT GROUP DAP! §e" + mc + " players!"), true);
+                        p.push(0, 0.4 + mc * 0.1, 0);
+                        p.hurtMarked = true;
+                        p.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                                net.minecraft.world.effect.MobEffects.SPEED, 120, Math.min(2, mc - 1)));
+                        p.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                                net.minecraft.world.effect.MobEffects.JUMP_BOOST, 120, 0));
+                        p.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✨ PERFECT GROUP DAP! §e" + mc + " players!"), true);
                     }
                     for (int i = 0; i < mc * 3; i++) {
                         double ox = (worldFinal.random.nextDouble() - 0.5) * 3;
                         double oz = (worldFinal.random.nextDouble() - 0.5) * 3;
-                        worldFinal.spawnParticles(ParticleTypes.FIREWORK,
+                        worldFinal.sendParticles(ParticleTypes.FIREWORK,
                                 centerFinal.x + ox, centerFinal.y + 2 + i * 0.5, centerFinal.z + oz,
                                 6, 0.3, 0.1, 0.3, 0.12);
                     }
-                    worldFinal.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                    worldFinal.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
                             centerFinal.x, centerFinal.y + 1.5, centerFinal.z, mc * 5, 0.6, 0.6, 0.6, 0.3);
-                    worldFinal.spawnParticles(ParticleTypes.EXPLOSION_EMITTER,
+                    worldFinal.sendParticles(ParticleTypes.EXPLOSION_EMITTER,
                             centerFinal.x, centerFinal.y + 1, centerFinal.z, mc, 0.4, 0.3, 0.4, 0);
                     worldFinal.playSound(null, centerFinal.x, centerFinal.y, centerFinal.z,
-                            ModSounds.EPIC_DAP, SoundCategory.PLAYERS, 1.5f, 0.9f + mc * 0.05f);
+                            ModSounds.EPIC_DAP, SoundSource.PLAYERS, 1.5f, 0.9f + mc * 0.05f);
                     worldFinal.playSound(null, centerFinal.x, centerFinal.y, centerFinal.z,
-                            net.minecraft.sound.SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST,
-                            SoundCategory.PLAYERS, 1.2f, 0.8f);
+                            net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_LARGE_BLAST,
+                            SoundSource.PLAYERS, 1.2f, 0.8f);
                 });
             }).start();
         } else {
-            for (ServerPlayerEntity p : all) {
-                Vec3d dir = p.getEntityPos().subtract(center).normalize();
-                if (dir.lengthSquared() < 0.01) dir = new Vec3d(1, 0, 0);
-                p.addVelocity(dir.x * 0.9, 0.3, dir.z * 0.9);
-                p.knockedBack = true;
-                p.sendMessage(net.minecraft.text.Text.literal("§c❌ Release not synced!"), true);
+            for (ServerPlayer p : all) {
+                Vec3 dir = p.position().subtract(center).normalize();
+                if (dir.lengthSqr() < 0.01) dir = new Vec3(1, 0, 0);
+                p.push(dir.x * 0.9, 0.3, dir.z * 0.9);
+                p.hurtMarked = true;
+                p.displayClientMessage(net.minecraft.network.chat.Component.literal("§c❌ Release not synced!"), true);
             }
-            world.spawnParticles(ParticleTypes.POOF,
+            world.sendParticles(ParticleTypes.POOF,
                     center.x, center.y + 1, center.z, 12, 0.4, 0.3, 0.4, 0.05);
             world.playSound(null, center.x, center.y, center.z,
-                    net.minecraft.sound.SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.6f, 0.8f);
+                    net.minecraft.sounds.SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 0.6f, 0.8f);
         }
         sendToAll(server, new GroupResultPayload(perfect, memberCount));
         if (!perfect) {
@@ -466,7 +466,7 @@ public class DapHoldHandler {
             if (hfP  != null) PoseNetworking.broadcastAnimState(hfP,  41);
             if (dapP != null) PoseNetworking.broadcastAnimState(dapP, 41);
             for (UUID jId : joiners) {
-                ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
+                ServerPlayer jp = server.getPlayerList().getPlayer(jId);
                 if (jp != null) PoseNetworking.broadcastAnimState(jp, 41);
             }
         }
@@ -483,40 +483,40 @@ public class DapHoldHandler {
         if (dapId != null) doUnfreeze(server, hfId, dapId);
         pairStartTime.put(hfId, System.currentTimeMillis() + 100 - 1042L);
     }
-    private static Vec3d getGroupMidpoint(UUID hfId, MinecraftServer server) {
-        java.util.List<Vec3d> positions = new java.util.ArrayList<>();
-        ServerPlayerEntity hfP  = server.getPlayerManager().getPlayer(hfId);
+    private static Vec3 getGroupMidpoint(UUID hfId, MinecraftServer server) {
+        java.util.List<Vec3> positions = new java.util.ArrayList<>();
+        ServerPlayer hfP  = server.getPlayerList().getPlayer(hfId);
         UUID dapId = activePairs.get(hfId);
-        ServerPlayerEntity dapP = server.getPlayerManager().getPlayer(dapId);
-        if (hfP  != null) positions.add(hfP.getEntityPos());
-        if (dapP != null) positions.add(dapP.getEntityPos());
+        ServerPlayer dapP = server.getPlayerList().getPlayer(dapId);
+        if (hfP  != null) positions.add(hfP.position());
+        if (dapP != null) positions.add(dapP.position());
         for (UUID jId : groupJoiners.getOrDefault(hfId, emptySet())) {
-            ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
-            if (jp != null) positions.add(jp.getEntityPos());
+            ServerPlayer jp = server.getPlayerList().getPlayer(jId);
+            if (jp != null) positions.add(jp.position());
         }
-        if (positions.isEmpty()) return Vec3d.ZERO;
-        return positions.stream().reduce(Vec3d.ZERO, Vec3d::add)
-                .multiply(1.0 / positions.size());
+        if (positions.isEmpty()) return Vec3.ZERO;
+        return positions.stream().reduce(Vec3.ZERO, Vec3::add)
+                .scale(1.0 / positions.size());
     }
     private static void faceGroupCenter(UUID hfId, MinecraftServer server) {
-        java.util.List<ServerPlayerEntity> members = new java.util.ArrayList<>();
-        ServerPlayerEntity hfP  = server.getPlayerManager().getPlayer(hfId);
+        java.util.List<ServerPlayer> members = new java.util.ArrayList<>();
+        ServerPlayer hfP  = server.getPlayerList().getPlayer(hfId);
         UUID dapId = activePairs.get(hfId);
-        ServerPlayerEntity dapP = server.getPlayerManager().getPlayer(dapId);
+        ServerPlayer dapP = server.getPlayerList().getPlayer(dapId);
         if (hfP  != null) members.add(hfP);
         if (dapP != null) members.add(dapP);
         for (UUID jId : groupJoiners.getOrDefault(hfId, emptySet())) {
-            ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
+            ServerPlayer jp = server.getPlayerList().getPlayer(jId);
             if (jp != null) members.add(jp);
         }
         if (members.size() < 2) return;
-        Vec3d center = members.stream().map(ServerPlayerEntity::getEntityPos)
-                .reduce(Vec3d.ZERO, Vec3d::add).multiply(1.0 / members.size());
-        for (ServerPlayerEntity p : members) {
-            Vec3d diff = center.subtract(p.getEntityPos());
-            if (diff.horizontalLengthSquared() < 0.001) continue;
+        Vec3 center = members.stream().map(ServerPlayer::position)
+                .reduce(Vec3.ZERO, Vec3::add).scale(1.0 / members.size());
+        for (ServerPlayer p : members) {
+            Vec3 diff = center.subtract(p.position());
+            if (diff.horizontalDistanceSqr() < 0.001) continue;
             float yaw = (float)(Math.toDegrees(Math.atan2(diff.z, diff.x))) - 90f;
-            p.setYaw(yaw); p.setBodyYaw(yaw); p.setHeadYaw(yaw);
+            p.setYRot(yaw); p.setYBodyRot(yaw); p.setYHeadRot(yaw);
         }
     }
     public static void forceUnfreeze(MinecraftServer server, UUID id) {
@@ -533,83 +533,83 @@ public class DapHoldHandler {
         Long last = jHoldLastTick.get(id);
         return last != null && (now - last) < 200;
     }
-    private static void smoothTP(ServerPlayerEntity hf, ServerPlayerEntity dap, UUID hfId) {
-        double dist = hf.getEntityPos().distanceTo(dap.getEntityPos());
+    private static void smoothTP(ServerPlayer hf, ServerPlayer dap, UUID hfId) {
+        double dist = hf.position().distanceTo(dap.position());
         if (dist <= STOP_DISTANCE) {
             tpComplete.add(hfId);
             faceEachOther(hf, dap);
             return;
         }
         double move = Math.min(TP_SPEED, (dist - STOP_DISTANCE) / 2.0);
-        Vec3d dir   = dap.getEntityPos().subtract(hf.getEntityPos()).normalize();
-        Vec3d newHf  = hf.getEntityPos().add(dir.multiply(move));
-        Vec3d newDap = dap.getEntityPos().add(dir.negate().multiply(move));
-        hf.teleport(hf.getEntityWorld(),   newHf.x,  newHf.y,  newHf.z, java.util.Set.of(), hf.getYaw(),  hf.getPitch(), false);
-        dap.teleport(dap.getEntityWorld(), newDap.x, newDap.y, newDap.z, java.util.Set.of(), dap.getYaw(), dap.getPitch(), false);
+        Vec3 dir   = dap.position().subtract(hf.position()).normalize();
+        Vec3 newHf  = hf.position().add(dir.scale(move));
+        Vec3 newDap = dap.position().add(dir.reverse().scale(move));
+        hf.teleportTo(hf.level(),   newHf.x,  newHf.y,  newHf.z, java.util.Set.of(), hf.getYRot(),  hf.getXRot(), false);
+        dap.teleportTo(dap.level(), newDap.x, newDap.y, newDap.z, java.util.Set.of(), dap.getYRot(), dap.getXRot(), false);
     }
-    private static void faceEachOther(ServerPlayerEntity a, ServerPlayerEntity b) {
-        Vec3d diff = b.getEntityPos().subtract(a.getEntityPos());
+    private static void faceEachOther(ServerPlayer a, ServerPlayer b) {
+        Vec3 diff = b.position().subtract(a.position());
         float yawA = (float)(Math.toDegrees(Math.atan2(diff.z, diff.x))) - 90f;
-        a.teleport(a.getEntityWorld(), a.getX(), a.getY(), a.getZ(), java.util.Set.of(),yawA, a.getPitch(), false);
-        b.teleport(b.getEntityWorld(), b.getX(), b.getY(), b.getZ(), java.util.Set.of(), yawA + 180f, b.getPitch(), false);
+        a.teleportTo(a.level(), a.getX(), a.getY(), a.getZ(), java.util.Set.of(),yawA, a.getXRot(), false);
+        b.teleportTo(b.level(), b.getX(), b.getY(), b.getZ(), java.util.Set.of(), yawA + 180f, b.getXRot(), false);
     }
-    private static void spawnHandStand(ServerPlayerEntity hf, ServerPlayerEntity dap) {
-        ServerWorld world = hf.getEntityWorld();
-        Vec3d mid = hf.getEntityPos().add(0, 1.4, 0).add(dap.getEntityPos().add(0, 1.4, 0)).multiply(0.5);
-        ArmorStandEntity stand = new ArmorStandEntity(EntityType.ARMOR_STAND, world);
-        stand.setPosition(mid.x, mid.y, mid.z);
+    private static void spawnHandStand(ServerPlayer hf, ServerPlayer dap) {
+        ServerLevel world = hf.level();
+        Vec3 mid = hf.position().add(0, 1.4, 0).add(dap.position().add(0, 1.4, 0)).scale(0.5);
+        ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+        stand.setPos(mid.x, mid.y, mid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);
         stand.setInvulnerable(true);
         stand.setSilent(true);
-        world.spawnEntity(stand);
-        handStands.put(hf.getUuid(), stand);
+        world.addFreshEntity(stand);
+        handStands.put(hf.getUUID(), stand);
     }
-    private static void updateHandStand(ServerPlayerEntity hf, ServerPlayerEntity dap, UUID hfId) {
-        ArmorStandEntity stand = handStands.get(hfId);
+    private static void updateHandStand(ServerPlayer hf, ServerPlayer dap, UUID hfId) {
+        ArmorStand stand = handStands.get(hfId);
         if (stand == null || stand.isRemoved()) return;
-        Vec3d mid = hf.getEntityPos().add(0, 1.4, 0).add(dap.getEntityPos().add(0, 1.4, 0)).multiply(0.5);
-        stand.setPosition(mid.x, mid.y, mid.z);
+        Vec3 mid = hf.position().add(0, 1.4, 0).add(dap.position().add(0, 1.4, 0)).scale(0.5);
+        stand.setPos(mid.x, mid.y, mid.z);
     }
-    private static void spawnImpactParticles(ServerPlayerEntity hf, ServerPlayerEntity dap, UUID hfId) {
-        ServerWorld world = hf.getEntityWorld();
-        ArmorStandEntity stand = handStands.get(hfId);
+    private static void spawnImpactParticles(ServerPlayer hf, ServerPlayer dap, UUID hfId) {
+        ServerLevel world = hf.level();
+        ArmorStand stand = handStands.get(hfId);
         double x, y, z;
         if (stand != null && !stand.isRemoved()) {
             x = stand.getX(); y = stand.getY(); z = stand.getZ();
         } else {
-            Vec3d mid = hf.getEntityPos().add(dap.getEntityPos()).multiply(0.5).add(0, 1.4, 0);
+            Vec3 mid = hf.position().add(dap.position()).scale(0.5).add(0, 1.4, 0);
             x = mid.x; y = mid.y; z = mid.z;
         }
-        world.spawnParticles(TintedParticleEffect.create(ParticleTypes.FLASH, 1f, 1f, 1f),     x, y, z, 3,  0,   0,   0,   0);
-        world.spawnParticles(ParticleTypes.END_ROD,   x, y, z, 40, 0.4, 0.4, 0.4, 0.15);
-        world.spawnParticles(ParticleTypes.WHITE_ASH, x, y, z, 80, 0.6, 0.6, 0.6, 0.08);
-        world.spawnParticles(ParticleTypes.CLOUD,     x, y, z, 20, 0.3, 0.3, 0.3, 0.05);
-        world.spawnParticles(ParticleTypes.EXPLOSION, x, y, z, 5,  0.3, 0.3, 0.3, 0);
+        world.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f),     x, y, z, 3,  0,   0,   0,   0);
+        world.sendParticles(ParticleTypes.END_ROD,   x, y, z, 40, 0.4, 0.4, 0.4, 0.15);
+        world.sendParticles(ParticleTypes.WHITE_ASH, x, y, z, 80, 0.6, 0.6, 0.6, 0.08);
+        world.sendParticles(ParticleTypes.CLOUD,     x, y, z, 20, 0.3, 0.3, 0.3, 0.05);
+        world.sendParticles(ParticleTypes.EXPLOSION, x, y, z, 5,  0.3, 0.3, 0.3, 0);
         double groundY = hf.getY() + 0.1;
         for (double angle = 0; angle < 360; angle += 8) {
             double rad = Math.toRadians(angle);
             for (double r = 0.5; r <= 3.0; r += 0.5) {
-                world.spawnParticles(ParticleTypes.END_ROD,
+                world.sendParticles(ParticleTypes.END_ROD,
                         x + Math.cos(rad) * r, groundY, z + Math.sin(rad) * r,
                         2, 0.05, 0.05, 0.05, 0.02);
             }
         }
-        world.playSound(null, x, y, z, ModSounds.DAP_WEAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
+        world.playSound(null, x, y, z, ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0f, 1.0f);
     }
     private static void sendFreeze(MinecraftServer server, UUID targetId, boolean freeze) {
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList())
+        for (ServerPlayer p : server.getPlayerList().getPlayers())
             ServerPlayNetworking.send(p, new DapHoldFreezePayload(targetId, freeze));
     }
     private static void doUnfreeze(MinecraftServer server, UUID hfId, UUID dapId) {
         sendFreeze(server, hfId, false);
         sendFreeze(server, dapId, false);
         com.cooptest.DapSessionManager.removeSession(hfId);
-        ArmorStandEntity stand = handStands.remove(hfId);
+        ArmorStand stand = handStands.remove(hfId);
         if (stand != null && !stand.isRemoved()) stand.discard();
     }
-    private static void sendToAll(MinecraftServer server, CustomPayload payload) {
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList())
+    private static void sendToAll(MinecraftServer server, CustomPacketPayload payload) {
+        for (ServerPlayer p : server.getPlayerList().getPlayers())
             ServerPlayNetworking.send(p, payload);
     }
     private static void cleanupPair(UUID hfId, MinecraftServer server) {
@@ -619,7 +619,7 @@ public class DapHoldHandler {
         loopStartTime.remove(hfId);
         jHoldLastTick.remove(hfId);
         if (dapId != null) jHoldLastTick.remove(dapId);
-        ArmorStandEntity stand = handStands.remove(hfId);
+        ArmorStand stand = handStands.remove(hfId);
         if (stand != null && !stand.isRemoved()) stand.discard();
         Set<UUID> joiners = groupJoiners.remove(hfId);
         if (joiners != null) {
@@ -627,7 +627,7 @@ public class DapHoldHandler {
                 joinerGroup.remove(jId);
                 joinerJLast.remove(jId);
                 sendFreeze(server, jId, false);
-                ServerPlayerEntity jp = server.getPlayerManager().getPlayer(jId);
+                ServerPlayer jp = server.getPlayerList().getPlayer(jId);
                 if (jp != null) PoseNetworking.broadcastAnimState(jp, 41);
             }
         }
@@ -643,9 +643,9 @@ public class DapHoldHandler {
         if (dapId != null) HighFiveHandler.highFiveCooldown.put(dapId, now);
         System.out.println("[DapHold] Cleaned up: " + hfId + " (1s cooldown applied)");
     }
-    public static boolean tryDetect(ServerPlayerEntity player, ServerPlayerEntity partner) {
-        boolean playerHF  = HighFiveHandler.hasHandRaised(player.getUuid());
-        boolean partnerHF = HighFiveHandler.hasHandRaised(partner.getUuid());
+    public static boolean tryDetect(ServerPlayer player, ServerPlayer partner) {
+        boolean playerHF  = HighFiveHandler.hasHandRaised(player.getUUID());
+        boolean partnerHF = HighFiveHandler.hasHandRaised(partner.getUUID());
         if (playerHF && !partnerHF)  { startDapHold(player,  partner); return true; }
         if (partnerHF && !playerHF)  { startDapHold(partner, player);  return true; }
         return false;

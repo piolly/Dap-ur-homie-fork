@@ -24,9 +24,9 @@ public class CatchClientHandler {
                         catcherAnimStart.put(payload.catcherId(), now);
                         caughtAnimStart.put(payload.caughtId(), now);
 
-                        if (context.client().world != null) {
-                            for (net.minecraft.entity.player.PlayerEntity player : context.client().world.getPlayers()) {
-                                if (player.getUuid().equals(payload.catcherId())) {
+                        if (context.client().level != null) {
+                            for (net.minecraft.world.entity.player.Player player : context.client().level.players()) {
+                                if (player.getUUID().equals(payload.catcherId())) {
                                     CoopAnimationHandler.playCatchAnimation(player);
                                     break;
                                 }

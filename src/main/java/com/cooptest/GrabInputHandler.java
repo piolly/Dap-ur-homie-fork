@@ -1,12 +1,12 @@
 package com.cooptest;
 
 import com.cooptest.client.GrabClientState;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -15,9 +15,9 @@ import java.util.UUID;
 
 public class GrabInputHandler {
 
-    private static KeyBinding grabKey;
-    private static KeyBinding throwKey;
-    private static KeyBinding shieldKey;  // V key for shield toggle
+    private static KeyMapping grabKey;
+    private static KeyMapping throwKey;
+    private static KeyMapping shieldKey;  // V key for shield toggle
 
     private static boolean wasGrabKeyPressed = false;
     private static boolean wasThrowKeyPressed = false;
@@ -35,16 +35,16 @@ public class GrabInputHandler {
 
 
     public static void register() {
-        grabKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.coopmoves.grab", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, ModKeyCategories.COOPMOVES
+        grabKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.coopmoves.grab", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, ModKeyCategories.COOPMOVES
         ));
 
-        throwKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.coopmoves.throw", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_T, ModKeyCategories.COOPMOVES
+        throwKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.coopmoves.throw", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_T, ModKeyCategories.COOPMOVES
         ));
 
-        shieldKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.coopmoves.shield", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, ModKeyCategories.COOPMOVES
+        shieldKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.coopmoves.shield", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, ModKeyCategories.COOPMOVES
         ));
 
         // Register shield mode receiver for client-side sync
@@ -62,17 +62,17 @@ public class GrabInputHandler {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null) return;
 
-            UUID playerId = client.player.getUuid();
+            UUID playerId = client.player.getUUID();
             PoseState pose = PoseNetworking.poseStates.getOrDefault(playerId, PoseState.NONE);
 
             // ===== ELYTRA BOOST: Press space while thrown with elytra =====
-            boolean isJumpPressed = client.options.jumpKey.isPressed();
+            boolean isJumpPressed = client.options.keyJump.isDown();
             if (isJumpPressed && !wasJumpPressed) {
                 // Check if player is in GRABBED pose (thrown/flying through air)
-                if (pose == PoseState.GRABBED && !client.player.hasVehicle()) {
+                if (pose == PoseState.GRABBED && !client.player.isPassenger()) {
                     // Check if wearing elytra
-                    if (client.player.getEquippedStack(net.minecraft.entity.EquipmentSlot.CHEST).getItem()
-                            == net.minecraft.item.Items.ELYTRA) { // insallah this works (slowed + reverb)
+                    if (client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).getItem()
+                            == net.minecraft.world.item.Items.ELYTRA) { // insallah this works (slowed + reverb)
                         // Send elytra boost request to server
                         ClientPlayNetworking.send(new GrabNetworking.ElytraBoostRequestPayload());
                     }
@@ -81,14 +81,14 @@ public class GrabInputHandler {
             wasJumpPressed = isJumpPressed;
 
             // ===== AIR CONTROL: Send movement input while thrown =====
-            if (pose == PoseState.GRABBED && !client.player.hasVehicle()) {
+            if (pose == PoseState.GRABBED && !client.player.isPassenger()) {
                 // Get movement input
                 float forward = 0f;
                 float strafe = 0f;
-                if (client.options.forwardKey.isPressed()) forward += 1f;
-                if (client.options.backKey.isPressed()) forward -= 1f;
-                if (client.options.leftKey.isPressed()) strafe += 1f;
-                if (client.options.rightKey.isPressed()) strafe -= 1f;
+                if (client.options.keyUp.isDown()) forward += 1f;
+                if (client.options.keyDown.isDown()) forward -= 1f;
+                if (client.options.keyLeft.isDown()) strafe += 1f;
+                if (client.options.keyRight.isDown()) strafe -= 1f;
 
                 // Send to server if any input
                 if (Math.abs(forward) > 0.01f || Math.abs(strafe) > 0.01f) {
@@ -103,11 +103,11 @@ public class GrabInputHandler {
             boolean isHolding = pose == PoseState.GRAB_HOLDING || GrabClientState.isHolding(playerId);
 
             // Check if being held
-            boolean isBeingHeld = (pose == PoseState.GRABBED && client.player.hasVehicle())
+            boolean isBeingHeld = (pose == PoseState.GRABBED && client.player.isPassenger())
                     || GrabClientState.isBeingHeld(playerId);
 
             // ===== R KEY - Grab Ready / Drop =====
-            boolean isGrabKeyPressed = grabKey.isPressed();
+            boolean isGrabKeyPressed = grabKey.isDown();
             if (isGrabKeyPressed && !wasGrabKeyPressed) {
                 if (isHolding) {
                     // Drop when holding
@@ -123,7 +123,7 @@ public class GrabInputHandler {
             wasGrabKeyPressed = isGrabKeyPressed;
 
             // ===== V KEY - Toggle Shield Mode =====
-            boolean isShieldKeyPressed = shieldKey.isPressed();
+            boolean isShieldKeyPressed = shieldKey.isDown();
             if (isShieldKeyPressed && !wasShieldKeyPressed) {
                 if (isHolding) {
                     // Toggle between shield mode and throw mode
@@ -133,7 +133,7 @@ public class GrabInputHandler {
             wasShieldKeyPressed = isShieldKeyPressed;
 
             // ===== SHIFT - Escape when being held =====
-            boolean isSneakPressed = client.options.sneakKey.isPressed();
+            boolean isSneakPressed = client.options.keyShift.isDown();
             if (isSneakPressed && !wasSneakPressed) {
                 if (isBeingHeld) {
                     // Escape when being held
@@ -143,7 +143,7 @@ public class GrabInputHandler {
             wasSneakPressed = isSneakPressed;
 
             // ===== T KEY - Throw (hold to charge) =====
-            boolean isThrowKeyPressed = throwKey.isPressed();
+            boolean isThrowKeyPressed = throwKey.isDown();
             if (isHolding) {
                 if (isThrowKeyPressed && !wasThrowKeyPressed) {
                     // Started charging
@@ -201,9 +201,9 @@ public class GrabInputHandler {
         });
     }
 
-    private static boolean handsEmpty(MinecraftClient client) {
+    private static boolean handsEmpty(Minecraft client) {
         // Only check main hand - allow items in off-hand (shields, totems, etc)
-        return client.player.getMainHandStack().isEmpty();
+        return client.player.getMainHandItem().isEmpty();
     }
 
     public static float getThrowChargeProgress() {
@@ -218,8 +218,8 @@ public class GrabInputHandler {
     public static float getChargeProgressFor(UUID playerId) {
         // For local player, use local tracking
         @SuppressWarnings("resource")
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null && client.player.getUuid().equals(playerId)) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player != null && client.player.getUUID().equals(playerId)) {
             return getThrowChargeProgress();
         }
         // For other players, use network-synced value

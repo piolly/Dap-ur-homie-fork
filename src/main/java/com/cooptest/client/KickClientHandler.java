@@ -2,10 +2,10 @@ package com.cooptest.client;
 import com.cooptest.KickHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.text.Text;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,8 +27,8 @@ public class KickClientHandler {
         ClientPlayNetworking.registerGlobalReceiver(KickHandler.KickChargeSyncPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
                     UUID pid = payload.playerId();
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    boolean isLocal = client.player != null && client.player.getUuid().equals(pid);
+                    Minecraft client = Minecraft.getInstance();
+                    boolean isLocal = client.player != null && client.player.getUUID().equals(pid);
                     if (payload.isCharging()) {
                         otherActive.put(pid, true);
                         otherCharges.put(pid, payload.chargePercent());
@@ -56,7 +56,7 @@ public class KickClientHandler {
                 }));
         HudRenderCallback.EVENT.register(KickClientHandler::renderHUD);
     }
-    public static void handleKickTick(MinecraftClient client,
+    public static void handleKickTick(Minecraft client,
                                       boolean keyHeld,
                                       boolean sprinting) {
         boolean justPressed  = keyHeld  && !wasHeld;
@@ -79,8 +79,8 @@ public class KickClientHandler {
         }
         if (justPressed && isOnCooldown() && client.player != null) {
             long rem = cooldownEndMs - System.currentTimeMillis();
-            client.player.sendMessage(
-                    Text.literal("§cKick cooldown! " + String.format("%.1f", rem / 1000.0) + "s"),
+            client.player.displayClientMessage(
+                    Component.literal("§cKick cooldown! " + String.format("%.1f", rem / 1000.0) + "s"),
                     true
             );
         }
@@ -92,11 +92,11 @@ public class KickClientHandler {
             wasHeld = false;
         }
     }
-    private static void renderHUD(DrawContext context, RenderTickCounter tickCounter) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.options.hudHidden) return;
-        int sw      = context.getScaledWindowWidth();
-        int sh      = context.getScaledWindowHeight();
+    private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || client.options.hideGui) return;
+        int sw      = context.guiWidth();
+        int sh      = context.guiHeight();
         int centreX = sw / 2;
         int barY    = sh / 2 + BAR_Y_OFFSET;
         int barX    = centreX - BAR_WIDTH / 2;
@@ -127,8 +127,8 @@ public class KickClientHandler {
             context.fill(barX, barY, barX + (int)(BAR_WIDTH * pct), barY + BAR_HEIGHT, fillColor);
             if (full) {
                 String lbl = "DROP KICK";
-                int lx = centreX - client.textRenderer.getWidth(lbl) / 2;
-                context.drawText(client.textRenderer, Text.literal("§f" + lbl),
+                int lx = centreX - client.font.width(lbl) / 2;
+                context.drawString(client.font, Component.literal("§f" + lbl),
                         lx, barY - 9, 0xCCFFFFFF, false);
             }
         }
@@ -140,10 +140,10 @@ public class KickClientHandler {
         for (Map.Entry<UUID, Boolean> entry : otherActive.entrySet()) {
             if (!entry.getValue()) continue;
             UUID pid = entry.getKey();
-            if (client.player.getUuid().equals(pid) || client.world == null) continue;
+            if (client.player.getUUID().equals(pid) || client.level == null) continue;
             boolean inRange = false;
-            for (var p : client.world.getPlayers()) {
-                if (p.getUuid().equals(pid)) { inRange = client.player.distanceTo(p) <= 20.0; break; }
+            for (var p : client.level.players()) {
+                if (p.getUUID().equals(pid)) { inRange = client.player.distanceTo(p) <= 20.0; break; }
             }
             if (!inRange) continue;
         }

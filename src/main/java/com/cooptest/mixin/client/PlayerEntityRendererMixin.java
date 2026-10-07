@@ -1,15 +1,8 @@
 package com.cooptest.mixin.client;
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.RotationAxis;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,44 +11,49 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.UUID;
-@Mixin(PlayerEntityRenderer.class)
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+@Mixin(AvatarRenderer.class)
 public class PlayerEntityRendererMixin {
     @Unique
     private static final HashMap<UUID, Boolean> matrixPushed = new HashMap<>();
     @Unique
     private static final HashMap<UUID, Float> lockedYaw = new HashMap<>();
-    @Inject(method = "setupTransforms(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;FF)V", at = @At("RETURN"))
-    private void rotateGrabbedPlayer(@Coerce Object stateObj, MatrixStack matrices, float bodyYaw, float animationProgress, CallbackInfo ci) {
-        PlayerEntityRenderState state = (PlayerEntityRenderState) stateObj;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
-        Entity entity = client.world.getEntityById(state.id);
-        if (!(entity instanceof PlayerEntity player)) return;
-        UUID uuid = player.getUuid();
+    @Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("RETURN"))
+    private void rotateGrabbedPlayer(@Coerce Object stateObj, PoseStack matrices, float bodyYaw, float animationProgress, CallbackInfo ci) {
+        AvatarRenderState state = (AvatarRenderState) stateObj;
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) return;
+        Entity entity = client.level.getEntity(state.id);
+        if (!(entity instanceof Player player)) return;
+        UUID uuid = player.getUUID();
         PoseState pose = PoseNetworking.poseStates.getOrDefault(uuid, PoseState.NONE);
         if (pose == PoseState.GRABBED) {
             float facingYaw;
             Entity vehicle = player.getVehicle();
-            if (vehicle instanceof PlayerEntity holder) {
-                facingYaw = holder.getYaw();
-                lockedYaw.put(player.getUuid(), facingYaw);
+            if (vehicle instanceof Player holder) {
+                facingYaw = holder.getYRot();
+                lockedYaw.put(player.getUUID(), facingYaw);
             } else {
-                if (lockedYaw.containsKey(player.getUuid())) {
-                    facingYaw = lockedYaw.get(player.getUuid());
+                if (lockedYaw.containsKey(player.getUUID())) {
+                    facingYaw = lockedYaw.get(player.getUUID());
                 } else {
-                    facingYaw = player.getYaw();
-                    lockedYaw.put(player.getUuid(), facingYaw);
+                    facingYaw = player.getYRot();
+                    lockedYaw.put(player.getUUID(), facingYaw);
                 }
             }
             float counterRotation = -bodyYaw + facingYaw;
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(counterRotation));
+            matrices.mulPose(Axis.YP.rotationDegrees(counterRotation));
             matrices.translate(0, 0.9, 0);
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+            matrices.mulPose(Axis.XP.rotationDegrees(90));
             matrices.translate(0, -0.9, 0);
-            matrixPushed.put(player.getUuid(), true);
+            matrixPushed.put(player.getUUID(), true);
         } else {
-            lockedYaw.remove(player.getUuid());
-            matrixPushed.put(player.getUuid(), false);
+            lockedYaw.remove(player.getUUID());
+            matrixPushed.put(player.getUUID(), false);
         }
     }
 }

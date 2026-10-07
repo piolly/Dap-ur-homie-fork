@@ -3,16 +3,15 @@ package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 /**
@@ -39,14 +38,14 @@ public class MarioJumpHandler {
     /**
      * Client -> Server: Request mario jump (player pressed SPACE)
      */
-    public record MarioJumpRequestPayload() implements CustomPayload {
-        public static final Id<MarioJumpRequestPayload> ID =
-                new Id<>(Identifier.of("testcoop", "mario_jump_request"));
-        public static final PacketCodec<PacketByteBuf, MarioJumpRequestPayload> CODEC =
-                PacketCodec.unit(new MarioJumpRequestPayload());
+    public record MarioJumpRequestPayload() implements CustomPacketPayload {
+        public static final Type<MarioJumpRequestPayload> ID =
+                new Type<>(Identifier.fromNamespaceAndPath("testcoop", "mario_jump_request"));
+        public static final StreamCodec<FriendlyByteBuf, MarioJumpRequestPayload> CODEC =
+                StreamCodec.unit(new MarioJumpRequestPayload());
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
 
@@ -57,7 +56,7 @@ public class MarioJumpHandler {
 
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(MarioJumpRequestPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> onMarioJumpRequest(player));
         });
 
@@ -69,7 +68,7 @@ public class MarioJumpHandler {
             while (marioIt.hasNext()) {
                 Map.Entry<UUID, Long> entry = marioIt.next();
                 if (now >= entry.getValue()) {
-                    ServerPlayerEntity player = server.getPlayerManager().getPlayer(entry.getKey());
+                    ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
                     if (player != null) {
                         PoseNetworking.broadcastAnimState(player, 0); // NONE
                     }
@@ -81,7 +80,7 @@ public class MarioJumpHandler {
             while (popIt.hasNext()) {
                 Map.Entry<UUID, Long> entry = popIt.next();
                 if (now >= entry.getValue()) {
-                    ServerPlayerEntity player = server.getPlayerManager().getPlayer(entry.getKey());
+                    ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
                     if (player != null) {
                         PoseNetworking.broadcastAnimState(player, 0); // NONE
                     }
@@ -96,10 +95,10 @@ public class MarioJumpHandler {
     /**
      * Handle mario jump request from client
      */
-    private static void onMarioJumpRequest(ServerPlayerEntity jumper) {
+    private static void onMarioJumpRequest(ServerPlayer jumper) {
         if (jumper == null) return;
 
-        UUID jumperId = jumper.getUuid();
+        UUID jumperId = jumper.getUUID();
         long now = System.currentTimeMillis();
 
         // Check cooldown
@@ -115,7 +114,7 @@ public class MarioJumpHandler {
         }
 
 
-        ServerPlayerEntity target = findPlayerBelow(jumper);
+        ServerPlayer target = findPlayerBelow(jumper);
         if (target == null) {
             return;
         }
@@ -128,24 +127,24 @@ public class MarioJumpHandler {
     /**
      * Find a player whose head we're standing on
      */
-    private static ServerPlayerEntity findPlayerBelow(ServerPlayerEntity jumper) {
-        ServerWorld world = jumper.getEntityWorld();
-        Vec3d jumperPos = jumper.getEntityPos();
+    private static ServerPlayer findPlayerBelow(ServerPlayer jumper) {
+        ServerLevel world = jumper.level();
+        Vec3 jumperPos = jumper.position();
         double jumperFeetY = jumperPos.y;
 
-        Box searchBox = new Box(
+        AABB searchBox = new AABB(
                 jumperPos.x - 0.8, jumperPos.y - 2.5, jumperPos.z - 0.8,
                 jumperPos.x + 0.8, jumperPos.y + 0.5, jumperPos.z + 0.8
         );
 
-        List<ServerPlayerEntity> nearby = world.getEntitiesByClass(
-                ServerPlayerEntity.class, searchBox,
+        List<ServerPlayer> nearby = world.getEntitiesOfClass(
+                ServerPlayer.class, searchBox,
                 p -> p != jumper && p.isAlive()
         );
 
-        for (ServerPlayerEntity target : nearby) {
-            Vec3d targetEntityPos = target.getEntityPos();
-            double targetHeadY = targetEntityPos.y + target.getStandingEyeHeight() + 0.15;
+        for (ServerPlayer target : nearby) {
+            Vec3 targetEntityPos = target.position();
+            double targetHeadY = targetEntityPos.y + target.getEyeHeight() + 0.15;
 
             double heightDiff = jumperFeetY - targetHeadY;
             if (heightDiff >= -0.35 && heightDiff <= 0.5) {
@@ -165,35 +164,35 @@ public class MarioJumpHandler {
     /**
      *  the mario jump
      */
-    private static void executeMarioJump(ServerPlayerEntity jumper, ServerPlayerEntity target) {
-        ServerWorld world = jumper.getEntityWorld();
-        Vec3d pos = jumper.getEntityPos();
+    private static void executeMarioJump(ServerPlayer jumper, ServerPlayer target) {
+        ServerLevel world = jumper.level();
+        Vec3 pos = jumper.position();
         long now = System.currentTimeMillis();
 
         // DEBUG: Log animation triggers I HATE THIS
         System.out.println("[MARIO JUMP] Executing mario jump!");
-        System.out.println("[MARIO JUMP] Jumper: " + jumper.getName().getString() + " (UUID: " + jumper.getUuid() + ")");
-        System.out.println("[MARIO JUMP] Target: " + target.getName().getString() + " (UUID: " + target.getUuid() + ")");
+        System.out.println("[MARIO JUMP] Jumper: " + jumper.getName().getString() + " (UUID: " + jumper.getUUID() + ")");
+        System.out.println("[MARIO JUMP] Target: " + target.getName().getString() + " (UUID: " + target.getUUID() + ")");
         System.out.println("[MARIO JUMP] Broadcasting MARIO_JUMP (ordinal 30) to jumper");
         System.out.println("[MARIO JUMP] Broadcasting POP (ordinal 31) to target");
 
-        Vec3d velocity = jumper.getVelocity();
-        jumper.setVelocity(velocity.x, LAUNCH_VELOCITY, velocity.z);
-        jumper.knockedBack = true;
+        Vec3 velocity = jumper.getDeltaMovement();
+        jumper.setDeltaMovement(velocity.x, LAUNCH_VELOCITY, velocity.z);
+        jumper.hurtMarked = true;
         PoseNetworking.broadcastAnimState(jumper, 30); // MARIO_JUMP
         PoseNetworking.broadcastAnimState(target, 31); // POP
 
         System.out.println("[MARIO JUMP] Animations broadcast complete IT WORKING FINALLY!");
 
-        marioAnimEnd.put(jumper.getUuid(), now + MARIO_ANIM_DURATION_MS);
-        popAnimEnd.put(target.getUuid(), now + POP_ANIM_DURATION_MS);
+        marioAnimEnd.put(jumper.getUUID(), now + MARIO_ANIM_DURATION_MS);
+        popAnimEnd.put(target.getUUID(), now + POP_ANIM_DURATION_MS);
 
         world.playSound(null, pos.x, pos.y, pos.z,
-                ModSounds.MARIO_JUMP, SoundCategory.PLAYERS, 1.0f, 1.0f);
+                ModSounds.MARIO_JUMP, SoundSource.PLAYERS, 1.0f, 1.0f);
 
         // Messages
-        jumper.sendMessage(net.minecraft.text.Text.literal("§a WAHOO!"), true);
-        target.sendMessage(net.minecraft.text.Text.literal("§c BONK!"), true);
+        jumper.displayClientMessage(net.minecraft.network.chat.Component.literal("§a WAHOO!"), true);
+        target.displayClientMessage(net.minecraft.network.chat.Component.literal("§c BONK!"), true);
     }
 
     /**

@@ -1,20 +1,20 @@
 package com.cooptest;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
 
 
 public class ModEffects {
 
-    public static RegistryEntry<StatusEffect> MAHITO;
+    public static Holder<MobEffect> MAHITO;
 
     public static void register() {
-        MAHITO = Registry.registerReference(
-                Registries.STATUS_EFFECT,
-                Identifier.of("testcoop", "mahito"),
+        MAHITO = Registry.registerForHolder(
+                BuiltInRegistries.MOB_EFFECT,
+                Identifier.fromNamespaceAndPath("testcoop", "mahito"),
                 new MahitoEffect()
         );
     }

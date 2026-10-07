@@ -1,8 +1,7 @@
 package com.cooptest;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.server.network.ServerPlayerEntity;
-
+import net.minecraft.server.level.ServerPlayer;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -23,7 +22,7 @@ public class LaunchedPlayerTracker {
                 UUID id = entry.getKey();
                 int ticks = entry.getValue();
 
-                ServerPlayerEntity player = server.getPlayerManager().getPlayer(id);
+                ServerPlayer player = server.getPlayerList().getPlayer(id);
                 if (player == null) {
                     iterator.remove();
                     continue;

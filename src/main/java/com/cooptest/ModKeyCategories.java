@@ -1,9 +1,9 @@
 package com.cooptest;
 
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.Identifier;
 
 public class ModKeyCategories {
-    public static final KeyBinding.Category COOPMOVES =
-            KeyBinding.Category.create(Identifier.of("testcoop", "coopmoves"));
+    public static final KeyMapping.Category COOPMOVES =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("testcoop", "coopmoves"));
 }

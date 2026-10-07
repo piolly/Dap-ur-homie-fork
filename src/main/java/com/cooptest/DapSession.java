@@ -1,11 +1,10 @@
 package com.cooptest;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
 
@@ -13,8 +12,8 @@ public class DapSession {
 
     private final UUID playerAId;
     private final UUID playerBId;
-    private Vec3d targetA;
-    private Vec3d targetB;
+    private Vec3 targetA;
+    private Vec3 targetB;
 
     private final long startTime;
     private int tickCount;
@@ -60,8 +59,8 @@ public class DapSession {
 
  
     public void tick(MinecraftServer server) {
-        ServerPlayerEntity playerA = server.getPlayerManager().getPlayer(playerAId);
-        ServerPlayerEntity playerB = server.getPlayerManager().getPlayer(playerBId);
+        ServerPlayer playerA = server.getPlayerList().getPlayer(playerAId);
+        ServerPlayer playerB = server.getPlayerList().getPlayer(playerBId);
 
         // Safety checks
         if (playerA == null || playerB == null) {
@@ -85,8 +84,8 @@ public class DapSession {
         computeTargets(playerA, playerB);
         smoothMoveToTargets(playerA, playerB);
         makeFaceEachOther(playerA, playerB);
-        playerA.swingHand(net.minecraft.util.Hand.MAIN_HAND);
-        playerB.swingHand(net.minecraft.util.Hand.MAIN_HAND);
+        playerA.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        playerB.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
 
         if (!positioningComplete) {
             checkPositioningComplete(playerA, playerB);
@@ -96,72 +95,72 @@ public class DapSession {
     }
 
    
-    private void freezePlayers(ServerPlayerEntity playerA, ServerPlayerEntity playerB) {
+    private void freezePlayers(ServerPlayer playerA, ServerPlayer playerB) {
         // Stop velocity completely
-        playerA.setVelocity(Vec3d.ZERO);
-        playerB.setVelocity(Vec3d.ZERO);
-        playerA.knockedBack = true;
-        playerB.knockedBack = true;
+        playerA.setDeltaMovement(Vec3.ZERO);
+        playerB.setDeltaMovement(Vec3.ZERO);
+        playerA.hurtMarked = true;
+        playerB.hurtMarked = true;
 
         playerA.fallDistance = 0;
         playerB.fallDistance = 0;
     }
 
    
-    private void computeTargets(ServerPlayerEntity playerA, ServerPlayerEntity playerB) {
-        Vec3d posA = playerA.getEntityPos();
-        Vec3d posB = playerB.getEntityPos();
+    private void computeTargets(ServerPlayer playerA, ServerPlayer playerB) {
+        Vec3 posA = playerA.position();
+        Vec3 posB = playerB.position();
 
-        Vec3d midpoint = posA.add(posB).multiply(0.5);
+        Vec3 midpoint = posA.add(posB).scale(0.5);
 
-        Vec3d direction = posB.subtract(posA);
+        Vec3 direction = posB.subtract(posA);
         if (direction.length() < 0.001) {
-            direction = new Vec3d(1, 0, 0);
+            direction = new Vec3(1, 0, 0);
         }
         direction = direction.normalize();
 
         double halfDistance = targetDistance / 2.0;
-        targetA = midpoint.subtract(direction.multiply(halfDistance));
-        targetB = midpoint.add(direction.multiply(halfDistance));
+        targetA = midpoint.subtract(direction.scale(halfDistance));
+        targetB = midpoint.add(direction.scale(halfDistance));
 
         double targetY = Math.max(posA.y, posB.y);
 
-        ServerWorld world = playerA.getEntityWorld();
+        ServerLevel world = playerA.level();
         BlockPos groundPos = new BlockPos((int)midpoint.x, (int)targetY - 1, (int)midpoint.z);
         if (world.getBlockState(groundPos).isAir()) {
             targetY = Math.min(posA.y, posB.y);
         }
 
-        targetA = new Vec3d(targetA.x, targetY, targetA.z);
-        targetB = new Vec3d(targetB.x, targetY, targetB.z);
+        targetA = new Vec3(targetA.x, targetY, targetA.z);
+        targetB = new Vec3(targetB.x, targetY, targetB.z);
     }
 
     
-    private void smoothMoveToTargets(ServerPlayerEntity playerA, ServerPlayerEntity playerB) {
-        Vec3d currentA = playerA.getEntityPos();
-        Vec3d currentB = playerB.getEntityPos();
+    private void smoothMoveToTargets(ServerPlayer playerA, ServerPlayer playerB) {
+        Vec3 currentA = playerA.position();
+        Vec3 currentB = playerB.position();
 
-        Vec3d newPosA = new Vec3d(
+        Vec3 newPosA = new Vec3(
                 lerp(currentA.x, targetA.x, lerpSpeed),
                 lerp(currentA.y, targetA.y, lerpSpeed),
                 lerp(currentA.z, targetA.z, lerpSpeed)
         );
 
-        Vec3d newPosB = new Vec3d(
+        Vec3 newPosB = new Vec3(
                 lerp(currentB.x, targetB.x, lerpSpeed),
                 lerp(currentB.y, targetB.y, lerpSpeed),
                 lerp(currentB.z, targetB.z, lerpSpeed)
         );
 
 
-        playerA.teleport(playerA.getEntityWorld(), newPosA.x, newPosA.y, newPosA.z, java.util.Set.of(), playerA.getYaw(), playerA.getPitch(), false);
-        playerB.teleport(playerB.getEntityWorld(), newPosB.x, newPosB.y, newPosB.z, java.util.Set.of(), playerB.getYaw(), playerB.getPitch(), false);
+        playerA.teleportTo(playerA.level(), newPosA.x, newPosA.y, newPosA.z, java.util.Set.of(), playerA.getYRot(), playerA.getXRot(), false);
+        playerB.teleportTo(playerB.level(), newPosB.x, newPosB.y, newPosB.z, java.util.Set.of(), playerB.getYRot(), playerB.getXRot(), false);
     }
 
    
-    private void makeFaceEachOther(ServerPlayerEntity playerA, ServerPlayerEntity playerB) {
-        Vec3d posA = playerA.getEntityPos();
-        Vec3d posB = playerB.getEntityPos();
+    private void makeFaceEachOther(ServerPlayer playerA, ServerPlayer playerB) {
+        Vec3 posA = playerA.position();
+        Vec3 posB = playerB.position();
 
         // Calculate yaw to face each other
         double dx = posB.x - posA.x;
@@ -169,28 +168,28 @@ public class DapSession {
         float yawA = (float) (Math.atan2(dz, dx) * 180 / Math.PI) - 90;
         float yawB = yawA + 180;  // Opposite direction
 
-        playerA.setYaw(yawA);
-        playerA.setBodyYaw(yawA);
-        playerA.setHeadYaw(yawA);
-        playerA.lastYaw = yawA;  // Prevent interpolation
-        playerA.lastBodyYaw = yawA;  // Prevent body lag
-        playerA.lastHeadYaw = yawA;
+        playerA.setYRot(yawA);
+        playerA.setYBodyRot(yawA);
+        playerA.setYHeadRot(yawA);
+        playerA.yRotO = yawA;  // Prevent interpolation
+        playerA.yBodyRotO = yawA;  // Prevent body lag
+        playerA.yHeadRotO = yawA;
 
-        playerB.setYaw(yawB);
-        playerB.setBodyYaw(yawB);
-        playerB.setHeadYaw(yawB);
-        playerB.lastYaw = yawB;  // Prevent interpolation
-        playerB.lastBodyYaw = yawB;  // Prevent body lag
-        playerB.lastHeadYaw = yawB;
+        playerB.setYRot(yawB);
+        playerB.setYBodyRot(yawB);
+        playerB.setYHeadRot(yawB);
+        playerB.yRotO = yawB;  // Prevent interpolation
+        playerB.yBodyRotO = yawB;  // Prevent body lag
+        playerB.yHeadRotO = yawB;
 
-        playerA.teleport(playerA.getEntityWorld(), posA.x, posA.y, posA.z, java.util.Set.of(), yawA, playerA.getPitch(), false);
-        playerB.teleport(playerB.getEntityWorld(), posB.x, posB.y, posB.z, java.util.Set.of(), yawB, playerB.getPitch(), false);
+        playerA.teleportTo(playerA.level(), posA.x, posA.y, posA.z, java.util.Set.of(), yawA, playerA.getXRot(), false);
+        playerB.teleportTo(playerB.level(), posB.x, posB.y, posB.z, java.util.Set.of(), yawB, playerB.getXRot(), false);
     }
 
     
-    private void checkPositioningComplete(ServerPlayerEntity playerA, ServerPlayerEntity playerB) {
-        double distA = playerA.getEntityPos().distanceTo(targetA);
-        double distB = playerB.getEntityPos().distanceTo(targetB);
+    private void checkPositioningComplete(ServerPlayer playerA, ServerPlayer playerB) {
+        double distA = playerA.position().distanceTo(targetA);
+        double distB = playerB.position().distanceTo(targetB);
 
         double threshold = (type == DapType.PERFECT_DAP) ? 0.35 : 0.25;
         if (distA < threshold && distB < threshold) {
@@ -206,7 +205,7 @@ public class DapSession {
     }
 
     
-    private void forceComplete(ServerPlayerEntity playerA, ServerPlayerEntity playerB) {
+    private void forceComplete(ServerPlayer playerA, ServerPlayer playerB) {
         if (!positioningComplete) {
             positioningComplete = true;
             System.out.println("[DapSession] Force completed");
@@ -228,6 +227,6 @@ public class DapSession {
     public int getTickCount() { return tickCount; }
     public DapType getType() { return type; }
     public long getStartTime() { return startTime; }
-    public Vec3d getTargetA() { return targetA; }
-    public Vec3d getTargetB() { return targetB; }
+    public Vec3 getTargetA() { return targetA; }
+    public Vec3 getTargetB() { return targetB; }
 }

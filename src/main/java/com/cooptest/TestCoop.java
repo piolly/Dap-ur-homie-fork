@@ -93,7 +93,7 @@ public class TestCoop implements ModInitializer {
             }
             CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
                 DebugQTECommand.register(dispatcher);
-                dispatcher.register(net.minecraft.server.command.CommandManager
+                dispatcher.register(net.minecraft.commands.Commands
                         .literal("sit").executes(SitHandler::executeSit));
            //     HeavenDapCommand.register(dispatcher);
             });
@@ -108,7 +108,7 @@ public class TestCoop implements ModInitializer {
                     QTEManager.tick(server);
                     if (cfg.enableDapCombo) DapComboChain.tick(server);
                 }
-                if (cfg.enablePush && server.getTicks() % 20 == 0) {
+                if (cfg.enablePush && server.getTickCount() % 20 == 0) {
                     PushInteractionHandler.cleanupExpiredImmunity();
                 }
             });

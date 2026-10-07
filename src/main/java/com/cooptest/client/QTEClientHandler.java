@@ -4,9 +4,7 @@ import com.cooptest.QTEButtonPressPayload;
 import com.cooptest.QTEWindowPayload;
 import com.cooptest.QTEClearPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
 
 
 public class QTEClientHandler {
@@ -93,11 +91,11 @@ public class QTEClientHandler {
     // ==================== HUD RENDERING ====================
 
 
-    public static void renderHUD(DrawContext context, int screenWidth, int screenHeight) {
+    public static void renderHUD(GuiGraphics context, int screenWidth, int screenHeight) {
         if (!active) return;
 
         long now = System.currentTimeMillis();
-        var matrices = context.getMatrices();
+        var matrices = context.pose();
         matrices.pushMatrix();
      // matrices.translate(0, 0, 1000);      no need i think
 
@@ -155,9 +153,9 @@ public class QTEClientHandler {
         }
 
         if (expectedButton != null && !pressedThisWindow) {
-            var client = net.minecraft.client.MinecraftClient.getInstance();
+            var client = net.minecraft.client.Minecraft.getInstance();
             String keyText = "[" + expectedButton + "]";
-            int textWidth = client.textRenderer.getWidth(keyText);
+            int textWidth = client.font.width(keyText);
             int textX = (screenWidth - textWidth) / 2;
             int textY = barY - 12;
 
@@ -168,7 +166,7 @@ public class QTEClientHandler {
             }
             int textColor = (alpha << 24) | 0xFFFFFF;
 
-            context.drawText(client.textRenderer, keyText, textX, textY, textColor, true);
+            context.drawString(client.font, keyText, textX, textY, textColor, true);
         }
 
         if (maxStages > 1) {

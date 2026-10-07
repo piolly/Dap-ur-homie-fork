@@ -1,18 +1,18 @@
 package com.cooptest;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 
 
-public class MahitoEffect extends StatusEffect {
+public class MahitoEffect extends MobEffect {
 
     public MahitoEffect() {
-        super(StatusEffectCategory.HARMFUL, 0x9932CC);
+        super(MobEffectCategory.HARMFUL, 0x9932CC);
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return duration % 10 == 0;
     }
 

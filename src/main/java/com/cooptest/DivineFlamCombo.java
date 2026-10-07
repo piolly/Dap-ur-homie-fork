@@ -2,17 +2,16 @@ package com.cooptest;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 
@@ -26,23 +25,23 @@ public class DivineFlamCombo {
     private static final long COMBO_WINDOW_MS = 1460;
     private static final long COMBO_FREEZE_MS = 3800;
 
-    public static final Identifier DIVINE_J_PRESS_ID = Identifier.of("cooptest", "divine_j_press");
-    public static final Identifier DIVINE_START_ID = Identifier.of("cooptest", "divine_start");
+    public static final Identifier DIVINE_J_PRESS_ID = Identifier.fromNamespaceAndPath("cooptest", "divine_j_press");
+    public static final Identifier DIVINE_START_ID = Identifier.fromNamespaceAndPath("cooptest", "divine_start");
 
-    public record DivineJPressPayload() implements CustomPayload {
-        public static final Id<DivineJPressPayload> ID = new Id<>(DIVINE_J_PRESS_ID);
-        public static final PacketCodec<PacketByteBuf, DivineJPressPayload> CODEC =
-                PacketCodec.unit(new DivineJPressPayload());
+    public record DivineJPressPayload() implements CustomPacketPayload {
+        public static final Type<DivineJPressPayload> ID = new Type<>(DIVINE_J_PRESS_ID);
+        public static final StreamCodec<FriendlyByteBuf, DivineJPressPayload> CODEC =
+                StreamCodec.unit(new DivineJPressPayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record DivineStartPayload() implements CustomPayload {
-        public static final Id<DivineStartPayload> ID = new Id<>(DIVINE_START_ID);
-        public static final PacketCodec<PacketByteBuf, DivineStartPayload> CODEC =
-                PacketCodec.unit(new DivineStartPayload());
+    public record DivineStartPayload() implements CustomPacketPayload {
+        public static final Type<DivineStartPayload> ID = new Type<>(DIVINE_START_ID);
+        public static final StreamCodec<FriendlyByteBuf, DivineStartPayload> CODEC =
+                StreamCodec.unit(new DivineStartPayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
     public static void registerPayloads() {
@@ -54,16 +53,16 @@ public class DivineFlamCombo {
     public static void register() {
         // Listen for J key press
         ServerPlayNetworking.registerGlobalReceiver(DivineJPressPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> onPlayerPressJ(player));
         });
         System.out.println("[Divine Flame] Handlers registered");
     }
 
 
-    public static void startDivineFlame(ServerPlayerEntity p1, ServerPlayerEntity p2, Vec3d midpoint) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+    public static void startDivineFlame(ServerPlayer p1, ServerPlayer p2, Vec3 midpoint) {
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
         long now = System.currentTimeMillis();
 
         System.out.println("[Divine Flame] ===== STARTING DIVINE FLAME =====");
@@ -83,16 +82,16 @@ public class DivineFlamCombo {
         ServerPlayNetworking.send(p1, new DivineStartPayload());
         ServerPlayNetworking.send(p2, new DivineStartPayload());
 
-        ServerWorld world = p1.getEntityWorld();
+        ServerLevel world = p1.level();
         world.playSound(null, midpoint.x, midpoint.y, midpoint.z,
-                ModSounds.EPIC_DAP, SoundCategory.PLAYERS, 1.5f, 1.1f);
+                ModSounds.EPIC_DAP, SoundSource.PLAYERS, 1.5f, 1.1f);
 
         System.out.println("[Divine Flame] Divine Flame window opened! Players have 1.46s to press J");
     }
 
 
-    private static void onPlayerPressJ(ServerPlayerEntity player) {
-        UUID playerId = player.getUuid();
+    private static void onPlayerPressJ(ServerPlayer player) {
+        UUID playerId = player.getUUID();
 
 
         Long windowStart = comboWindowStart.get(playerId);
@@ -109,7 +108,7 @@ public class DivineFlamCombo {
         UUID partnerId = comboPartner.get(playerId);
         if (partnerId == null) return;
 
-        ServerPlayerEntity partner = player.getEntityWorld().getServer().getPlayerManager().getPlayer(partnerId);
+        ServerPlayer partner = player.level().getServer().getPlayerList().getPlayer(partnerId);
         if (partner == null) return;
 
         // Check if partner also in window
@@ -119,9 +118,9 @@ public class DivineFlamCombo {
     }
 
    
-    private static void executeCombo(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+    private static void executeCombo(ServerPlayer p1, ServerPlayer p2) {
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
         long now = System.currentTimeMillis();
 
         System.out.println("[Divine Flame] ===== EXECUTING COMBO =====");
@@ -140,61 +139,61 @@ public class DivineFlamCombo {
         PoseNetworking.broadcastAnimState(p1, 37);
         PoseNetworking.broadcastAnimState(p2, 38);
 
-        ServerWorld world = p1.getEntityWorld();
-        Vec3d midpoint = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5);
+        ServerLevel world = p1.level();
+        Vec3 midpoint = p1.position().add(p2.position()).scale(0.5);
 
         System.out.println("[Divine Flame] Spawning Divine Flame vortex at " + midpoint);
 
         world.playSound(null, midpoint.x, midpoint.y, midpoint.z,
-                SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 10.0f, 0.2f);
+                SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 10.0f, 0.2f);
         world.playSound(null, midpoint.x, midpoint.y, midpoint.z,
-                SoundEvents.ENTITY_GHAST_SHOOT, SoundCategory.PLAYERS, 5.0f, 0.5f);
+                SoundEvents.GHAST_SHOOT, SoundSource.PLAYERS, 5.0f, 0.5f);
 
         System.out.println("[Divine Flame] Spawning particles...");
 
         // Particles
-        world.spawnParticles(ParticleTypes.FLAME, midpoint.x, midpoint.y + 1, midpoint.z, 100, 1.0, 1.0, 1.0, 0.2);
-        world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, midpoint.x, midpoint.y + 1, midpoint.z, 50, 0.8, 0.8, 0.8, 0.15);
-        world.spawnParticles(ParticleTypes.LAVA, midpoint.x, midpoint.y + 1, midpoint.z, 30, 0.5, 0.5, 0.5, 0.1);
+        world.sendParticles(ParticleTypes.FLAME, midpoint.x, midpoint.y + 1, midpoint.z, 100, 1.0, 1.0, 1.0, 0.2);
+        world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, midpoint.x, midpoint.y + 1, midpoint.z, 50, 0.8, 0.8, 0.8, 0.15);
+        world.sendParticles(ParticleTypes.LAVA, midpoint.x, midpoint.y + 1, midpoint.z, 30, 0.5, 0.5, 0.5, 0.1);
 
         System.out.println("[Divine Flame] DIVINE FLAME SPAWNED! Frozen for 3.8 seconds");
     }
 
  
-    public static void tick(ServerWorld world) {
+    public static void tick(ServerLevel world) {
         long now = System.currentTimeMillis();
 
         for (Map.Entry<UUID, UUID> entry : comboPartner.entrySet()) {
             UUID id1 = entry.getKey();
             UUID id2 = entry.getValue();
 
-            ServerPlayerEntity p1 = world.getServer().getPlayerManager().getPlayer(id1);
-            ServerPlayerEntity p2 = world.getServer().getPlayerManager().getPlayer(id2);
+            ServerPlayer p1 = world.getServer().getPlayerList().getPlayer(id1);
+            ServerPlayer p2 = world.getServer().getPlayerList().getPlayer(id2);
 
             if (p1 != null && p2 != null) {
-                double distance = p1.getEntityPos().distanceTo(p2.getEntityPos());
+                double distance = p1.position().distanceTo(p2.position());
 
                 if (distance > 1.0) {
-                    Vec3d p1Pos = p1.getEntityPos();
-                    Vec3d p2Pos = p2.getEntityPos();
+                    Vec3 p1Pos = p1.position();
+                    Vec3 p2Pos = p2.position();
 
-                    Vec3d direction = p2Pos.subtract(p1Pos).normalize();
+                    Vec3 direction = p2Pos.subtract(p1Pos).normalize();
 
                     double targetDistance = 0.8;
 
-                    Vec3d midpoint = p1Pos.add(p2Pos).multiply(0.5);
-                    Vec3d offset = direction.multiply(targetDistance / 2.0);
+                    Vec3 midpoint = p1Pos.add(p2Pos).scale(0.5);
+                    Vec3 offset = direction.scale(targetDistance / 2.0);
 
-                    Vec3d targetP1 = midpoint.subtract(offset);
-                    Vec3d targetP2 = midpoint.add(offset);
+                    Vec3 targetP1 = midpoint.subtract(offset);
+                    Vec3 targetP2 = midpoint.add(offset);
 
                     double dx = p2Pos.x - p1Pos.x;
                     double dz = p2Pos.z - p1Pos.z;
                     float yawP1 = (float) (Math.atan2(dz, dx) * 180 / Math.PI) - 90;
                     float yawP2 = yawP1 + 180; // Face opposite direction
 
-                    p1.teleport(p1.getEntityWorld(), targetP1.x, targetP1.y, targetP1.z, java.util.Set.of(), yawP1, 0.0f, false);
-                    p2.teleport(p2.getEntityWorld(), targetP2.x, targetP2.y, targetP2.z, java.util.Set.of(), yawP2, 0.0f, false);
+                    p1.teleportTo(p1.level(), targetP1.x, targetP1.y, targetP1.z, java.util.Set.of(), yawP1, 0.0f, false);
+                    p2.teleportTo(p2.level(), targetP2.x, targetP2.y, targetP2.z, java.util.Set.of(), yawP2, 0.0f, false);
                 }
             }
         }
@@ -203,7 +202,7 @@ public class DivineFlamCombo {
             if (now - entry.getValue() > COMBO_WINDOW_MS) {
                 UUID id = entry.getKey();
                 comboPartner.remove(id);
-                ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(id);
+                ServerPlayer player = world.getServer().getPlayerList().getPlayer(id);
                 if (player != null) {
                     PoseNetworking.broadcastAnimState(player, 0);
                 }
@@ -214,7 +213,7 @@ public class DivineFlamCombo {
 
         comboFreezeEnd.entrySet().removeIf(entry -> {
             if (now >= entry.getValue()) {
-                ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(entry.getKey());
+                ServerPlayer player = world.getServer().getPlayerList().getPlayer(entry.getKey());
                 if (player != null) {
                     PoseNetworking.broadcastAnimState(player, 0);
                 }

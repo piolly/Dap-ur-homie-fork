@@ -1,11 +1,11 @@
 package com.cooptest;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 
 public class CarryingSlowdown {
@@ -14,32 +14,32 @@ public class CarryingSlowdown {
 
     private static final double SLOWDOWN_AMOUNT = -(1.0 - CARRY_SPEED_MULTIPLIER) * 0.1;
 
-    private static final Identifier MODIFIER_ID = Identifier.of("cooptest", "carrying_slowdown");
+    private static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath("cooptest", "carrying_slowdown");
 
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 updateSlowdown(player);
             }
         });
     }
 
-    private static void updateSlowdown(ServerPlayerEntity player) {
-        PoseState pose = PoseNetworking.poseStates.getOrDefault(player.getUuid(), PoseState.NONE);
+    private static void updateSlowdown(ServerPlayer player) {
+        PoseState pose = PoseNetworking.poseStates.getOrDefault(player.getUUID(), PoseState.NONE);
         boolean isCarrying = pose == PoseState.GRAB_HOLDING;
 
-        EntityAttributeInstance speedAttr = player.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        AttributeInstance speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speedAttr == null) return;
 
-        EntityAttributeModifier existingModifier = speedAttr.getModifier(MODIFIER_ID);
+        AttributeModifier existingModifier = speedAttr.getModifier(MODIFIER_ID);
 
         if (isCarrying) {
             // Add slowdown if not present
             if (existingModifier == null) {
-                speedAttr.addTemporaryModifier(new EntityAttributeModifier(
+                speedAttr.addTransientModifier(new AttributeModifier(
                         MODIFIER_ID,
                         SLOWDOWN_AMOUNT,
-                        EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                 ));
             }
         } else {

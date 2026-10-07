@@ -1,32 +1,32 @@
 package com.cooptest;
 
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 public class PoseEffects {
 
-    public static void playIdleEffects(ServerPlayerEntity player) {
-        ServerWorld world = player.getEntityWorld();
-        Vec3d pos = player.getEntityPos();
+    public static void playIdleEffects(ServerPlayer player) {
+        ServerLevel world = player.level();
+        Vec3 pos = player.position();
 
         // Whoosh sound
         world.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-                SoundCategory.PLAYERS, 1.0f, 1.2f);
+                SoundEvents.PLAYER_ATTACK_SWEEP,
+                SoundSource.PLAYERS, 1.0f, 1.2f);
 
 
     }
 
-    public static void playActionEffects(ServerPlayerEntity pusher, ServerPlayerEntity target) {
-        ServerWorld world = pusher.getEntityWorld();
-        Vec3d pusherPos = pusher.getEntityPos();
-        Vec3d targetEntityPos = target.getEntityPos();
+    public static void playActionEffects(ServerPlayer pusher, ServerPlayer target) {
+        ServerLevel world = pusher.level();
+        Vec3 pusherPos = pusher.position();
+        Vec3 targetEntityPos = target.position();
 
-        float yaw = pusher.getYaw();
+        float yaw = pusher.getYRot();
         double radians = Math.toRadians(yaw);
         double forwardX = -Math.sin(radians) * 0.8;  // 0.8 blocks in front
         double forwardZ = Math.cos(radians) * 0.8;
@@ -42,56 +42,56 @@ public class PoseEffects {
 
         //  sound
         world.playSound(null, pusherPos.x, pusherPos.y, pusherPos.z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_STRONG,
-                SoundCategory.PLAYERS, 1.0f, 0.8f);
+                SoundEvents.PLAYER_ATTACK_STRONG,
+                SoundSource.PLAYERS, 1.0f, 0.8f);
 
         // Sweep sound
         world.playSound(null, pusherPos.x, pusherPos.y, pusherPos.z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-                SoundCategory.PLAYERS, 1.0f, 1.0f);
+                SoundEvents.PLAYER_ATTACK_SWEEP,
+                SoundSource.PLAYERS, 1.0f, 1.0f);
 
         // Cloud particles at right hand
         for (int i = 0; i < 5; i++) {
-            world.spawnParticles(ParticleTypes.CLOUD,
+            world.sendParticles(ParticleTypes.CLOUD,
                     rightHandX, handY, rightHandZ,
                     1, 0.1, 0.1, 0.1, 0.02);
         }
 
         // Cloud particles at left hand
         for (int i = 0; i < 5; i++) {
-            world.spawnParticles(ParticleTypes.CLOUD,
+            world.sendParticles(ParticleTypes.CLOUD,
                     leftHandX, handY, leftHandZ,
                     1, 0.1, 0.1, 0.1, 0.02);
         }
 
         // Poof at hands
-        world.spawnParticles(ParticleTypes.POOF,
+        world.sendParticles(ParticleTypes.POOF,
                 rightHandX, handY, rightHandZ,
                 3, 0.1, 0.1, 0.1, 0.02);
-        world.spawnParticles(ParticleTypes.POOF,
+        world.sendParticles(ParticleTypes.POOF,
                 leftHandX, handY, leftHandZ,
                 3, 0.1, 0.1, 0.1, 0.02);
 
         // Swoosh for target
         world.playSound(null, targetEntityPos.x, targetEntityPos.y, targetEntityPos.z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-                SoundCategory.PLAYERS, 0.8f, 1.5f);
+                SoundEvents.PLAYER_ATTACK_SWEEP,
+                SoundSource.PLAYERS, 0.8f, 1.5f);
 
         // Small poof at target impact point
-        world.spawnParticles(ParticleTypes.POOF,
+        world.sendParticles(ParticleTypes.POOF,
                 targetEntityPos.x, targetEntityPos.y + 0.5, targetEntityPos.z,
                 3, 0.2, 0.2, 0.2, 0.02);
 
         // Push pusher down slightly
-        pusher.setVelocity(pusher.getVelocity().add(0, -0.15, 0));
-        pusher.knockedBack = true;
+        pusher.setDeltaMovement(pusher.getDeltaMovement().add(0, -0.15, 0));
+        pusher.hurtMarked = true;
     }
 
-    public static void playLaunchTrailEffects(ServerPlayerEntity target) {
-        ServerWorld world = target.getEntityWorld();
-        Vec3d pos = target.getEntityPos();
+    public static void playLaunchTrailEffects(ServerPlayer target) {
+        ServerLevel world = target.level();
+        Vec3 pos = target.position();
 
-        world.spawnParticles(ParticleTypes.CLOUD,
+        world.sendParticles(ParticleTypes.CLOUD,
                 pos.x, pos.y + 0.5, pos.z,
                 2, 0.2, 0.2, 0.2, 0.02);
     }

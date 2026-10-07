@@ -3,9 +3,8 @@ package com.cooptest.client;
 import com.cooptest.DapHoldHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,10 +45,10 @@ public class DapHoldClientHandler {
 
         ClientPlayNetworking.registerGlobalReceiver(DapHoldHandler.DapHoldStartPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
-                    MinecraftClient client = ctx.client();
-                    if (client.player == null || client.world == null) return;
+                    Minecraft client = ctx.client();
+                    if (client.player == null || client.level == null) return;
 
-                    UUID localId = client.player.getUuid();
+                    UUID localId = client.player.getUUID();
                     UUID payloadId = payload.playerId();
                     UUID partnerId = payload.partnerId();
 
@@ -83,7 +82,7 @@ public class DapHoldClientHandler {
                     if (!startAnimPlayed.contains(animKey)) {
                         startAnimPlayed.add(animKey);
 
-                        PlayerEntity targetPlayer = client.world.getPlayerByUuid(payloadId);
+                        Player targetPlayer = client.level.getPlayerByUUID(payloadId);
                         if (targetPlayer != null) {
                             CoopAnimationHandler.playDapHoldStart(targetPlayer, payload.role());
                             System.out.println("[DapHold Client] ✓ Playing anim for " + payloadId + " role=" + payload.role());
@@ -104,8 +103,8 @@ public class DapHoldClientHandler {
         ClientPlayNetworking.registerGlobalReceiver(DapHoldHandler.DapHoldLoopPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     if (myRole == -1) return;
-                    MinecraftClient client = ctx.client();
-                    if (client.player == null || client.world == null) return;
+                    Minecraft client = ctx.client();
+                    if (client.player == null || client.level == null) return;
 
                     looping = payload.looping();
 
@@ -116,7 +115,7 @@ public class DapHoldClientHandler {
                         CoopAnimationHandler.playDapHoldDapping(client.player);
 
                         if (myPartnerId != null) {
-                            PlayerEntity partner = client.world.getPlayerByUuid(myPartnerId);
+                            Player partner = client.level.getPlayerByUUID(myPartnerId);
                             if (partner != null) {
                                 CoopAnimationHandler.playDapHoldDapping(partner);
                             }
@@ -128,8 +127,8 @@ public class DapHoldClientHandler {
         ClientPlayNetworking.registerGlobalReceiver(DapHoldHandler.DapHoldEndPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     if (myRole == -1) return;
-                    MinecraftClient client = ctx.client();
-                    if (client.player == null || client.world == null) return;
+                    Minecraft client = ctx.client();
+                    if (client.player == null || client.level == null) return;
 
                     boolean wasLooping = payload.wasLooping();
 
@@ -138,7 +137,7 @@ public class DapHoldClientHandler {
                         CoopAnimationHandler.playDapHoldEnd(client.player);
 
                         if (myPartnerId != null) {
-                            PlayerEntity partner = client.world.getPlayerByUuid(myPartnerId);
+                            Player partner = client.level.getPlayerByUUID(myPartnerId);
                             if (partner != null) {
                                 CoopAnimationHandler.playDapHoldEnd(partner);
                             }
@@ -152,7 +151,7 @@ public class DapHoldClientHandler {
                             FirstPersonAnimationTest.stop();
 
 
-                            UUID localId = client.player != null ? client.player.getUuid() : null;
+                            UUID localId = client.player != null ? client.player.getUUID() : null;
                             if (localId != null) {
                                 lockedPlayers.remove(localId);
                                 if (myPartnerId != null) {
@@ -186,9 +185,9 @@ public class DapHoldClientHandler {
 
         ClientPlayNetworking.registerGlobalReceiver(DapHoldHandler.GroupJoinedPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
-                    MinecraftClient client = ctx.client();
-                    if (client.player == null || client.world == null) return;
-                    UUID localId = client.player.getUuid();
+                    Minecraft client = ctx.client();
+                    if (client.player == null || client.level == null) return;
+                    UUID localId = client.player.getUUID();
                     groupMemberCount = payload.memberCount();
 
 
@@ -203,7 +202,7 @@ public class DapHoldClientHandler {
                     }
 
 
-                    PlayerEntity joinerEntity = client.world.getPlayerByUuid(payload.joinerId());
+                    Player joinerEntity = client.level.getPlayerByUUID(payload.joinerId());
                     if (joinerEntity != null && !payload.joinerId().equals(localId)) {
                         CoopAnimationHandler.playDapHoldStart(joinerEntity, 0);
                     }
@@ -212,7 +211,7 @@ public class DapHoldClientHandler {
 
         ClientPlayNetworking.registerGlobalReceiver(DapHoldHandler.GroupResultPayload.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
-                    MinecraftClient client = ctx.client();
+                    Minecraft client = ctx.client();
                     if (client.player == null) return;
 
                     if (isGroupJoiner) {
@@ -222,7 +221,7 @@ public class DapHoldClientHandler {
                             client.execute(() -> {
                                 FirstPersonAnimationTest.stop();
                                 if (client.player != null) {
-                                    lockedPlayers.remove(client.player.getUuid());
+                                    lockedPlayers.remove(client.player.getUUID());
                                 }
                                 animationLocked = false;
                                 isGroupJoiner   = false;
@@ -241,7 +240,7 @@ public class DapHoldClientHandler {
             boolean jHeld = ChargedDapClientHandler.isFireDapJKeyHeld();
 
             boolean gHeld = ChargedDapClientHandler.getChargeKey() != null
-                    && ChargedDapClientHandler.getChargeKey().isPressed();
+                    && ChargedDapClientHandler.getChargeKey().isDown();
 
 
             if (myRole == -1 && !isGroupJoiner) {
@@ -291,9 +290,9 @@ public class DapHoldClientHandler {
 
 
     public static boolean isLocalPlayerFrozen() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return false;
-        return freezeMap.getOrDefault(client.player.getUuid(), false);
+        return freezeMap.getOrDefault(client.player.getUUID(), false);
     }
 
     public static boolean isPlayerFrozen(UUID playerId) {

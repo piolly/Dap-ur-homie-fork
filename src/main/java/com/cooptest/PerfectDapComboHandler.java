@@ -1,14 +1,14 @@
 package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;                                                 // IGNORE THIS
 public class PerfectDapComboHandler {
     private static final long COMBO_ANIM_MS      = 1167L;
@@ -24,7 +24,7 @@ public class PerfectDapComboHandler {
     private static final Random RANDOM = new Random();
     private static class ComboSession {
         final UUID p1, p2;
-        Vec3d pos;
+        Vec3 pos;
         int    count      = 0;
         String button     = "G";
         boolean inComboAnim = false;
@@ -35,7 +35,7 @@ public class PerfectDapComboHandler {
         boolean hit1Fired   = false;
         boolean hit2Fired   = false;
         long qteOpenedAt   = 0;
-        ComboSession(UUID p1, UUID p2, Vec3d pos) {
+        ComboSession(UUID p1, UUID p2, Vec3 pos) {
             this.p1 = p1; this.p2 = p2; this.pos = pos;
             this.phaseStart = System.currentTimeMillis();
         }
@@ -57,8 +57,8 @@ public class PerfectDapComboHandler {
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(PerfectDapComboHandler::tick);
     }
-    public static void openFirstWindow(ServerPlayerEntity p1, ServerPlayerEntity p2, Vec3d pos) {
-        UUID id1 = p1.getUuid(), id2 = p2.getUuid();
+    public static void openFirstWindow(ServerPlayer p1, ServerPlayer p2, Vec3 pos) {
+        UUID id1 = p1.getUUID(), id2 = p2.getUUID();
         if (activeCombos.containsKey(id1) || activeCombos.containsKey(id2)) return;
         ComboSession s = new ComboSession(id1, id2, pos);
         s.pickButton();
@@ -67,21 +67,21 @@ public class PerfectDapComboHandler {
         s.phaseStart  = System.currentTimeMillis();
         activeCombos.put(id1, s);
         activeCombos.put(id2, s);
-        ServerPlayNetworking.send(p1, new DapFusionHandler.FusionQTEPayload(p1.getUuid(), s.button, 0, 0L, FIRST_QTE_MS, true, 0));
-        ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(p2.getUuid(), s.button, 0, 0L, FIRST_QTE_MS, true, 0));
-        p1.getEntityWorld().playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 0.8f, 1.6f);
-        p1.getEntityWorld().playSound(null, pos.x, pos.y, pos.z,
-                ModSounds.DAP_HIT, SoundCategory.PLAYERS, 0.5f, 1.2f);
+        ServerPlayNetworking.send(p1, new DapFusionHandler.FusionQTEPayload(p1.getUUID(), s.button, 0, 0L, FIRST_QTE_MS, true, 0));
+        ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(p2.getUUID(), s.button, 0, 0L, FIRST_QTE_MS, true, 0));
+        p1.level().playSound(null, pos.x, pos.y, pos.z,
+                SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 0.8f, 1.6f);
+        p1.level().playSound(null, pos.x, pos.y, pos.z,
+                ModSounds.DAP_HIT, SoundSource.PLAYERS, 0.5f, 1.2f);
     }
-    public static boolean onButtonPress(ServerPlayerEntity player, String button) {
+    public static boolean onButtonPress(ServerPlayer player, String button) {
         if (!"G".equals(button) && !"H".equals(button) && !"FAIL".equals(button)) return false;
-        UUID id = player.getUuid();
+        UUID id = player.getUUID();
         ComboSession s = activeCombos.get(id);
         if (s == null) return false;
         if (s.qteOpen) {
             if ("FAIL".equals(button) || !button.equals(s.button)) {
-                failCombo(s, player.getEntityWorld().getServer(), id);
+                failCombo(s, player.level().getServer(), id);
                 return true;
             }
             if (id.equals(s.p1)) s.p1Hit = true;
@@ -115,8 +115,8 @@ public class PerfectDapComboHandler {
         }
     }
     private static void tickSession(ComboSession s, MinecraftServer server) {
-        ServerPlayerEntity p1 = server.getPlayerManager().getPlayer(s.p1);
-        ServerPlayerEntity p2 = server.getPlayerManager().getPlayer(s.p2);
+        ServerPlayer p1 = server.getPlayerList().getPlayer(s.p1);
+        ServerPlayer p2 = server.getPlayerList().getPlayer(s.p2);
         if (p1 == null || p2 == null) { cleanupOnly(s); return; }
         long elapsed = s.elapsed();
         if (s.inComboAnim) {
@@ -127,18 +127,18 @@ public class PerfectDapComboHandler {
                     s.lastOrbitMs = nowMs;
                     s.orbitAngle += 0.45;
                     int pts = Math.min(s.count, 8);
-                    ServerWorld world = p1.getEntityWorld();
-                    for (ServerPlayerEntity tgt : new ServerPlayerEntity[]{p1, p2}) {
-                        Vec3d tp = tgt.getEntityPos().add(0, 1.1, 0);
+                    ServerLevel world = p1.level();
+                    for (ServerPlayer tgt : new ServerPlayer[]{p1, p2}) {
+                        Vec3 tp = tgt.position().add(0, 1.1, 0);
                         for (int i = 0; i < pts; i++) {
                             double a = s.orbitAngle + (Math.PI * 2 * i / pts);
                             double r = 0.7 + 0.1 * Math.sin(nowMs / 300.0);
-                            world.spawnParticles(ParticleTypes.END_ROD,
+                            world.sendParticles(ParticleTypes.END_ROD,
                                     tp.x + Math.cos(a) * r, tp.y, tp.z + Math.sin(a) * r,
                                     1, 0, 0, 0, 0);
                             if (s.count >= 6) {
                                 double a2 = -s.orbitAngle * 1.8 + (Math.PI * 2 * i / pts);
-                                world.spawnParticles(ParticleTypes.ENCHANTED_HIT,
+                                world.sendParticles(ParticleTypes.ENCHANTED_HIT,
                                         tp.x + Math.cos(a2) * 0.4, tp.y + 0.3,
                                         tp.z + Math.sin(a2) * 0.4, 1, 0, 0, 0, 0);
                             }
@@ -159,35 +159,35 @@ public class PerfectDapComboHandler {
                     s.count++;
                     closeFusionBar(p1, p2, s);
                     String msg = comboMessage(s.count);
-                    p1.sendMessage(net.minecraft.text.Text.literal(msg), true);
-                    p2.sendMessage(net.minecraft.text.Text.literal(msg), true);
-                    Vec3d mid = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5);
-                    p1.getEntityWorld().playSound(null, mid.x, mid.y, mid.z,
-                            ModSounds.DAP_HIT, SoundCategory.PLAYERS,
+                    p1.displayClientMessage(net.minecraft.network.chat.Component.literal(msg), true);
+                    p2.displayClientMessage(net.minecraft.network.chat.Component.literal(msg), true);
+                    Vec3 mid = p1.position().add(p2.position()).scale(0.5);
+                    p1.level().playSound(null, mid.x, mid.y, mid.z,
+                            ModSounds.DAP_HIT, SoundSource.PLAYERS,
                             Math.min(1.5f, 0.9f + s.count * 0.04f),
                             Math.min(2.0f, 1.0f + s.count * 0.07f));
                     float upY = Math.min(0.6f, 0.2f + s.count * 0.025f);
-                    p1.addVelocity(0, upY, 0); p1.knockedBack = true;
-                    p2.addVelocity(0, upY, 0); p2.knockedBack = true;
+                    p1.push(0, upY, 0); p1.hurtMarked = true;
+                    p2.push(0, upY, 0); p2.hurtMarked = true;
                     if (s.count >= 3) {
-                        Vec3d dir = p2.getEntityPos().subtract(p1.getEntityPos()).normalize();
+                        Vec3 dir = p2.position().subtract(p1.position()).normalize();
                         double pull = Math.min(0.5, 0.1 + (s.count - 3) * 0.05);
-                        p1.addVelocity( dir.x * pull,  0,  dir.z * pull);
-                        p2.addVelocity(-dir.x * pull,  0, -dir.z * pull);
-                        p1.knockedBack = true;
-                        p2.knockedBack = true;
+                        p1.push( dir.x * pull,  0,  dir.z * pull);
+                        p2.push(-dir.x * pull,  0, -dir.z * pull);
+                        p1.hurtMarked = true;
+                        p2.hurtMarked = true;
                     }
                     startComboCycle(s, p1, p2);
                 } else {
                     UUID misser = !s.p1Hit ? s.p1 : (!s.p2Hit ? s.p2 : null);
                     if (p1 != null && p2 != null) {
-                        Vec3d dir = p2.getEntityPos().subtract(p1.getEntityPos()).normalize();
-                        p1.addVelocity(-dir.x * 1.2, -0.5,  -dir.z * 1.2);
-                        p2.addVelocity( dir.x * 1.2, -0.5,   dir.z * 1.2);
-                        p1.knockedBack = true;
-                        p2.knockedBack = true;
-                        Vec3d mid2 = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1, 0);
-                        p1.getEntityWorld().spawnParticles(ParticleTypes.ANGRY_VILLAGER,
+                        Vec3 dir = p2.position().subtract(p1.position()).normalize();
+                        p1.push(-dir.x * 1.2, -0.5,  -dir.z * 1.2);
+                        p2.push( dir.x * 1.2, -0.5,   dir.z * 1.2);
+                        p1.hurtMarked = true;
+                        p2.hurtMarked = true;
+                        Vec3 mid2 = p1.position().add(p2.position()).scale(0.5).add(0, 1, 0);
+                        p1.level().sendParticles(ParticleTypes.ANGRY_VILLAGER,
                                 mid2.x, mid2.y, mid2.z, 6, 0.3, 0.3, 0.3, 0.05);
                     }
                     failCombo(s, server, misser);
@@ -208,7 +208,7 @@ public class PerfectDapComboHandler {
             }
         }
     }
-    private static void startComboCycle(ComboSession s, ServerPlayerEntity p1, ServerPlayerEntity p2) {
+    private static void startComboCycle(ComboSession s, ServerPlayer p1, ServerPlayer p2) {
         s.inComboAnim = true;
         s.hit1Fired   = false;
         s.hit2Fired   = false;
@@ -216,7 +216,7 @@ public class PerfectDapComboHandler {
         s.pickButton();
         s.rollGreenCenter();
         s.phaseStart  = System.currentTimeMillis();
-        s.pos = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1.2, 0);
+        s.pos = p1.position().add(p2.position()).scale(0.5).add(0, 1.2, 0);
         PoseNetworking.broadcastAnimState(p1, ANIM_COMBO);
         PoseNetworking.broadcastAnimState(p2, ANIM_COMBO);
         if (s.count == 0) {
@@ -225,7 +225,7 @@ public class PerfectDapComboHandler {
             sendGreenUpdate(p1, p2, s);
         }
     }
-    private static void sendGreenUpdate(ServerPlayerEntity p1, ServerPlayerEntity p2, ComboSession s) {
+    private static void sendGreenUpdate(ServerPlayer p1, ServerPlayer p2, ComboSession s) {
         long halfWidthMs = Math.max(80L,  300L - s.count * 20L);
         long periodMs    = Math.max(600L, 1800L - s.count * 80L);
         int  centerInt   = Math.round(s.greenCenterFrac * 100f);
@@ -233,16 +233,16 @@ public class PerfectDapComboHandler {
                 s.p1, s.button, centerInt, halfWidthMs, -periodMs, true, 2));
         ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(
                 s.p2, s.button, centerInt, halfWidthMs, -periodMs, true, 2));
-        p1.getEntityWorld().playSound(null, s.pos.x, s.pos.y, s.pos.z,
-                SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 1.0f,
+        p1.level().playSound(null, s.pos.x, s.pos.y, s.pos.z,
+                SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0f,
                 Math.min(2.0f, 1.5f + s.count * 0.06f));
     }
     private static void failCombo(ComboSession s, MinecraftServer server, UUID misserId) {
         activeCombos.remove(s.p1);
         activeCombos.remove(s.p2);
         if (server == null) return;
-        ServerPlayerEntity p1 = server.getPlayerManager().getPlayer(s.p1);
-        ServerPlayerEntity p2 = server.getPlayerManager().getPlayer(s.p2);
+        ServerPlayer p1 = server.getPlayerList().getPlayer(s.p1);
+        ServerPlayer p2 = server.getPlayerList().getPlayer(s.p2);
         if (p1 != null) ServerPlayNetworking.send(p1, new DapFusionHandler.FusionQTEPayload(s.p1, "G", 0, 0L, 0L, false, 0));
         if (p2 != null) ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(s.p2, "G", 0, 0L, 0L, false, 0));
         if (p1 != null) PoseNetworking.broadcastAnimState(p1, ANIM_COMBO_END);
@@ -250,14 +250,14 @@ public class PerfectDapComboHandler {
         String failMsg  = "§c✗ You missed! (Combo x" + s.count + ")";
         String otherMsg = "§c✗ Partner missed! (Combo x" + s.count + ")";
         if (misserId == null) {
-            if (p1 != null) p1.sendMessage(net.minecraft.text.Text.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
-            if (p2 != null) p2.sendMessage(net.minecraft.text.Text.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
+            if (p1 != null) p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
+            if (p2 != null) p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
         } else {
-            ServerPlayerEntity misser = server.getPlayerManager().getPlayer(misserId);
+            ServerPlayer misser = server.getPlayerList().getPlayer(misserId);
             UUID otherId = misserId.equals(s.p1) ? s.p2 : s.p1;
-            ServerPlayerEntity other = server.getPlayerManager().getPlayer(otherId);
-            if (misser != null) misser.sendMessage(net.minecraft.text.Text.literal(failMsg), true);
-            if (other  != null) other.sendMessage(net.minecraft.text.Text.literal(otherMsg), true);
+            ServerPlayer other = server.getPlayerList().getPlayer(otherId);
+            if (misser != null) misser.displayClientMessage(net.minecraft.network.chat.Component.literal(failMsg), true);
+            if (other  != null) other.displayClientMessage(net.minecraft.network.chat.Component.literal(otherMsg), true);
         }
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override public void run() {
@@ -272,52 +272,52 @@ public class PerfectDapComboHandler {
         activeCombos.remove(s.p1);
         activeCombos.remove(s.p2);
     }
-    private static void fireImpact(ServerPlayerEntity p1, ServerPlayerEntity p2,
+    private static void fireImpact(ServerPlayer p1, ServerPlayer p2,
                                    ComboSession s, boolean isSecond) {
-        ServerWorld world = p1.getEntityWorld();
-        Vec3d pos = s.pos;
+        ServerLevel world = p1.level();
+        Vec3 pos = s.pos;
         int c = Math.min(s.count, 30);
         float pitch = Math.min(2.0f, 1.0f + c * 0.07f);
         float vol   = Math.min(1.5f, 0.9f + c * 0.04f);
         if (c >= 5 && isSecond) {
-            net.minecraft.entity.LightningEntity bolt = new net.minecraft.entity.LightningEntity(
-                    net.minecraft.entity.EntityType.LIGHTNING_BOLT, world);
-            bolt.setPos(pos.x, pos.y, pos.z);
-            bolt.setCosmetic(true);
-            world.spawnEntity(bolt);
+            net.minecraft.world.entity.LightningBolt bolt = new net.minecraft.world.entity.LightningBolt(
+                    net.minecraft.world.entity.EntityType.LIGHTNING_BOLT, world);
+            bolt.setPosRaw(pos.x, pos.y, pos.z);
+            bolt.setVisualOnly(true);
+            world.addFreshEntity(bolt);
         }
         if (c >= 3) {
             double shakeAmt = Math.min(0.12, 0.03 + c * 0.01);
             double dx = (RANDOM.nextDouble() - 0.5) * shakeAmt;
             double dz = (RANDOM.nextDouble() - 0.5) * shakeAmt;
-            for (ServerPlayerEntity tp : new ServerPlayerEntity[]{p1, p2}) {
-                tp.addVelocity(dx, 0, dz);
-                tp.knockedBack = true;
+            for (ServerPlayer tp : new ServerPlayer[]{p1, p2}) {
+                tp.push(dx, 0, dz);
+                tp.hurtMarked = true;
             }
         }
-        world.playSound(null, pos.x, pos.y, pos.z, ModSounds.DAP_HIT, SoundCategory.PLAYERS, vol, pitch);
+        world.playSound(null, pos.x, pos.y, pos.z, ModSounds.DAP_HIT, SoundSource.PLAYERS, vol, pitch);
         if (c <= 2) {
-            world.spawnParticles(ParticleTypes.CRIT, pos.x, pos.y, pos.z, 10 + c * 2, 0.3, 0.3, 0.3, 0.1);
-            world.spawnParticles(ParticleTypes.ENCHANTED_HIT, pos.x, pos.y, pos.z, 6 + c, 0.25, 0.25, 0.25, 0.07);
+            world.sendParticles(ParticleTypes.CRIT, pos.x, pos.y, pos.z, 10 + c * 2, 0.3, 0.3, 0.3, 0.1);
+            world.sendParticles(ParticleTypes.ENCHANTED_HIT, pos.x, pos.y, pos.z, 6 + c, 0.25, 0.25, 0.25, 0.07);
         } else if (c <= 4) {
-            world.spawnParticles(ParticleTypes.ENCHANTED_HIT, pos.x, pos.y, pos.z, 14 + c * 3, 0.35, 0.35, 0.35, 0.12);
-            world.spawnParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 6 + c, 0.3, 0.3, 0.3, 0.07);
-            world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.8f, pitch);
+            world.sendParticles(ParticleTypes.ENCHANTED_HIT, pos.x, pos.y, pos.z, 14 + c * 3, 0.35, 0.35, 0.35, 0.12);
+            world.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 6 + c, 0.3, 0.3, 0.3, 0.07);
+            world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 0.8f, pitch);
         } else if (c <= 7) {
-            world.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.x, pos.y, pos.z, 16 + c * 3, 0.4, 0.4, 0.4, 0.18);
-            world.spawnParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 8 + c, 0.3, 0.3, 0.3, 0.08);
-            if (isSecond) world.spawnParticles((TintedParticleEffect.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
-            world.playSound(null, pos.x, pos.y, pos.z, ModSounds.IMPACT, SoundCategory.PLAYERS, vol * 0.9f, pitch);
+            world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.x, pos.y, pos.z, 16 + c * 3, 0.4, 0.4, 0.4, 0.18);
+            world.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 8 + c, 0.3, 0.3, 0.3, 0.08);
+            if (isSecond) world.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
+            world.playSound(null, pos.x, pos.y, pos.z, ModSounds.IMPACT, SoundSource.PLAYERS, vol * 0.9f, pitch);
         } else {
-            world.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.x, pos.y, pos.z, 25 + c * 4, 0.5, 0.5, 0.5, 0.22);
-            world.spawnParticles(ParticleTypes.EXPLOSION_EMITTER, pos.x, pos.y, pos.z, 2, 0.2, 0.2, 0.2, 0);
-            world.spawnParticles((TintedParticleEffect.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 2, 0.1, 0.1, 0.1, 0);
-            world.spawnParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 12 + c * 2, 0.4, 0.4, 0.4, 0.12);
-            world.playSound(null, pos.x, pos.y, pos.z, ModSounds.EPIC_DAP, SoundCategory.PLAYERS, vol, pitch);
-            world.playSound(null, pos.x, pos.y, pos.z, ModSounds.EXPLOSION_IMPACT, SoundCategory.PLAYERS, 0.6f, pitch * 0.8f);
+            world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.x, pos.y, pos.z, 25 + c * 4, 0.5, 0.5, 0.5, 0.22);
+            world.sendParticles(ParticleTypes.EXPLOSION_EMITTER, pos.x, pos.y, pos.z, 2, 0.2, 0.2, 0.2, 0);
+            world.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 2, 0.1, 0.1, 0.1, 0);
+            world.sendParticles(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, 12 + c * 2, 0.4, 0.4, 0.4, 0.12);
+            world.playSound(null, pos.x, pos.y, pos.z, ModSounds.EPIC_DAP, SoundSource.PLAYERS, vol, pitch);
+            world.playSound(null, pos.x, pos.y, pos.z, ModSounds.EXPLOSION_IMPACT, SoundSource.PLAYERS, 0.6f, pitch * 0.8f);
         }
     }
-    private static void sendTimingQTE(ServerPlayerEntity p1, ServerPlayerEntity p2, ComboSession s) {
+    private static void sendTimingQTE(ServerPlayer p1, ServerPlayer p2, ComboSession s) {
         closeFusionBar(p1, p2, s);
         long halfWidthMs = Math.max(80L,  300L - s.count * 20L);
         long periodMs    = Math.max(600L, 1800L - s.count * 80L);
@@ -326,11 +326,11 @@ public class PerfectDapComboHandler {
                 s.p1, s.button, centerInt, halfWidthMs, periodMs, true, 2));
         ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(
                 s.p2, s.button, centerInt, halfWidthMs, periodMs, true, 2));
-        p1.getEntityWorld().playSound(null, s.pos.x, s.pos.y, s.pos.z,
-                SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 0.9f,
+        p1.level().playSound(null, s.pos.x, s.pos.y, s.pos.z,
+                SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 0.9f,
                 Math.min(2.0f, 1.4f + s.count * 0.05f));
     }
-    private static void closeFusionBar(ServerPlayerEntity p1, ServerPlayerEntity p2, ComboSession s) {
+    private static void closeFusionBar(ServerPlayer p1, ServerPlayer p2, ComboSession s) {
         ServerPlayNetworking.send(p1, new DapFusionHandler.FusionQTEPayload(s.p1, "G", 0, 0L, 0L, false, 0));
         ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(s.p2, "G", 0, 0L, 0L, false, 0));
     }

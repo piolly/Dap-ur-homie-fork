@@ -1,33 +1,33 @@
 package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import com.cooptest.client.CoopAnimationHandler;
 import java.util.*;
 public class NormalFacingDapHandler {
-    public static final net.minecraft.util.Identifier LOOP_HOLD_ID =
-            net.minecraft.util.Identifier.of("cooptest", "dap_loop_hold");
-    public record DapLoopHoldPayload() implements net.minecraft.network.packet.CustomPayload {
-        public static final Id<DapLoopHoldPayload> ID = new Id<>(LOOP_HOLD_ID);
-        public static final net.minecraft.network.codec.PacketCodec<net.minecraft.network.PacketByteBuf, DapLoopHoldPayload> CODEC =
-                net.minecraft.network.codec.PacketCodec.unit(new DapLoopHoldPayload());
-        @Override public Id<? extends net.minecraft.network.packet.CustomPayload> getId() { return ID; }
+    public static final net.minecraft.resources.Identifier LOOP_HOLD_ID =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "dap_loop_hold");
+    public record DapLoopHoldPayload() implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
+        public static final Type<DapLoopHoldPayload> ID = new Type<>(LOOP_HOLD_ID);
+        public static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.FriendlyByteBuf, DapLoopHoldPayload> CODEC =
+                net.minecraft.network.codec.StreamCodec.unit(new DapLoopHoldPayload());
+        @Override public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() { return ID; }
     }
-    public static final net.minecraft.util.Identifier SESSION_STATE_ID =
-            net.minecraft.util.Identifier.of("cooptest", "face_dap_session");
-    public record FaceDapSessionPayload(boolean active) implements net.minecraft.network.packet.CustomPayload {
-        public static final Id<FaceDapSessionPayload> ID = new Id<>(SESSION_STATE_ID);
-        public static final net.minecraft.network.codec.PacketCodec<net.minecraft.network.PacketByteBuf, FaceDapSessionPayload> CODEC =
-                net.minecraft.network.codec.PacketCodec.of((v, buf) -> buf.writeBoolean(v.active()),
+    public static final net.minecraft.resources.Identifier SESSION_STATE_ID =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "face_dap_session");
+    public record FaceDapSessionPayload(boolean active) implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
+        public static final Type<FaceDapSessionPayload> ID = new Type<>(SESSION_STATE_ID);
+        public static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.FriendlyByteBuf, FaceDapSessionPayload> CODEC =
+                net.minecraft.network.codec.StreamCodec.ofMember((v, buf) -> buf.writeBoolean(v.active()),
                         buf -> new FaceDapSessionPayload(buf.readBoolean()));
-        @Override public Id<? extends net.minecraft.network.packet.CustomPayload> getId() { return ID; }
+        @Override public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
         net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playC2S()
@@ -55,9 +55,9 @@ public class NormalFacingDapHandler {
     private static final Map<UUID, Long>   clickTime      = new HashMap<>();
     private static final Map<UUID, Long>   triggerCooldowns = new HashMap<>();
     public static boolean isActive(UUID id) { return activeSessions.containsKey(id); }
-    public static void onLoopHold(ServerPlayerEntity player) {
-        if (activeSessions.containsKey(player.getUuid())) {
-            lastHold.put(player.getUuid(), System.currentTimeMillis());
+    public static void onLoopHold(ServerPlayer player) {
+        if (activeSessions.containsKey(player.getUUID())) {
+            lastHold.put(player.getUUID(), System.currentTimeMillis());
         }
     }
     private static String key(UUID a, UUID b) {
@@ -101,23 +101,23 @@ public class NormalFacingDapHandler {
         });
         net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register(
                 (player, world, hand, entity, hitResult) -> {
-                    if (world.isClient()) return net.minecraft.util.ActionResult.PASS;
-                    if (!(player instanceof ServerPlayerEntity sp)) return net.minecraft.util.ActionResult.PASS;
-                    if (!(entity instanceof ServerPlayerEntity target)) return net.minecraft.util.ActionResult.PASS;
-                    if (sp.isSneaking()) return net.minecraft.util.ActionResult.PASS;
-                    if (Boolean.TRUE.equals(inLoop.get(sp.getUuid()))) {
-                        UUID partner = activeSessions.get(sp.getUuid());
-                        if (partner != null) endLoop(sp.getEntityWorld().getServer(), sp.getUuid(), partner);
-                        return net.minecraft.util.ActionResult.SUCCESS;
+                    if (world.isClientSide()) return net.minecraft.world.InteractionResult.PASS;
+                    if (!(player instanceof ServerPlayer sp)) return net.minecraft.world.InteractionResult.PASS;
+                    if (!(entity instanceof ServerPlayer target)) return net.minecraft.world.InteractionResult.PASS;
+                    if (sp.isShiftKeyDown()) return net.minecraft.world.InteractionResult.PASS;
+                    if (Boolean.TRUE.equals(inLoop.get(sp.getUUID()))) {
+                        UUID partner = activeSessions.get(sp.getUUID());
+                        if (partner != null) endLoop(sp.level().getServer(), sp.getUUID(), partner);
+                        return net.minecraft.world.InteractionResult.SUCCESS;
                     }
-                    return net.minecraft.util.ActionResult.PASS;
+                    return net.minecraft.world.InteractionResult.PASS;
                 });
     }
-    public static void recordRightClick(ServerPlayerEntity sp, ServerPlayerEntity target) {
-        UUID sid = sp.getUuid(), tid = target.getUuid();
+    public static void recordRightClick(ServerPlayer sp, ServerPlayer target) {
+        UUID sid = sp.getUUID(), tid = target.getUUID();
         clickMap.put(sid, tid);
         clickTime.put(sid, System.currentTimeMillis());
-        sp.sendMessage(net.minecraft.text.Text.literal("§e✦ Waiting for homie..."), true);
+        sp.displayClientMessage(net.minecraft.network.chat.Component.literal("§e✦ Waiting for homie..."), true);
     }
     public static boolean isConfirmed(UUID id1, UUID id2) {
         long now = System.currentTimeMillis();
@@ -134,29 +134,29 @@ public class NormalFacingDapHandler {
         clickMap.remove(id1); clickTime.remove(id1);
         if (id2 != null) { clickMap.remove(id2); clickTime.remove(id2); }
     }
-    public static void start(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        UUID id1 = p1.getUuid(), id2 = p2.getUuid();
+    public static void start(ServerPlayer p1, ServerPlayer p2) {
+        UUID id1 = p1.getUUID(), id2 = p2.getUUID();
         String k = key(id1, id2);
         activeSessions.put(id1, id2);
         activeSessions.put(id2, id1);
         loopCount.put(k, 0);
         sessionStart.put(k, System.currentTimeMillis());
         canonicalP1.put(k, id1);
-        MinecraftServer server = p1.getEntityWorld().getServer();
+        MinecraftServer server = p1.level().getServer();
         if (server == null) return;
-        Vec3d diff = p2.getEntityPos().subtract(p1.getEntityPos());
-        Vec3d flat = new Vec3d(diff.x, 0, diff.z).normalize();
-        Vec3d mid  = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5);
-        Vec3d pos1 = mid.subtract(flat.multiply(FACE_DIST * 0.5));
-        Vec3d pos2 = mid.add(flat.multiply(FACE_DIST * 0.5));
+        Vec3 diff = p2.position().subtract(p1.position());
+        Vec3 flat = new Vec3(diff.x, 0, diff.z).normalize();
+        Vec3 mid  = p1.position().add(p2.position()).scale(0.5);
+        Vec3 pos1 = mid.subtract(flat.scale(FACE_DIST * 0.5));
+        Vec3 pos2 = mid.add(flat.scale(FACE_DIST * 0.5));
         float yaw1 = (float) Math.toDegrees(Math.atan2(-flat.x, flat.z));
         float yaw2 = yaw1 + 180f;
-        p1.teleport(p1.getEntityWorld(), pos1.x, p1.getY(), pos1.z, java.util.Set.of(), yaw1, p1.getPitch(), false);
-        p2.teleport(p2.getEntityWorld(), pos2.x, p2.getY(), pos2.z, java.util.Set.of(), yaw2, p2.getPitch(), false);
-        p1.setYaw(yaw1); p1.setBodyYaw(yaw1); p1.setHeadYaw(yaw1);
-        p2.setYaw(yaw2); p2.setBodyYaw(yaw2); p2.setHeadYaw(yaw2);
-        p1.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
-        p2.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+        p1.teleportTo(p1.level(), pos1.x, p1.getY(), pos1.z, java.util.Set.of(), yaw1, p1.getXRot(), false);
+        p2.teleportTo(p2.level(), pos2.x, p2.getY(), pos2.z, java.util.Set.of(), yaw2, p2.getXRot(), false);
+        p1.setYRot(yaw1); p1.setYBodyRot(yaw1); p1.setYHeadRot(yaw1);
+        p2.setYRot(yaw2); p2.setYBodyRot(yaw2); p2.setYHeadRot(yaw2);
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
         ServerPlayNetworking.send(p1, new ChargedDapHandler.PerfectDapFreezePayload(true));
         ServerPlayNetworking.send(p2, new ChargedDapHandler.PerfectDapFreezePayload(true));
         ServerPlayNetworking.send(p1, new FaceDapSessionPayload(true));
@@ -164,27 +164,27 @@ public class NormalFacingDapHandler {
         PoseNetworking.broadcastAnimState(p1, anim(CoopAnimationHandler.AnimState.DAP_HIT_FACE));
         PoseNetworking.broadcastAnimState(p2, anim(CoopAnimationHandler.AnimState.DAP_HIT_FACE));
         schedule(server, 420L, () -> {
-            ServerPlayerEntity a = server.getPlayerManager().getPlayer(id1);
-            ServerPlayerEntity b = server.getPlayerManager().getPlayer(id2);
+            ServerPlayer a = server.getPlayerList().getPlayer(id1);
+            ServerPlayer b = server.getPlayerList().getPlayer(id2);
             if (a == null || b == null) return;
-            ServerWorld w = a.getEntityWorld();
-            Vec3d m = a.getEntityPos().add(b.getEntityPos()).multiply(0.5).add(0, 1.3, 0);
-            w.playSound(null, m.x, m.y, m.z, ModSounds.DAP_HIT, SoundCategory.PLAYERS, 1.5f, 1.0f);
-            w.playSound(null, m.x, m.y, m.z, SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 1.0f, 1.2f);
-            w.spawnParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 12, 0.2, 0.2, 0.2, 0.1);
-            w.spawnParticles(ParticleTypes.ENCHANTED_HIT, m.x, m.y, m.z, 6, 0.15, 0.15, 0.15, 0.07);
-            w.spawnParticles((TintedParticleEffect.create(ParticleTypes.FLASH, 1f, 1f, 1f)), m.x, m.y, m.z, 2, 0, 0, 0, 0);
+            ServerLevel w = a.level();
+            Vec3 m = a.position().add(b.position()).scale(0.5).add(0, 1.3, 0);
+            w.playSound(null, m.x, m.y, m.z, ModSounds.DAP_HIT, SoundSource.PLAYERS, 1.5f, 1.0f);
+            w.playSound(null, m.x, m.y, m.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.0f, 1.2f);
+            w.sendParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 12, 0.2, 0.2, 0.2, 0.1);
+            w.sendParticles(ParticleTypes.ENCHANTED_HIT, m.x, m.y, m.z, 6, 0.15, 0.15, 0.15, 0.07);
+            w.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)), m.x, m.y, m.z, 2, 0, 0, 0, 0);
         });
         long[] punches = {1333, 1417, 1583, 1667, 1833, 2000, 2167};
         for (long t : punches) {
             schedule(server, t, () -> {
-                ServerPlayerEntity a = server.getPlayerManager().getPlayer(id1);
-                ServerPlayerEntity b = server.getPlayerManager().getPlayer(id2);
+                ServerPlayer a = server.getPlayerList().getPlayer(id1);
+                ServerPlayer b = server.getPlayerList().getPlayer(id2);
                 if (a == null || b == null) return;
-                Vec3d m = a.getEntityPos().add(b.getEntityPos()).multiply(0.5).add(0, 1.3, 0);
-                a.getEntityWorld().spawnParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 3, 0.1, 0.1, 0.1, 0.06);
-                a.getEntityWorld().playSound(null, m.x, m.y, m.z,
-                        SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, SoundCategory.PLAYERS, 0.7f, 1.0f + (float)(Math.random() * 0.3));
+                Vec3 m = a.position().add(b.position()).scale(0.5).add(0, 1.3, 0);
+                a.level().sendParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 3, 0.1, 0.1, 0.1, 0.06);
+                a.level().playSound(null, m.x, m.y, m.z,
+                        SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.7f, 1.0f + (float)(Math.random() * 0.3));
             });
         }
         schedule(server, ANIM_TOTAL + 100L, () -> {
@@ -198,8 +198,8 @@ public class NormalFacingDapHandler {
         cycleStart.put(id1, now);
         loopStartTime.put(key(id1, id2), now);
         lastHold.put(id1, now); lastHold.put(id2, now);
-        ServerPlayerEntity a = server.getPlayerManager().getPlayer(id1);
-        ServerPlayerEntity b = server.getPlayerManager().getPlayer(id2);
+        ServerPlayer a = server.getPlayerList().getPlayer(id1);
+        ServerPlayer b = server.getPlayerList().getPlayer(id2);
         if (a != null) PoseNetworking.broadcastAnimState(a, anim(CoopAnimationHandler.AnimState.DAP_LOOP));
         if (b != null) PoseNetworking.broadcastAnimState(b, anim(CoopAnimationHandler.AnimState.DAP_LOOP));
     }
@@ -217,26 +217,26 @@ public class NormalFacingDapHandler {
         String k = key(id1, id2);
         int count = loopCount.getOrDefault(k, 0) + 1;
         loopCount.put(k, count);
-        ServerPlayerEntity a = server.getPlayerManager().getPlayer(id1);
-        ServerPlayerEntity b = server.getPlayerManager().getPlayer(id2);
+        ServerPlayer a = server.getPlayerList().getPlayer(id1);
+        ServerPlayer b = server.getPlayerList().getPlayer(id2);
         if (a == null || b == null) { endLoop(server, id1, id2); return; }
-        ServerWorld w = a.getEntityWorld();
-        Vec3d m = a.getEntityPos().add(b.getEntityPos()).multiply(0.5).add(0, 1.3, 0);
+        ServerLevel w = a.level();
+        Vec3 m = a.position().add(b.position()).scale(0.5).add(0, 1.3, 0);
         Long ls = loopStartTime.get(k);
         long sec = ls != null ? (now - ls) / 1000L : 0;
-        a.sendMessage(net.minecraft.text.Text.literal("§e⚡ " + count + " §f" + sec + "s"), true);
-        b.sendMessage(net.minecraft.text.Text.literal("§e⚡ " + count + " §f" + sec + "s"), true);
-        w.playSound(null, m.x, m.y, m.z, ModSounds.DAP_HIT, SoundCategory.PLAYERS, 1.0f + Math.min(count * 0.03f, 0.5f), 1.0f);
-        w.spawnParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 4 + Math.min(count, 20), 0.2, 0.2, 0.2, 0.05);
-        if (count >= 9)  w.spawnParticles(ParticleTypes.END_ROD, m.x, m.y, m.z, count, 0.5, 0.3, 0.5, 0.05);
-        if (count >= 25 && count % 4 == 0) { var l = new net.minecraft.entity.LightningEntity(net.minecraft.entity.EntityType.LIGHTNING_BOLT, w); l.setPos(m.x, m.y, m.z); l.setCosmetic(true); w.spawnEntity(l); }
+        a.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + count + " §f" + sec + "s"), true);
+        b.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + count + " §f" + sec + "s"), true);
+        w.playSound(null, m.x, m.y, m.z, ModSounds.DAP_HIT, SoundSource.PLAYERS, 1.0f + Math.min(count * 0.03f, 0.5f), 1.0f);
+        w.sendParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 4 + Math.min(count, 20), 0.2, 0.2, 0.2, 0.05);
+        if (count >= 9)  w.sendParticles(ParticleTypes.END_ROD, m.x, m.y, m.z, count, 0.5, 0.3, 0.5, 0.05);
+        if (count >= 25 && count % 4 == 0) { var l = new net.minecraft.world.entity.LightningBolt(net.minecraft.world.entity.EntityType.LIGHTNING_BOLT, w); l.setPosRaw(m.x, m.y, m.z); l.setVisualOnly(true); w.addFreshEntity(l); }
         if (count >= 480) endLoop(server, id1, id2);
     }
     private static void endLoop(MinecraftServer server, UUID id1, UUID id2) {
         inLoop.remove(id1); inLoop.remove(id2);
         cycleStart.remove(id1);
-        ServerPlayerEntity a = server.getPlayerManager().getPlayer(id1);
-        ServerPlayerEntity b = server.getPlayerManager().getPlayer(id2);
+        ServerPlayer a = server.getPlayerList().getPlayer(id1);
+        ServerPlayer b = server.getPlayerList().getPlayer(id2);
         if (a != null) PoseNetworking.broadcastAnimState(a, anim(CoopAnimationHandler.AnimState.DAP_LOOP_END));
         if (b != null) PoseNetworking.broadcastAnimState(b, anim(CoopAnimationHandler.AnimState.DAP_LOOP_END));
         if (server != null) schedule(server, LOOP_END_MS, () -> cleanup(server, id1, id2));
@@ -249,8 +249,8 @@ public class NormalFacingDapHandler {
         loopCount.remove(k); loopStartTime.remove(k);
         sessionStart.remove(k); canonicalP1.remove(k);
         lastHold.remove(id1); lastHold.remove(id2);
-        ServerPlayerEntity a = server.getPlayerManager().getPlayer(id1);
-        ServerPlayerEntity b = server.getPlayerManager().getPlayer(id2);
+        ServerPlayer a = server.getPlayerList().getPlayer(id1);
+        ServerPlayer b = server.getPlayerList().getPlayer(id2);
         if (a != null) { ServerPlayNetworking.send(a, new ChargedDapHandler.PerfectDapFreezePayload(false)); ServerPlayNetworking.send(a, new FaceDapSessionPayload(false)); PoseNetworking.broadcastAnimState(a, 0); }
         if (b != null) { ServerPlayNetworking.send(b, new ChargedDapHandler.PerfectDapFreezePayload(false)); ServerPlayNetworking.send(b, new FaceDapSessionPayload(false)); PoseNetworking.broadcastAnimState(b, 0); }
         long cd = System.currentTimeMillis() + ChargedDapHandler.cooldownMs();
@@ -263,8 +263,8 @@ public class NormalFacingDapHandler {
         clickMap.remove(id); clickTime.remove(id); lastHold.remove(id);
     }
     private static void pin(MinecraftServer server, UUID id) {
-        ServerPlayerEntity p = server.getPlayerManager().getPlayer(id);
-        if (p != null) { p.setVelocity(0, 0, 0); p.knockedBack = true; }
+        ServerPlayer p = server.getPlayerList().getPlayer(id);
+        if (p != null) { p.setDeltaMovement(0, 0, 0); p.hurtMarked = true; }
     }
     private static int anim(CoopAnimationHandler.AnimState state) { return state.ordinal(); }
     private static void schedule(MinecraftServer server, long delayMs, Runnable task) {

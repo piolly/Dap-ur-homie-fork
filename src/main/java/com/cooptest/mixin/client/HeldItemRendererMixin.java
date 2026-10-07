@@ -3,19 +3,19 @@ import com.cooptest.ArmPoseTracker;
 import com.cooptest.GrabInputHandler;
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Arm;
-import net.minecraft.util.math.RotationAxis;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.UUID;
-@Mixin(HeldItemRenderer.class)
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.world.entity.HumanoidArm;
+@Mixin(ItemInHandRenderer.class)
 public class HeldItemRendererMixin {
     @Unique private static final float READY_UP = 1.2f;
     @Unique private static final float READY_FORWARD = 0.8f;
@@ -41,14 +41,14 @@ public class HeldItemRendererMixin {
     @Unique private static float currPitch = 0f;
     @Unique private static long throwStartTime = 0;
     @Unique private static boolean wasHolding = false;
-    @Inject(method = "renderArm", at = @At("HEAD"))
-    private void onRenderArm(MatrixStack matrices, OrderedRenderCommandQueue renderCommandQueue,
-                             int light, Arm arm, CallbackInfo ci) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    @Inject(method = "renderMapHand", at = @At("HEAD"))
+    private void onRenderArm(PoseStack matrices, SubmitNodeCollector renderCommandQueue,
+                             int light, HumanoidArm arm, CallbackInfo ci) {
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        boolean handsEmpty = client.player.getMainHandStack().isEmpty() &&
-                client.player.getOffHandStack().isEmpty();
-        UUID playerId = client.player.getUuid();
+        boolean handsEmpty = client.player.getMainHandItem().isEmpty() &&
+                client.player.getOffhandItem().isEmpty();
+        UUID playerId = client.player.getUUID();
         PoseState pose = PoseNetworking.poseStates.getOrDefault(playerId, PoseState.NONE);
         boolean isHolding = pose == PoseState.GRAB_HOLDING;
         if (wasHolding && !isHolding && pose == PoseState.GRAB_READY) {
@@ -135,7 +135,7 @@ public class HeldItemRendererMixin {
             return;
         }
         matrices.translate(0.0, currUp + shakeOffset, -currForward + shakeOffset * 0.5f);
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(currPitch + shakeOffset * 20f));
+        matrices.mulPose(Axis.XP.rotationDegrees(currPitch + shakeOffset * 20f));
     }
     @Unique
     private static float lerp(float a, float b, float t) {

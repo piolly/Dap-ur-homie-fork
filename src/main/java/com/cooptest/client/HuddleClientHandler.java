@@ -12,7 +12,7 @@ public class HuddleClientHandler {
                 }));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null) return;
-            CoopAnimationHandler.AnimState animSt = CoopAnimationHandler.getAnimState(client.player.getUuid());
+            CoopAnimationHandler.AnimState animSt = CoopAnimationHandler.getAnimState(client.player.getUUID());
             boolean inHugAnim = animSt == CoopAnimationHandler.AnimState.HUG_START
                     || animSt == CoopAnimationHandler.AnimState.HUGGING
                     || animSt == CoopAnimationHandler.AnimState.HUGGING2
@@ -21,7 +21,7 @@ public class HuddleClientHandler {
                     || animSt == CoopAnimationHandler.AnimState.HIGHFIVE_HUG2;
             boolean inHighFiveWindow = animSt == CoopAnimationHandler.AnimState.HIGHFIVE_HIT
                     || HighFiveClientHandler.isInHugOpportunityWindow();
-            PoseState pose = PoseNetworking.poseStates.getOrDefault(client.player.getUuid(), PoseState.NONE);
+            PoseState pose = PoseNetworking.poseStates.getOrDefault(client.player.getUUID(), PoseState.NONE);
             boolean blocked = pose == PoseState.GRAB_READY || pose == PoseState.GRAB_HOLDING
                     || inHugAnim || inHighFiveWindow;
             if (blocked) {
@@ -31,7 +31,7 @@ public class HuddleClientHandler {
                 }
                 return;
             }
-            long win  = client.getWindow().getHandle();
+            long win  = client.getWindow().handle();
             boolean fHeld = org.lwjgl.glfw.GLFW.glfwGetKey(win, org.lwjgl.glfw.GLFW.GLFW_KEY_F)
                     == org.lwjgl.glfw.GLFW.GLFW_PRESS;
             if (fHeld && !fWasHeld) {

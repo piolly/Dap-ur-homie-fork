@@ -1,13 +1,13 @@
 package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 public class HighFiveQTEHugHandler {
     private static final long HUG_QTE_WINDOW_MS    = 1000;
@@ -31,27 +31,27 @@ public class HighFiveQTEHugHandler {
     }
     private static class HugSession {
         final UUID p1Id, p2Id;
-        ServerPlayerEntity p1Ref, p2Ref;
+        ServerPlayer p1Ref, p2Ref;
         final long entryWindowEnd;
         boolean p1EntryPressed = false, p2EntryPressed = false;
         boolean started = false;
         int     tick    = 0;
-        Vec3d p1BasePos, p2BasePos;
-        Vec3d p1Forward, p2Forward;
+        Vec3 p1BasePos, p2BasePos;
+        Vec3 p1Forward, p2Forward;
         boolean innerQTESent   = false;
         boolean p1InnerHit     = false, p2InnerHit = false;
         boolean innerEvaluated = false;
         boolean hug2Started    = false;
         int     hug2Tick       = 0;
-        HugSession(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-            p1Id = p1.getUuid(); p2Id = p2.getUuid();
+        HugSession(ServerPlayer p1, ServerPlayer p2) {
+            p1Id = p1.getUUID(); p2Id = p2.getUUID();
             p1Ref = p1; p2Ref = p2;
             entryWindowEnd = System.currentTimeMillis() + HUG_QTE_WINDOW_MS;
         }
     }
     private static final Map<UUID, HugSession> sessions = new HashMap<>();
-    public static void startHugQTE(ServerPlayerEntity p1, ServerPlayerEntity p2) {
-        UUID id1 = p1.getUuid(), id2 = p2.getUuid();
+    public static void startHugQTE(ServerPlayer p1, ServerPlayer p2) {
+        UUID id1 = p1.getUUID(), id2 = p2.getUUID();
         if (sessions.containsKey(id1) || sessions.containsKey(id2)) return;
         HugSession s = new HugSession(p1, p2);
         sessions.put(id1, s);
@@ -60,8 +60,8 @@ public class HighFiveQTEHugHandler {
         ServerPlayNetworking.send(p2, new DapFusionHandler.FusionQTEPayload(id2, "G", 1, 0L, HUG_QTE_WINDOW_MS, true, 0));
     }
     public static boolean isInHugSession(UUID id) { return sessions.containsKey(id); }
-    public static boolean onButtonPress(ServerPlayerEntity player, String button) {
-        UUID id = player.getUuid();
+    public static boolean onButtonPress(ServerPlayer player, String button) {
+        UUID id = player.getUUID();
         HugSession s = sessions.get(id);
         if (s == null) return false;
         if (!s.started) {
@@ -96,44 +96,44 @@ public class HighFiveQTEHugHandler {
     private static void executeHug(HugSession s) {
         s.started = true;
         s.tick    = 0;
-        ServerPlayerEntity p1 = s.p1Ref, p2 = s.p2Ref;
-        Vec3d pos1 = p1.getEntityPos(), pos2 = p2.getEntityPos();
+        ServerPlayer p1 = s.p1Ref, p2 = s.p2Ref;
+        Vec3 pos1 = p1.position(), pos2 = p2.position();
         double dx = pos2.x - pos1.x, dz = pos2.z - pos1.z;
         double len = Math.sqrt(dx*dx + dz*dz);
         if (len >= 0.001) {
             float yaw1 = (float)(Math.atan2(dz, dx) * 180 / Math.PI) - 90;
             float yaw2 = yaw1 + 180;
-            p1.setYaw(yaw1); p1.setBodyYaw(yaw1); p1.setHeadYaw(yaw1);
-            p1.lastYaw = yaw1; p1.lastBodyYaw = yaw1; p1.lastHeadYaw = yaw1;
-            p2.setYaw(yaw2); p2.setBodyYaw(yaw2); p2.setHeadYaw(yaw2);
-            p2.lastYaw = yaw2; p2.lastBodyYaw = yaw2; p2.lastHeadYaw = yaw2;
-            s.p1Forward = new Vec3d(dx / len, 0, dz / len);
-            s.p2Forward = new Vec3d(-dx / len, 0, -dz / len);
+            p1.setYRot(yaw1); p1.setYBodyRot(yaw1); p1.setYHeadRot(yaw1);
+            p1.yRotO = yaw1; p1.yBodyRotO = yaw1; p1.yHeadRotO = yaw1;
+            p2.setYRot(yaw2); p2.setYBodyRot(yaw2); p2.setYHeadRot(yaw2);
+            p2.yRotO = yaw2; p2.yBodyRotO = yaw2; p2.yHeadRotO = yaw2;
+            s.p1Forward = new Vec3(dx / len, 0, dz / len);
+            s.p2Forward = new Vec3(-dx / len, 0, -dz / len);
         } else {
-            s.p1Forward = new Vec3d(0, 0, 1);
-            s.p2Forward = new Vec3d(0, 0, -1);
+            s.p1Forward = new Vec3(0, 0, 1);
+            s.p2Forward = new Vec3(0, 0, -1);
         }
-        s.p1BasePos = p1.getEntityPos();
-        s.p2BasePos = p2.getEntityPos();
-        DapSessionManager.createSession(p1.getUuid(), p2.getUuid(), 1.2, DapSession.DapType.NORMAL_DAP);
+        s.p1BasePos = p1.position();
+        s.p2BasePos = p2.position();
+        DapSessionManager.createSession(p1.getUUID(), p2.getUUID(), 1.2, DapSession.DapType.NORMAL_DAP);
         ServerPlayNetworking.send(p1, new ChargedDapHandler.PerfectDapFreezePayload(true));
         ServerPlayNetworking.send(p2, new ChargedDapHandler.PerfectDapFreezePayload(true));
         int ord = com.cooptest.client.CoopAnimationHandler.AnimState.HIGHFIVE_HUG.ordinal();
         PoseNetworking.broadcastAnimState(p1, ord);
         PoseNetworking.broadcastAnimState(p2, ord);
-        for (ServerPlayerEntity p : List.of(p1, p2)) {
-            var swing = new net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket(
-                    p, net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket.SWING_MAIN_HAND);
-            for (ServerPlayerEntity obs : p.getEntityWorld().getPlayers())
-                if (!obs.getUuid().equals(p.getUuid())) obs.networkHandler.sendPacket(swing);
+        for (ServerPlayer p : List.of(p1, p2)) {
+            var swing = new net.minecraft.network.protocol.game.ClientboundAnimatePacket(
+                    p, net.minecraft.network.protocol.game.ClientboundAnimatePacket.SWING_MAIN_HAND);
+            for (ServerPlayer obs : p.level().players())
+                if (!obs.getUUID().equals(p.getUUID())) obs.connection.send(swing);
         }
     }
     private static void tick(MinecraftServer server) {
         Set<HugSession> processed = new HashSet<>();
         for (HugSession s : new ArrayList<>(sessions.values())) {
             if (!processed.add(s)) continue;
-            ServerPlayerEntity p1 = server.getPlayerManager().getPlayer(s.p1Id);
-            ServerPlayerEntity p2 = server.getPlayerManager().getPlayer(s.p2Id);
+            ServerPlayer p1 = server.getPlayerList().getPlayer(s.p1Id);
+            ServerPlayer p2 = server.getPlayerList().getPlayer(s.p2Id);
             if (p1 == null || p2 == null) { cleanup(s.p1Id); continue; }
             s.p1Ref = p1; s.p2Ref = p2;
             if (!s.started) {
@@ -145,15 +145,15 @@ public class HighFiveQTEHugHandler {
                 continue;
             }
             s.tick++;
-            ServerWorld world = p1.getEntityWorld();
+            ServerLevel world = p1.level();
             if (s.tick == TICK_RIGHT_PARTICLES) {
-                for (ServerPlayerEntity p : List.of(p1, p2)) {
-                    Vec3d arm = getRightArmTip(p);
-                    world.spawnParticles(ParticleTypes.CRIT,         arm.x, arm.y, arm.z, 8, 0.1, 0.1, 0.1, 0.08);
-                    world.spawnParticles(ParticleTypes.ENCHANTED_HIT, arm.x, arm.y, arm.z, 5, 0.08, 0.08, 0.08, 0.05);
+                for (ServerPlayer p : List.of(p1, p2)) {
+                    Vec3 arm = getRightArmTip(p);
+                    world.sendParticles(ParticleTypes.CRIT,         arm.x, arm.y, arm.z, 8, 0.1, 0.1, 0.1, 0.08);
+                    world.sendParticles(ParticleTypes.ENCHANTED_HIT, arm.x, arm.y, arm.z, 5, 0.08, 0.08, 0.08, 0.05);
                 }
                 world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
-                        ModSounds.DAP_HIT, SoundCategory.PLAYERS, 1.2f, 1.0f);
+                        ModSounds.DAP_HIT, SoundSource.PLAYERS, 1.2f, 1.0f);
             }
             if (s.tick == TICK_DISTANCE_ADJUST) adjustDistance(p1, p2, s, DIST_CLOSE);
             if (s.tick == TICK_LEFT_FX_1) playLeftArmFX(p1, p2, world);
@@ -182,24 +182,24 @@ public class HighFiveQTEHugHandler {
             if (s.hug2Started && s.p1InnerHit && s.p2InnerHit) {
                 s.hug2Tick++;
                 if (s.hug2Tick == 6) {
-                    for (ServerPlayerEntity p : List.of(p1, p2)) {
-                        Vec3d arm = getRightArmTip(p);
-                        world.spawnParticles(ParticleTypes.CRIT,          arm.x, arm.y, arm.z, 10, 0.1, 0.1, 0.1, 0.08);
-                        world.spawnParticles(ParticleTypes.ENCHANTED_HIT,  arm.x, arm.y, arm.z,  6, 0.08, 0.08, 0.08, 0.05);
+                    for (ServerPlayer p : List.of(p1, p2)) {
+                        Vec3 arm = getRightArmTip(p);
+                        world.sendParticles(ParticleTypes.CRIT,          arm.x, arm.y, arm.z, 10, 0.1, 0.1, 0.1, 0.08);
+                        world.sendParticles(ParticleTypes.ENCHANTED_HIT,  arm.x, arm.y, arm.z,  6, 0.08, 0.08, 0.08, 0.05);
                     }
                     world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
-                            ModSounds.DAP_HIT, SoundCategory.PLAYERS, 1.3f, 1.0f);
+                            ModSounds.DAP_HIT, SoundSource.PLAYERS, 1.3f, 1.0f);
                     world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
-                            SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.8f, 1.2f);
+                            SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 0.8f, 1.2f);
                 }
                 if (s.hug2Tick == 26) {
                     world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
-                            ModSounds.SNAP, SoundCategory.PLAYERS, 1.5f, 1.0f);
+                            ModSounds.SNAP, SoundSource.PLAYERS, 1.5f, 1.0f);
                     world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
-                            SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 0.8f, 2.0f);
-                    Vec3d mid = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1.2, 0);
-                    world.spawnParticles(ParticleTypes.CLOUD, mid.x, mid.y, mid.z, 12, 0.2, 0.2, 0.2, 0.04);
-                    world.spawnParticles(ParticleTypes.POOF,  mid.x, mid.y, mid.z,  8, 0.15, 0.15, 0.15, 0.03);
+                            SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 0.8f, 2.0f);
+                    Vec3 mid = p1.position().add(p2.position()).scale(0.5).add(0, 1.2, 0);
+                    world.sendParticles(ParticleTypes.CLOUD, mid.x, mid.y, mid.z, 12, 0.2, 0.2, 0.2, 0.04);
+                    world.sendParticles(ParticleTypes.POOF,  mid.x, mid.y, mid.z,  8, 0.15, 0.15, 0.15, 0.03);
                 }
             }
             int endTick = (s.hug2Started && s.p1InnerHit && s.p2InnerHit) ? 124 : TICK_END;
@@ -213,42 +213,42 @@ public class HighFiveQTEHugHandler {
             }
         }
     }
-    private static void adjustDistance(ServerPlayerEntity p1, ServerPlayerEntity p2,
+    private static void adjustDistance(ServerPlayer p1, ServerPlayer p2,
                                        HugSession s, double targetDist) {
-        Vec3d pos1 = p1.getEntityPos(), pos2 = p2.getEntityPos();
+        Vec3 pos1 = p1.position(), pos2 = p2.position();
         double dx = pos2.x - pos1.x, dz = pos2.z - pos1.z;
         double len = Math.sqrt(dx*dx + dz*dz);
         if (len < 0.001) return;
-        Vec3d dir = new Vec3d(dx / len, 0, dz / len);
-        Vec3d mid  = pos1.add(pos2).multiply(0.5);
-        Vec3d t1   = mid.subtract(dir.multiply(targetDist / 2.0));
-        Vec3d t2   = mid.add(dir.multiply(targetDist / 2.0));
-        p1.teleport(p1.getEntityWorld(), t1.x, t1.y, t1.z, java.util.Set.of(), p1.getYaw(), p1.getPitch(), false);
-        p2.teleport(p2.getEntityWorld(), t2.x, t2.y, t2.z, java.util.Set.of(), p2.getYaw(), p2.getPitch(), false);
+        Vec3 dir = new Vec3(dx / len, 0, dz / len);
+        Vec3 mid  = pos1.add(pos2).scale(0.5);
+        Vec3 t1   = mid.subtract(dir.scale(targetDist / 2.0));
+        Vec3 t2   = mid.add(dir.scale(targetDist / 2.0));
+        p1.teleportTo(p1.level(), t1.x, t1.y, t1.z, java.util.Set.of(), p1.getYRot(), p1.getXRot(), false);
+        p2.teleportTo(p2.level(), t2.x, t2.y, t2.z, java.util.Set.of(), p2.getYRot(), p2.getXRot(), false);
         s.p1BasePos = t1; s.p2BasePos = t2;
     }
-    private static void playLeftArmFX(ServerPlayerEntity p1, ServerPlayerEntity p2, ServerWorld world) {
-        for (ServerPlayerEntity p : List.of(p1, p2)) {
-            Vec3d arm = getLeftArmTip(p);
-            world.spawnParticles(ParticleTypes.CRIT, arm.x, arm.y, arm.z, 6, 0.1, 0.1, 0.1, 0.06);
+    private static void playLeftArmFX(ServerPlayer p1, ServerPlayer p2, ServerLevel world) {
+        for (ServerPlayer p : List.of(p1, p2)) {
+            Vec3 arm = getLeftArmTip(p);
+            world.sendParticles(ParticleTypes.CRIT, arm.x, arm.y, arm.z, 6, 0.1, 0.1, 0.1, 0.06);
         }
         world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
-                SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 0.9f, 1.1f);
-        for (ServerPlayerEntity p : List.of(p1, p2)) {
-            var swing = new net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket(
-                    p, net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket.SWING_MAIN_HAND);
-            for (ServerPlayerEntity obs : p.getEntityWorld().getPlayers())
-                if (!obs.getUuid().equals(p.getUuid())) obs.networkHandler.sendPacket(swing);
+                SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.9f, 1.1f);
+        for (ServerPlayer p : List.of(p1, p2)) {
+            var swing = new net.minecraft.network.protocol.game.ClientboundAnimatePacket(
+                    p, net.minecraft.network.protocol.game.ClientboundAnimatePacket.SWING_MAIN_HAND);
+            for (ServerPlayer obs : p.level().players())
+                if (!obs.getUUID().equals(p.getUUID())) obs.connection.send(swing);
         }
     }
-    private static Vec3d getRightArmTip(ServerPlayerEntity p) {
-        double yaw = Math.toRadians(p.getBodyYaw());
-        return new Vec3d(p.getX() + -Math.cos(yaw)*0.3 + -Math.sin(yaw)*0.4, p.getY()+1.0,
+    private static Vec3 getRightArmTip(ServerPlayer p) {
+        double yaw = Math.toRadians(p.getVisualRotationYInDegrees());
+        return new Vec3(p.getX() + -Math.cos(yaw)*0.3 + -Math.sin(yaw)*0.4, p.getY()+1.0,
                 p.getZ() +  Math.sin(yaw)*0.3 +  Math.cos(yaw)*0.4);
     }
-    private static Vec3d getLeftArmTip(ServerPlayerEntity p) {
-        double yaw = Math.toRadians(p.getBodyYaw());
-        return new Vec3d(p.getX() +  Math.cos(yaw)*0.4 + -Math.sin(yaw)*0.3, p.getY()+1.3,
+    private static Vec3 getLeftArmTip(ServerPlayer p) {
+        double yaw = Math.toRadians(p.getVisualRotationYInDegrees());
+        return new Vec3(p.getX() +  Math.cos(yaw)*0.4 + -Math.sin(yaw)*0.3, p.getY()+1.3,
                 p.getZ() + -Math.sin(yaw)*0.4 +  Math.cos(yaw)*0.3);
     }
 }

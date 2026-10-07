@@ -1,7 +1,7 @@
 package com.cooptest;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import java.util.HashMap;
 import java.util.UUID;
 public class ClientCrouchPoseHandler {
@@ -14,9 +14,9 @@ public class ClientCrouchPoseHandler {
     private static final int REQUIRED_TICKS = 10;
     public static void register() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) return;
-            UUID id = player.getUuid();
+            UUID id = player.getUUID();
             PoseState currentPose = PoseNetworking.poseStates.getOrDefault(id, PoseState.NONE);
             if (currentPose == PoseState.GRAB_READY ||
                     currentPose == PoseState.GRAB_HOLDING ||
@@ -33,9 +33,9 @@ public class ClientCrouchPoseHandler {
             double dz = pz - prev[2];
             double dist2 = dx * dx + dy * dy + dz * dz;
             lastPos.put(id, new double[]{px, py, pz});
-            boolean sneaking = player.isSneaking();
+            boolean sneaking = player.isShiftKeyDown();
             boolean isStill = dist2 < (MOVE_TOLERANCE * MOVE_TOLERANCE);
-            boolean holdingRightClick = client.options.useKey.isPressed();
+            boolean holdingRightClick = client.options.keyUse.isDown();
             boolean movedTooMuch = dist2 > (CANCEL_TOLERANCE * CANCEL_TOLERANCE);
             PoseState newState;
             if (sneaking && isStill && holdingRightClick) {

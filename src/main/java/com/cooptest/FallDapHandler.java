@@ -3,23 +3,22 @@ package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -46,35 +45,35 @@ public class FallDapHandler {
         FALLING      // Playing dap_charge_falling (ready to dap/squash)
     }
 
-    public record FallDapAnimPayload(UUID playerId, int state) implements CustomPayload {
-        public static final Id<FallDapAnimPayload> ID =
-                new Id<>(Identifier.of("testcoop", "fall_dap_anim"));
+    public record FallDapAnimPayload(UUID playerId, int state) implements CustomPacketPayload {
+        public static final Type<FallDapAnimPayload> ID =
+                new Type<>(Identifier.fromNamespaceAndPath("testcoop", "fall_dap_anim"));
 
-        public static final PacketCodec<PacketByteBuf, FallDapAnimPayload> CODEC =
-                PacketCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, FallDapAnimPayload> CODEC =
+                StreamCodec.ofMember(
                         (payload, buf) -> {
-                            buf.writeUuid(payload.playerId);
+                            buf.writeUUID(payload.playerId);
                             buf.writeInt(payload.state);
                         },
-                        buf -> new FallDapAnimPayload(buf.readUuid(), buf.readInt())
+                        buf -> new FallDapAnimPayload(buf.readUUID(), buf.readInt())
                 );
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record SquashAnimPayload(UUID playerId) implements CustomPayload {
-        public static final Id<SquashAnimPayload> ID =
-                new Id<>(Identifier.of("testcoop", "squash_anim"));
+    public record SquashAnimPayload(UUID playerId) implements CustomPacketPayload {
+        public static final Type<SquashAnimPayload> ID =
+                new Type<>(Identifier.fromNamespaceAndPath("testcoop", "squash_anim"));
 
-        public static final PacketCodec<PacketByteBuf, SquashAnimPayload> CODEC =
-                PacketCodec.of(
-                        (payload, buf) -> buf.writeUuid(payload.playerId),
-                        buf -> new SquashAnimPayload(buf.readUuid())
+        public static final StreamCodec<FriendlyByteBuf, SquashAnimPayload> CODEC =
+                StreamCodec.ofMember(
+                        (payload, buf) -> buf.writeUUID(payload.playerId),
+                        buf -> new SquashAnimPayload(buf.readUUID())
                 );
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
     public static void register() {
@@ -94,43 +93,43 @@ public class FallDapHandler {
         while (squashIt.hasNext()) {
             Map.Entry<UUID, Long> entry = squashIt.next();
             UUID playerId = entry.getKey();
-            ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerId);
+            ServerPlayer player = server.getPlayerList().getPlayer(playerId);
 
             if (now >= entry.getValue()) {
                 squashIt.remove();
 
                 if (player != null) {
                     PoseNetworking.broadcastAnimState(player, 0); // NONE
-                    player.removeStatusEffect(StatusEffects.SLOWNESS);
-                    player.removeStatusEffect(StatusEffects.JUMP_BOOST);
+                    player.removeEffect(MobEffects.SLOWNESS);
+                    player.removeEffect(MobEffects.JUMP_BOOST);
                 }
             } else if (player != null) {
 
-                if (!player.hasStatusEffect(StatusEffects.SLOWNESS) ||
-                        player.getStatusEffect(StatusEffects.SLOWNESS).getDuration() < 40) {
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 2, false, false));
+                if (!player.hasEffect(MobEffects.SLOWNESS) ||
+                        player.getEffect(MobEffects.SLOWNESS).getDuration() < 40) {
+                    player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2, false, false));
                 }
 
-                if (!player.hasStatusEffect(StatusEffects.JUMP_BOOST) ||
-                        player.getStatusEffect(StatusEffects.JUMP_BOOST).getDuration() < 40) {
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 60, 250, false, false));
+                if (!player.hasEffect(MobEffects.JUMP_BOOST) ||
+                        player.getEffect(MobEffects.JUMP_BOOST).getDuration() < 40) {
+                    player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 60, 250, false, false));
                 }
             }
         }
 
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            UUID playerId = player.getUuid();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            UUID playerId = player.getUUID();
 
             if (isSquashed(playerId)) continue;
 
-            if (player.getEquippedStack(EquipmentSlot.CHEST).isOf(Items.ELYTRA)) {
+            if (player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA)) {
                 cleanup(playerId);
                 continue;
             }
 
             boolean isChargingDap = ChargedDapHandler.isCharging(playerId);
-            boolean isOnGround = player.isOnGround();
-            boolean isFalling = player.getVelocity().y < -0.1;
+            boolean isOnGround = player.onGround();
+            boolean isFalling = player.getDeltaMovement().y < -0.1;
 
             FallDapState currentState = fallDapPlayers.getOrDefault(playerId, FallDapState.NONE);
 
@@ -154,7 +153,7 @@ public class FallDapHandler {
                 if (chargeStart != null && now - chargeStart >= FALL_CHARGE_DURATION_MS) {
                     fallDapPlayers.put(playerId, FallDapState.FALLING);
                     broadcastFallDapAnim(player, 2); // FALLING state
-                    player.sendMessage(Text.literal("§c§l FALL DAP READY! "), true);
+                    player.displayClientMessage(Component.literal("§c§l FALL DAP READY! "), true);
                 }
 
                 if (isOnGround) {
@@ -167,7 +166,7 @@ public class FallDapHandler {
                 }
             } else if (currentState == FallDapState.FALLING) {
 
-                ServerPlayerEntity victim = findSquashTarget(player, 3.0);
+                ServerPlayer victim = findSquashTarget(player, 3.0);
                 if (victim != null) {
                     // SQUASH!
                     squashPlayer(player, victim);
@@ -189,8 +188,8 @@ public class FallDapHandler {
     }
 
     
-    private static void startFallDapCharge(ServerPlayerEntity player) {
-        UUID playerId = player.getUuid();
+    private static void startFallDapCharge(ServerPlayer player) {
+        UUID playerId = player.getUUID();
         fallDapPlayers.put(playerId, FallDapState.CHARGING);
 
         fallChargeStartTime.put(playerId, System.currentTimeMillis());
@@ -198,12 +197,12 @@ public class FallDapHandler {
         // Broadcast animation
         broadcastFallDapAnim(player, 1); // CHARGING state
 
-        player.sendMessage(Text.literal("§e§l FALL DAP CHARGING! "), true);
+        player.displayClientMessage(Component.literal("§e§l FALL DAP CHARGING! "), true);
     }
 
   
-    private static void resetToNormalCharge(ServerPlayerEntity player) {
-        UUID playerId = player.getUuid();
+    private static void resetToNormalCharge(ServerPlayer player) {
+        UUID playerId = player.getUUID();
         fallDapPlayers.remove(playerId);
         fallStartY.remove(playerId);
         fallChargeStartTime.remove(playerId);
@@ -213,7 +212,7 @@ public class FallDapHandler {
         PoseNetworking.broadcastAnimState(player,
                 com.cooptest.client.CoopAnimationHandler.AnimState.DAP_CHARGE_IDLE.ordinal());
 
-        player.sendMessage(Text.literal("§7Fall dap reset - touched ground"), true);
+        player.displayClientMessage(Component.literal("§7Fall dap reset - touched ground"), true);
     }
 
     
@@ -228,9 +227,9 @@ public class FallDapHandler {
     }
 
     
-    public static void executeFallDapHit(ServerWorld world, Vec3d pos,
-                                         ServerPlayerEntity attacker, ServerPlayerEntity victim) {
-        UUID attackerId = attacker.getUuid();
+    public static void executeFallDapHit(ServerLevel world, Vec3 pos,
+                                         ServerPlayer attacker, ServerPlayer victim) {
+        UUID attackerId = attacker.getUUID();
 
         broadcastFallDapAnim(attacker, 3); // FALL_HIT state
 
@@ -239,81 +238,81 @@ public class FallDapHandler {
     }
 
 
-    private static void squashPlayer(ServerPlayerEntity attacker, ServerPlayerEntity victim) {
-        ServerWorld world = attacker.getEntityWorld();
-        Vec3d pos = victim.getEntityPos();
+    private static void squashPlayer(ServerPlayer attacker, ServerPlayer victim) {
+        ServerLevel world = attacker.level();
+        Vec3 pos = victim.position();
 
         world.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 2.0f, 0.5f);
+                SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 2.0f, 0.5f);
         world.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.ENTITY_PLAYER_HURT, SoundCategory.PLAYERS, 1.0f, 0.8f);
+                SoundEvents.PLAYER_HURT, SoundSource.PLAYERS, 1.0f, 0.8f);
 
-        world.spawnParticles(ParticleTypes.CRIT, pos.x, pos.y + 1, pos.z, 30, 0.5, 0.3, 0.5, 0.2);
-        world.spawnParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 20, 0.5, 0.2, 0.5, 0.05);
+        world.sendParticles(ParticleTypes.CRIT, pos.x, pos.y + 1, pos.z, 30, 0.5, 0.3, 0.5, 0.2);
+        world.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 20, 0.5, 0.2, 0.5, 0.05);
 
         dropHandItems(victim, world, pos);
 
-        victim.clientDamage(world.getDamageSources().playerAttack((PlayerEntity)attacker));
+        victim.hurtClient(world.damageSources().playerAttack((Player)attacker));
 
-        victim.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 420, 2, false, false));
-        victim.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, 420, 250, false, false));
-        victim.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 300, 0, false, false));
+        victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 420, 2, false, false));
+        victim.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 420, 250, false, false));
+        victim.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 300, 0, false, false));
 
-        victim.setVelocity(0, 0, 0);
-        victim.knockedBack = true;
+        victim.setDeltaMovement(0, 0, 0);
+        victim.hurtMarked = true;
 
-        squashedPlayers.put(victim.getUuid(), System.currentTimeMillis() + SQUASHED_DURATION_MS);
+        squashedPlayers.put(victim.getUUID(), System.currentTimeMillis() + SQUASHED_DURATION_MS);
 
         // Broadcast squash animation
-        for (ServerPlayerEntity p : world.getServer().getPlayerManager().getPlayerList()) {
-            ServerPlayNetworking.send(p, new SquashAnimPayload(victim.getUuid()));
+        for (ServerPlayer p : world.getServer().getPlayerList().getPlayers()) {
+            ServerPlayNetworking.send(p, new SquashAnimPayload(victim.getUUID()));
         }
 
         // Messages
-        attacker.sendMessage(Text.literal("§c§l💀 SQUASHED! 💀"), true);
-        victim.sendMessage(Text.literal("§c§lYOU GOT SQUASHED FOR 25 SECONDS!"), true);
+        attacker.displayClientMessage(Component.literal("§c§l💀 SQUASHED! 💀"), true);
+        victim.displayClientMessage(Component.literal("§c§lYOU GOT SQUASHED FOR 25 SECONDS!"), true);
     }
 
   
-    private static void dropHandItems(ServerPlayerEntity player, ServerWorld world, Vec3d pos) {
+    private static void dropHandItems(ServerPlayer player, ServerLevel world, Vec3 pos) {
         // Drop main hand item
-        net.minecraft.item.ItemStack mainStack = player.getMainHandStack();
+        net.minecraft.world.item.ItemStack mainStack = player.getMainHandItem();
         if (!mainStack.isEmpty()) {
-            net.minecraft.entity.ItemEntity mainItem = new net.minecraft.entity.ItemEntity(
+            net.minecraft.world.entity.item.ItemEntity mainItem = new net.minecraft.world.entity.item.ItemEntity(
                     world, pos.x, pos.y + 0.5, pos.z, mainStack.copy()
             );
-            mainItem.setVelocity(
+            mainItem.setDeltaMovement(
                     (world.random.nextDouble() - 0.5) * 0.3,
                     world.random.nextDouble() * 0.2 + 0.1,
                     (world.random.nextDouble() - 0.5) * 0.3
             );
-            world.spawnEntity(mainItem);
-            player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND, net.minecraft.item.ItemStack.EMPTY);
+            world.addFreshEntity(mainItem);
+            player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY);
         }
 
-        net.minecraft.item.ItemStack offStack = player.getOffHandStack();
+        net.minecraft.world.item.ItemStack offStack = player.getOffhandItem();
         if (!offStack.isEmpty()) {
-            net.minecraft.entity.ItemEntity offItem = new net.minecraft.entity.ItemEntity(
+            net.minecraft.world.entity.item.ItemEntity offItem = new net.minecraft.world.entity.item.ItemEntity(
                     world, pos.x, pos.y + 0.5, pos.z, offStack.copy()
             );
-            offItem.setVelocity(
+            offItem.setDeltaMovement(
                     (world.random.nextDouble() - 0.5) * 0.3,
                     world.random.nextDouble() * 0.2 + 0.1,
                     (world.random.nextDouble() - 0.5) * 0.3
             );
-            world.spawnEntity(offItem);
-            player.setStackInHand(net.minecraft.util.Hand.OFF_HAND, net.minecraft.item.ItemStack.EMPTY);
+            world.addFreshEntity(offItem);
+            player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, net.minecraft.world.item.ItemStack.EMPTY);
         }
     }
 
     
-    private static ServerPlayerEntity findSquashTarget(ServerPlayerEntity attacker, double horizontalRange) {
+    private static ServerPlayer findSquashTarget(ServerPlayer attacker, double horizontalRange) {
         double attackerY = attacker.getY();
 
-        for (ServerPlayerEntity other : attacker.getEntityWorld().getPlayers()) {
+        for (ServerPlayer other : attacker.level().players()) {
             if (other == attacker) continue;
 
-            if (isSquashed(other.getUuid())) continue;
+            if (isSquashed(other.getUUID())) continue;
 
             double otherY = other.getY();
 
@@ -331,10 +330,10 @@ public class FallDapHandler {
         return null;
     }
 
-    private static ServerPlayerEntity findNearbyPlayer(ServerPlayerEntity player, double range) {
-        for (ServerPlayerEntity other : player.getEntityWorld().getPlayers()) {
+    private static ServerPlayer findNearbyPlayer(ServerPlayer player, double range) {
+        for (ServerPlayer other : player.level().players()) {
             if (other == player) continue;
-            if (other.squaredDistanceTo(player) <= range * range) {
+            if (other.distanceToSqr(player) <= range * range) {
                 return other;
             }
         }
@@ -353,12 +352,12 @@ public class FallDapHandler {
     }
 
   
-    private static void broadcastFallDapAnim(ServerPlayerEntity player, int state) {
-        var server = player.getEntityWorld().getServer();
+    private static void broadcastFallDapAnim(ServerPlayer player, int state) {
+        var server = player.level().getServer();
         if (server == null) return;
 
-        FallDapAnimPayload payload = new FallDapAnimPayload(player.getUuid(), state);
-        for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+        FallDapAnimPayload payload = new FallDapAnimPayload(player.getUUID(), state);
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(p, payload);
         }
     }

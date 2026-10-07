@@ -1,25 +1,24 @@
 package com.cooptest;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-
 import java.util.UUID;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 
-public record QTEClearPayload(UUID playerId) implements CustomPayload {
+public record QTEClearPayload(UUID playerId) implements CustomPacketPayload {
 
-    public static final Identifier QTE_CLEAR_ID = Identifier.of("cooptest", "qte_clear");
-    public static final Id<QTEClearPayload> ID = new Id<>(QTE_CLEAR_ID);
+    public static final Identifier QTE_CLEAR_ID = Identifier.fromNamespaceAndPath("cooptest", "qte_clear");
+    public static final Type<QTEClearPayload> ID = new Type<>(QTE_CLEAR_ID);
 
-    public static final PacketCodec<PacketByteBuf, QTEClearPayload> CODEC = PacketCodec.of(
-            (payload, buf) -> buf.writeUuid(payload.playerId),
-            buf -> new QTEClearPayload(buf.readUuid())
+    public static final StreamCodec<FriendlyByteBuf, QTEClearPayload> CODEC = StreamCodec.ofMember(
+            (payload, buf) -> buf.writeUUID(payload.playerId),
+            buf -> new QTEClearPayload(buf.readUUID())
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

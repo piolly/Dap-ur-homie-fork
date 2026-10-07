@@ -1,15 +1,14 @@
 package com.cooptest;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 public class DapComboChain {
@@ -45,9 +44,9 @@ public class DapComboChain {
 
     public static class ComboSession {
         public final UUID p1Id, p2Id;
-        public ServerPlayerEntity p1Ref, p2Ref;
-        public ServerWorld world;
-        public Vec3d impactPos;
+        public ServerPlayer p1Ref, p2Ref;
+        public ServerLevel world;
+        public Vec3 impactPos;
 
         public int stage;          // 0=dap_hit, 1=extend1, 2=extend_both, 3=final, negative=failing
         public int ticksInStage;
@@ -59,12 +58,12 @@ public class DapComboChain {
         public boolean qteWindowOpen;
         public boolean qteSent;
 
-        ComboSession(ServerPlayerEntity p1, ServerPlayerEntity p2, Vec3d pos) {
-            this.p1Id = p1.getUuid();
-            this.p2Id = p2.getUuid();
+        ComboSession(ServerPlayer p1, ServerPlayer p2, Vec3 pos) {
+            this.p1Id = p1.getUUID();
+            this.p2Id = p2.getUUID();
             this.p1Ref = p1;
             this.p2Ref = p2;
-            this.world = p1.getEntityWorld();
+            this.world = p1.level();
             this.impactPos = pos;
             this.stage = 0;
             this.ticksInStage = 0;
@@ -96,9 +95,9 @@ public class DapComboChain {
     }
 
 
-    public static void startCombo(ServerPlayerEntity p1, ServerPlayerEntity p2, Vec3d impactPos) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+    public static void startCombo(ServerPlayer p1, ServerPlayer p2, Vec3 impactPos) {
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
 
         if (activeCombos.containsKey(id1) || activeCombos.containsKey(id2)) return;
 
@@ -116,8 +115,8 @@ public class DapComboChain {
     }
 
 
-    public static boolean onButtonPress(ServerPlayerEntity player, String button) {
-        UUID id = player.getUuid();
+    public static boolean onButtonPress(ServerPlayer player, String button) {
+        UUID id = player.getUUID();
         ComboSession session = activeCombos.get(id);
         if (session == null) return false;
         if (!session.qteWindowOpen) return true;
@@ -143,9 +142,9 @@ public class DapComboChain {
     public static void tick(net.minecraft.server.MinecraftServer server) {
         List<ComboSession> toTick = activeCombos.values().stream().distinct().toList();
         for (ComboSession session : toTick) {
-            ServerPlayerEntity p1 = server.getPlayerManager().getPlayer(session.p1Id);
-            ServerPlayerEntity p2 = server.getPlayerManager().getPlayer(session.p2Id);
-            if (p1 == null || p2 == null || p1.isDead() || p2.isDead()) {
+            ServerPlayer p1 = server.getPlayerList().getPlayer(session.p1Id);
+            ServerPlayer p2 = server.getPlayerList().getPlayer(session.p2Id);
+            if (p1 == null || p2 == null || p1.isDeadOrDying() || p2.isDeadOrDying()) {
                 cleanup(session, false);
                 continue;
             }
@@ -243,7 +242,7 @@ public class DapComboChain {
         if (s.ticksInStage == STAGE2_SOUND_4) {
             playCritEffects(s);
             s.world.playSound(null, s.impactPos.x, s.impactPos.y, s.impactPos.z,
-                    ModSounds.EPIC_DAP, SoundCategory.PLAYERS, 1.5f, 1.0f);
+                    ModSounds.EPIC_DAP, SoundSource.PLAYERS, 1.5f, 1.0f);
         }
 
         if (s.ticksInStage >= STAGE2_EVALUATE_TICK && !s.evaluated) {
@@ -273,8 +272,8 @@ public class DapComboChain {
         ServerPlayNetworking.send(s.p1Ref, new ChargedDapHandler.PerfectDapFreezePayload(false));
         ServerPlayNetworking.send(s.p2Ref, new ChargedDapHandler.PerfectDapFreezePayload(false));
 
-        s.p1Ref.sendMessage(Text.literal("§d§l★ MY HOMIE! "), true);
-        s.p2Ref.sendMessage(Text.literal("§d§l★ MY HOMIE! "), true);
+        s.p1Ref.displayClientMessage(Component.literal("§d§l★ MY HOMIE! "), true);
+        s.p2Ref.displayClientMessage(Component.literal("§d§l★ MY HOMIE! "), true);
 
         spawnFinishEffect(s);
     }
@@ -320,53 +319,53 @@ public class DapComboChain {
 
 
     private static void playCritEffects(ComboSession s) {
-        for (ServerPlayerEntity player : List.of(s.p1Ref, s.p2Ref)) {
-            Vec3d armPos = getRightArmTip(player);
+        for (ServerPlayer player : List.of(s.p1Ref, s.p2Ref)) {
+            Vec3 armPos = getRightArmTip(player);
             s.world.playSound(null, armPos.x, armPos.y, armPos.z,
-                    SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 1.2f, 1.0f);
-            s.world.spawnParticles(ParticleTypes.CRIT, armPos.x, armPos.y, armPos.z,
+                    SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.2f, 1.0f);
+            s.world.sendParticles(ParticleTypes.CRIT, armPos.x, armPos.y, armPos.z,
                     8, 0.12, 0.12, 0.12, 0.1);
-            s.world.spawnParticles(ParticleTypes.ENCHANTED_HIT, armPos.x, armPos.y, armPos.z,
+            s.world.sendParticles(ParticleTypes.ENCHANTED_HIT, armPos.x, armPos.y, armPos.z,
                     5, 0.08, 0.08, 0.08, 0.05);
         }
     }
 
     private static void playSmallArmEffect(ComboSession s) {
-        for (ServerPlayerEntity player : List.of(s.p1Ref, s.p2Ref)) {
-            Vec3d armPos = getRightArmTip(player);
+        for (ServerPlayer player : List.of(s.p1Ref, s.p2Ref)) {
+            Vec3 armPos = getRightArmTip(player);
             s.world.playSound(null, armPos.x, armPos.y, armPos.z,
-                    ModSounds.DAP_WEAK, SoundCategory.PLAYERS, 0.3f, 0.6f);
-            s.world.spawnParticles(ParticleTypes.CRIT, armPos.x, armPos.y, armPos.z,
+                    ModSounds.DAP_WEAK, SoundSource.PLAYERS, 0.3f, 0.6f);
+            s.world.sendParticles(ParticleTypes.CRIT, armPos.x, armPos.y, armPos.z,
                     4, 0.08, 0.08, 0.08, 0.05);
         }
     }
 
     private static void spawnFinishEffect(ComboSession s) {
-        Vec3d mid = s.p1Ref.getEntityPos().add(s.p2Ref.getEntityPos()).multiply(0.5).add(0, 1.0, 0);
+        Vec3 mid = s.p1Ref.position().add(s.p2Ref.position()).scale(0.5).add(0, 1.0, 0);
 
-        s.world.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING, mid.x, mid.y, mid.z,
+        s.world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mid.x, mid.y, mid.z,
                 40, 0.5, 0.5, 0.5, 0.2);
-        s.world.spawnParticles(ParticleTypes.END_ROD, mid.x, mid.y, mid.z,
+        s.world.sendParticles(ParticleTypes.END_ROD, mid.x, mid.y, mid.z,
                 20, 0.3, 0.8, 0.3, 0.1);
-        s.world.spawnParticles(TintedParticleEffect.create(ParticleTypes.FLASH, 1f, 1f, 1f), mid.x, mid.y, mid.z, 2, 0, 0, 0, 0);
+        s.world.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f), mid.x, mid.y, mid.z, 2, 0, 0, 0, 0);
         s.world.playSound(null, mid.x, mid.y, mid.z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 2.0f, 0.8f);
+                SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 2.0f, 0.8f);
 
-        for (ServerPlayerEntity player : List.of(s.p1Ref, s.p2Ref)) {
-            Vec3d armPos = getRightArmTip(player);
-            s.world.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING, armPos.x, armPos.y, armPos.z,
+        for (ServerPlayer player : List.of(s.p1Ref, s.p2Ref)) {
+            Vec3 armPos = getRightArmTip(player);
+            s.world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, armPos.x, armPos.y, armPos.z,
                     15, 0.15, 0.15, 0.15, 0.15);
         }
     }
 
-    private static Vec3d getRightArmTip(ServerPlayerEntity player) {
-        double yawRad = Math.toRadians(player.getBodyYaw());
+    private static Vec3 getRightArmTip(ServerPlayer player) {
+        double yawRad = Math.toRadians(player.getVisualRotationYInDegrees());
         double rightX = -Math.cos(yawRad);
         double rightZ = Math.sin(yawRad);
         double forwardX = -Math.sin(yawRad);
         double forwardZ = Math.cos(yawRad);
 
-        return new Vec3d(
+        return new Vec3(
                 player.getX() + rightX * 0.3 + forwardX * 0.4,
                 player.getY() + 1.0,
                 player.getZ() + rightZ * 0.3 + forwardZ * 0.4
@@ -381,9 +380,9 @@ public class DapComboChain {
                 ? s.p1Ref.getName().getString()
                 : s.p2Ref.getName().getString();
 
-        Text msg = Text.literal("§c" + missedName + " missed the extend!");
-        s.p1Ref.sendMessage(msg, true);
-        s.p2Ref.sendMessage(msg, true);
+        Component msg = Component.literal("§c" + missedName + " missed the extend!");
+        s.p1Ref.displayClientMessage(msg, true);
+        s.p2Ref.displayClientMessage(msg, true);
     }
 
 

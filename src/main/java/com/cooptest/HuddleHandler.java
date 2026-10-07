@@ -2,20 +2,20 @@ package com.cooptest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 public class HuddleHandler {
     private static final double HUDDLE_RANGE       = 2.0;
@@ -82,27 +82,27 @@ public class HuddleHandler {
     private static final Map<UUID, String>          playerSession = new HashMap<>();
     private static final Map<UUID, Long>            fHoldStart    = new HashMap<>();
     private static final Map<String, Long>          cooldowns     = new HashMap<>();
-    private static final Map<String, net.minecraft.entity.decoration.ArmorStandEntity> centerStands = new HashMap<>();
+    private static final Map<String, net.minecraft.world.entity.decoration.ArmorStand> centerStands = new HashMap<>();
     private static final Map<UUID, Long> joinerEnterMs = new HashMap<>();
     private static String key(UUID a, UUID b) {
         return a.compareTo(b) < 0 ? a + ":" + b : b + ":" + a;
     }
-    public record HuddleFHoldPayload(boolean holding) implements CustomPayload {
-        public static final Id<HuddleFHoldPayload> ID =
-                new Id<>(Identifier.of("testcoop", "huddle_f_hold"));
-        public static final PacketCodec<PacketByteBuf, HuddleFHoldPayload> CODEC =
-                PacketCodec.of((val, buf) -> buf.writeBoolean(val.holding()),
+    public record HuddleFHoldPayload(boolean holding) implements CustomPacketPayload {
+        public static final Type<HuddleFHoldPayload> ID =
+                new Type<>(Identifier.fromNamespaceAndPath("testcoop", "huddle_f_hold"));
+        public static final StreamCodec<FriendlyByteBuf, HuddleFHoldPayload> CODEC =
+                StreamCodec.ofMember((val, buf) -> buf.writeBoolean(val.holding()),
                         buf -> new HuddleFHoldPayload(buf.readBoolean()));
-        @Override public Id<HuddleFHoldPayload> getId() { return ID; }
+        @Override public Type<HuddleFHoldPayload> type() { return ID; }
     }
-    public record HuddleEndPayload(UUID p1, UUID p2, boolean success) implements CustomPayload {
-        public static final Id<HuddleEndPayload> ID =
-                new Id<>(Identifier.of("testcoop", "huddle_end_result"));
-        public static final PacketCodec<PacketByteBuf, HuddleEndPayload> CODEC =
-                PacketCodec.of(
-                        (val, buf) -> { buf.writeUuid(val.p1()); buf.writeUuid(val.p2()); buf.writeBoolean(val.success()); },
-                        buf -> new HuddleEndPayload(buf.readUuid(), buf.readUuid(), buf.readBoolean()));
-        @Override public Id<HuddleEndPayload> getId() { return ID; }
+    public record HuddleEndPayload(UUID p1, UUID p2, boolean success) implements CustomPacketPayload {
+        public static final Type<HuddleEndPayload> ID =
+                new Type<>(Identifier.fromNamespaceAndPath("testcoop", "huddle_end_result"));
+        public static final StreamCodec<FriendlyByteBuf, HuddleEndPayload> CODEC =
+                StreamCodec.ofMember(
+                        (val, buf) -> { buf.writeUUID(val.p1()); buf.writeUUID(val.p2()); buf.writeBoolean(val.success()); },
+                        buf -> new HuddleEndPayload(buf.readUUID(), buf.readUUID(), buf.readBoolean()));
+        @Override public Type<HuddleEndPayload> type() { return ID; }
     }
     public static void registerPayloads() {
         PayloadTypeRegistry.playC2S().register(HuddleFHoldPayload.ID, HuddleFHoldPayload.CODEC);
@@ -113,8 +113,8 @@ public class HuddleHandler {
                 (payload, ctx) -> ctx.server().execute(() -> onFHold(ctx.player(), payload.holding())));
         ServerTickEvents.END_SERVER_TICK.register(HuddleHandler::tick);
     }
-    private static void onFHold(ServerPlayerEntity player, boolean holding) {
-        UUID id = player.getUuid();
+    private static void onFHold(ServerPlayer player, boolean holding) {
+        UUID id = player.getUUID();
         String sk = playerSession.get(id);
         if (holding && sk == null && HighFiveHandler.isInBlockingState(id)) {
             return;
@@ -136,8 +136,8 @@ public class HuddleHandler {
         if (holding) fHoldStart.putIfAbsent(id, System.currentTimeMillis());
         else          fHoldStart.remove(id);
     }
-    public static boolean onButtonPress(ServerPlayerEntity player, String button) {
-        UUID id = player.getUuid();
+    public static boolean onButtonPress(ServerPlayer player, String button) {
+        UUID id = player.getUUID();
         String sk = playerSession.get(id);
         if (sk == null) return false;
         HuddleSession s = sessions.get(sk);
@@ -150,13 +150,13 @@ public class HuddleHandler {
             return false;
         }
         if ("FAIL".equals(button)) {
-            failHuddle(s, player.getEntityWorld().getServer());
+            failHuddle(s, player.level().getServer());
             return true;
         }
         if (!"G".equals(button) && !"H".equals(button)) return false;
         String expected = s.expectedButton();
         if (!button.equals(expected)) {
-            failHuddle(s, player.getEntityWorld().getServer());
+            failHuddle(s, player.level().getServer());
             return true;
         }
         if (id.equals(s.p1)) s.qteHits.add(s.p1);
@@ -165,10 +165,10 @@ public class HuddleHandler {
     }
     private static void tick(MinecraftServer server) {
         long now = System.currentTimeMillis();
-        if (server.getTicks() % 4 == 0) detectNewHuddles(server, now);
+        if (server.getTickCount() % 4 == 0) detectNewHuddles(server, now);
         joinerEnterMs.entrySet().removeIf(entry -> {
             if (now - entry.getValue() >= HUDDLE_START_MS) {
-                ServerPlayerEntity jp = server.getPlayerManager().getPlayer(entry.getKey());
+                ServerPlayer jp = server.getPlayerList().getPlayer(entry.getKey());
                 if (jp != null) PoseNetworking.broadcastAnimState(jp, ANIM_HUDDLE_IDLE);
                 return true;
             }
@@ -187,12 +187,12 @@ public class HuddleHandler {
             if (playerSession.containsKey(joiner)) continue;
             Long startJ = fHoldStart.get(joiner);
             if (startJ == null || now - startJ < HOLD_REQUIRED_MS) continue;
-            ServerPlayerEntity pj = server.getPlayerManager().getPlayer(joiner);
+            ServerPlayer pj = server.getPlayerList().getPlayer(joiner);
             if (pj == null) continue;
             for (HuddleSession s : new ArrayList<>(sessions.values())) {
                 if (s.stage != HuddleStage.IDLE) continue;
                 if (s.players.contains(joiner)) continue;
-                net.minecraft.entity.decoration.ArmorStandEntity stand =
+                net.minecraft.world.entity.decoration.ArmorStand stand =
                         centerStands.get(key(s.p1, s.p2));
                 if (stand == null) continue;
                 if (pj.distanceTo(stand) > HUDDLE_RANGE * 1.5) continue;
@@ -201,20 +201,20 @@ public class HuddleHandler {
                 playerSession.put(joiner, key(s.p1, s.p2));
                 fHoldStart.remove(joiner);
                 if (stand != null) {
-                    Vec3d center = stand.getEntityPos();
+                    Vec3 center = stand.position();
                     int n = s.players.size();
-                    ServerPlayerEntity p1ref = server.getPlayerManager().getPlayer(s.p1);
+                    ServerPlayer p1ref = server.getPlayerList().getPlayer(s.p1);
                     double baseAngle = 0;
                     if (p1ref != null) {
-                        Vec3d toP1 = p1ref.getEntityPos().subtract(center);
-                        if (toP1.horizontalLengthSquared() > 0.001) baseAngle = Math.atan2(toP1.z, toP1.x);
+                        Vec3 toP1 = p1ref.position().subtract(center);
+                        if (toP1.horizontalDistanceSqr() > 0.001) baseAngle = Math.atan2(toP1.z, toP1.x);
                     }
                     int ci = n - 1;
                     double angle = baseAngle + (Math.PI * 2 * ci / n);
                     double targetX = center.x + HUDDLE_RADIUS * Math.cos(angle);
                     double targetZ = center.z + HUDDLE_RADIUS * Math.sin(angle);
                     float targetYaw = (float)(-Math.toDegrees(Math.atan2(center.x - targetX, center.z - targetZ)));
-                    Vec3d startPos = pj.getEntityPos();
+                    Vec3 startPos = pj.position();
                     final float fYaw = targetYaw;
                     for (int step = 1; step <= 4; step++) {
                         final double frac = step / 4.0;
@@ -225,10 +225,10 @@ public class HuddleHandler {
                             @Override public void run() {
                                 server.execute(() -> {
                                     if (!pj.isAlive()) return;
-                                    pj.teleport(pj.getEntityWorld(), stepX, pj.getY(), stepZ,
+                                    pj.teleportTo(pj.level(), stepX, pj.getY(), stepZ,
                                             java.util.Set.of(), fYaw, 0, false);
                                     if (frac >= 1.0) {
-                                        pj.setYaw(fYaw); pj.setBodyYaw(fYaw); pj.setHeadYaw(fYaw);
+                                        pj.setYRot(fYaw); pj.setYBodyRot(fYaw); pj.setYHeadRot(fYaw);
                                     }
                                 });
                             }
@@ -240,17 +240,17 @@ public class HuddleHandler {
                 PoseNetworking.broadcastAnimState(pj, ANIM_HUDDLE_START);
                 joinerEnterMs.put(joiner, now);
                 for (UUID uid : s.players) {
-                    ServerPlayerEntity pp = server.getPlayerManager().getPlayer(uid);
-                    if (pp != null) pp.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+                    ServerPlayer pp = server.getPlayerList().getPlayer(uid);
+                    if (pp != null) pp.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
                 }
                 final List<UUID> allNow = new java.util.ArrayList<>(s.players);
-                final ServerPlayerEntity fpjRef = pj;
+                final ServerPlayer fpjRef = pj;
                 new java.util.Timer().schedule(new java.util.TimerTask() {
                     @Override public void run() {
                         server.execute(() -> {
                             for (UUID uid : allNow) {
-                                ServerPlayerEntity pp = server.getPlayerManager().getPlayer(uid);
-                                if (pp != null) pp.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+                                ServerPlayer pp = server.getPlayerList().getPlayer(uid);
+                                if (pp != null) pp.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
                             }
                         });
                     }
@@ -259,38 +259,38 @@ public class HuddleHandler {
                     @Override public void run() {
                         server.execute(() -> {
                             for (UUID uid : allNow) {
-                                ServerPlayerEntity pp = server.getPlayerManager().getPlayer(uid);
-                                if (pp != null) pp.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+                                ServerPlayer pp = server.getPlayerList().getPlayer(uid);
+                                if (pp != null) pp.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
                             }
                         });
                     }
                 }, 260L);
-                final ServerPlayerEntity fpj = pj;
+                final ServerPlayer fpj = pj;
                 new java.util.Timer().schedule(new java.util.TimerTask() {
                     @Override public void run() {
                         server.execute(() -> {
                             if (!fpj.isAlive()) return;
-                            Vec3d arm = fpj.getEntityPos().add(0, 1.4, 0)
-                                    .add(fpj.getRotationVec(1.0f).multiply(0.4));
-                            fpj.getEntityWorld().spawnParticles(ParticleTypes.CRIT,
+                            Vec3 arm = fpj.position().add(0, 1.4, 0)
+                                    .add(fpj.getViewVector(1.0f).scale(0.4));
+                            fpj.level().sendParticles(ParticleTypes.CRIT,
                                     arm.x, arm.y, arm.z, 6, 0.08, 0.08, 0.08, 0.06);
-                            fpj.getEntityWorld().spawnParticles(ParticleTypes.ENCHANTED_HIT,
+                            fpj.level().sendParticles(ParticleTypes.ENCHANTED_HIT,
                                     arm.x, arm.y, arm.z, 4, 0.06, 0.06, 0.06, 0.04);
-                            fpj.getEntityWorld().playSound(null, arm.x, arm.y, arm.z,
-                                    SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(),
-                                    SoundCategory.PLAYERS, 0.8f, 2.0f);
+                            fpj.level().playSound(null, arm.x, arm.y, arm.z,
+                                    SoundEvents.NOTE_BLOCK_BELL.value(),
+                                    SoundSource.PLAYERS, 0.8f, 2.0f);
                         });
                     }
                 }, 420L);
-                Vec3d sPos = stand.getEntityPos();
-                pj.getEntityWorld().playSound(null, sPos.x, sPos.y, sPos.z,
-                        SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 1.0f, 1.7f);
-                pj.sendMessage(net.minecraft.text.Text.literal("§aYou joined the huddle!"), true);
+                Vec3 sPos = stand.position();
+                pj.level().playSound(null, sPos.x, sPos.y, sPos.z,
+                        SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0f, 1.7f);
+                pj.displayClientMessage(net.minecraft.network.chat.Component.literal("§aYou joined the huddle!"), true);
                 for (UUID pid : s.players) {
                     if (pid.equals(joiner)) continue;
-                    ServerPlayerEntity pp = server.getPlayerManager().getPlayer(pid);
-                    if (pp != null) pp.sendMessage(
-                            net.minecraft.text.Text.literal("§a" + pj.getName().getString() + " joined the huddle!"), true);
+                    ServerPlayer pp = server.getPlayerList().getPlayer(pid);
+                    if (pp != null) pp.displayClientMessage(
+                            net.minecraft.network.chat.Component.literal("§a" + pj.getName().getString() + " joined the huddle!"), true);
                 }
                 break;
             }
@@ -300,14 +300,14 @@ public class HuddleHandler {
             if (playerSession.containsKey(a)) continue;
             Long startA = fHoldStart.get(a);
             if (startA == null || now - startA < HOLD_REQUIRED_MS) continue;
-            ServerPlayerEntity pa = server.getPlayerManager().getPlayer(a);
+            ServerPlayer pa = server.getPlayerList().getPlayer(a);
             if (pa == null) continue;
             for (int j = i + 1; j < holders.size(); j++) {
                 UUID b = holders.get(j);
                 if (playerSession.containsKey(b)) continue;
                 Long startB = fHoldStart.get(b);
                 if (startB == null || now - startB < HOLD_REQUIRED_MS) continue;
-                ServerPlayerEntity pb = server.getPlayerManager().getPlayer(b);
+                ServerPlayer pb = server.getPlayerList().getPlayer(b);
                 if (pb == null || pa.distanceTo(pb) > HUDDLE_RANGE) continue;
                 String k = key(a, b);
                 if (cooldowns.containsKey(k)) continue;
@@ -324,83 +324,83 @@ public class HuddleHandler {
         }
     }
     private static void positionAndSpawnStand(HuddleSession s,
-                                              ServerPlayerEntity pa, ServerPlayerEntity pb,
+                                              ServerPlayer pa, ServerPlayer pb,
                                               MinecraftServer server) {
-        Vec3d mid = pa.getEntityPos().add(pb.getEntityPos()).multiply(0.5);
-        net.minecraft.server.world.ServerWorld world = pa.getEntityWorld();
-        net.minecraft.entity.decoration.ArmorStandEntity stand =
-                new net.minecraft.entity.decoration.ArmorStandEntity(world, mid.x, mid.y, mid.z);
+        Vec3 mid = pa.position().add(pb.position()).scale(0.5);
+        net.minecraft.server.level.ServerLevel world = pa.level();
+        net.minecraft.world.entity.decoration.ArmorStand stand =
+                new net.minecraft.world.entity.decoration.ArmorStand(world, mid.x, mid.y, mid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);
         stand.setInvulnerable(true);
         stand.setSilent(true);
-        world.spawnEntity(stand);
+        world.addFreshEntity(stand);
         centerStands.put(key(s.p1, s.p2), stand);
         repositionCircle(s, server);
         for (UUID uid : s.players) {
-            ServerPlayerEntity p = server.getPlayerManager().getPlayer(uid);
+            ServerPlayer p = server.getPlayerList().getPlayer(uid);
             if (p != null) {
                 PoseNetworking.broadcastAnimState(p, ANIM_HUDDLE_START);
-                p.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+                p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
             }
         }
         final List<UUID> foundersSnap = new java.util.ArrayList<>(s.players);
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override public void run() {
-                pa.getEntityWorld().getServer().execute(() -> {
+                pa.level().getServer().execute(() -> {
                     for (UUID uid : foundersSnap) {
-                        ServerPlayerEntity p = pa.getEntityWorld().getServer().getPlayerManager().getPlayer(uid);
-                        if (p != null) p.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+                        ServerPlayer p = pa.level().getServer().getPlayerList().getPlayer(uid);
+                        if (p != null) p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
                     }
                 });
             }
         }, 120L);
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override public void run() {
-                pa.getEntityWorld().getServer().execute(() -> {
+                pa.level().getServer().execute(() -> {
                     for (UUID uid : foundersSnap) {
-                        ServerPlayerEntity p = pa.getEntityWorld().getServer().getPlayerManager().getPlayer(uid);
-                        if (p != null) p.swingHand(net.minecraft.util.Hand.MAIN_HAND, true);
+                        ServerPlayer p = pa.level().getServer().getPlayerList().getPlayer(uid);
+                        if (p != null) p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
                     }
                 });
             }
         }, 260L);
         world.playSound(null, mid.x, mid.y, mid.z,
-                SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 1.0f, 1.5f);
-        world.spawnParticles(ParticleTypes.ENCHANTED_HIT,
+                SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0f, 1.5f);
+        world.sendParticles(ParticleTypes.ENCHANTED_HIT,
                 mid.x, mid.y + 1, mid.z, 12, 0.4, 0.4, 0.4, 0.06);
     }
     private static void repositionCircle(HuddleSession s, MinecraftServer server) {
-        net.minecraft.entity.decoration.ArmorStandEntity stand = centerStands.get(key(s.p1, s.p2));
+        net.minecraft.world.entity.decoration.ArmorStand stand = centerStands.get(key(s.p1, s.p2));
         if (stand == null) return;
-        Vec3d center = stand.getEntityPos();
+        Vec3 center = stand.position();
         int n = s.players.size();
-        ServerPlayerEntity p1p = server.getPlayerManager().getPlayer(s.p1);
+        ServerPlayer p1p = server.getPlayerList().getPlayer(s.p1);
         double baseAngle = 0;
         if (p1p != null) {
-            Vec3d toP1 = p1p.getEntityPos().subtract(center);
-            if (toP1.horizontalLengthSquared() > 0.001) {
+            Vec3 toP1 = p1p.position().subtract(center);
+            if (toP1.horizontalDistanceSqr() > 0.001) {
                 baseAngle = Math.atan2(toP1.z, toP1.x);
             }
         }
         for (int ci = 0; ci < n; ci++) {
-            ServerPlayerEntity p = server.getPlayerManager().getPlayer(s.players.get(ci));
+            ServerPlayer p = server.getPlayerList().getPlayer(s.players.get(ci));
             if (p == null) continue;
             double angle = baseAngle + (Math.PI * 2 * ci / n);
             double px = center.x + HUDDLE_RADIUS * Math.cos(angle);
             double pz = center.z + HUDDLE_RADIUS * Math.sin(angle);
             float yaw = (float)(-Math.toDegrees(Math.atan2(center.x - px, center.z - pz)));
-            p.teleport(p.getEntityWorld(), px, p.getY(), pz, java.util.Set.of(), yaw, 0, false);
-            p.setYaw(yaw); p.setBodyYaw(yaw); p.setHeadYaw(yaw);
+            p.teleportTo(p.level(), px, p.getY(), pz, java.util.Set.of(), yaw, 0, false);
+            p.setYRot(yaw); p.setYBodyRot(yaw); p.setYHeadRot(yaw);
         }
     }
     private static void tickSession(HuddleSession s, MinecraftServer server, long now) {
-        ServerPlayerEntity p1 = server.getPlayerManager().getPlayer(s.p1);
-        ServerPlayerEntity p2 = server.getPlayerManager().getPlayer(s.p2);
+        ServerPlayer p1 = server.getPlayerList().getPlayer(s.p1);
+        ServerPlayer p2 = server.getPlayerList().getPlayer(s.p2);
         if (p1 == null || p2 == null) { failHuddle(s, server); return; }
-        List<ServerPlayerEntity> live = new ArrayList<>();
+        List<ServerPlayer> live = new ArrayList<>();
         for (UUID uid : s.players) {
-            ServerPlayerEntity lp = server.getPlayerManager().getPlayer(uid);
+            ServerPlayer lp = server.getPlayerList().getPlayer(uid);
             if (lp == null) { failHuddle(s, server); return; }
             live.add(lp);
         }
@@ -418,13 +418,13 @@ public class HuddleHandler {
                 if (now - s.lastAuraTick >= 80) {
                     s.lastAuraTick = now;
                     s.auraAngle += 0.35;
-                    Vec3d center = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5);
+                    Vec3 center = p1.position().add(p2.position()).scale(0.5);
                     double r = 1.4;
                     for (int i = 0; i < 4; i++) {
                         double a = s.auraAngle + (Math.PI / 2 * i);
                         double px = center.x + r * Math.cos(a);
                         double pz = center.z + r * Math.sin(a);
-                        p1.getEntityWorld().spawnParticles(ParticleTypes.END_ROD,
+                        p1.level().sendParticles(ParticleTypes.END_ROD,
                                 px, center.y + 0.05, pz, 1, 0, 0, 0, 0.01);
                     }
                     double r2 = 0.7;
@@ -432,30 +432,30 @@ public class HuddleHandler {
                         double a = -s.auraAngle * 1.5 + (Math.PI * 2 / 3 * i);
                         double px = center.x + r2 * Math.cos(a);
                         double pz = center.z + r2 * Math.sin(a);
-                        p1.getEntityWorld().spawnParticles(ParticleTypes.ENCHANTED_HIT,
+                        p1.level().sendParticles(ParticleTypes.ENCHANTED_HIT,
                                 px, center.y + 0.3, pz, 1, 0, 0, 0, 0.005);
                     }
                 }
                 if (s.anyReleasedF()) {
                     if (s.firstRelease == null) {
                         s.firstRelease = now;
-                        Vec3d alertMid = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1, 0);
-                        p1.getEntityWorld().playSound(null, alertMid.x, alertMid.y, alertMid.z,
-                                SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 1.2f, 1.8f);
-                        p1.getEntityWorld().spawnParticles(ParticleTypes.NOTE,
+                        Vec3 alertMid = p1.position().add(p2.position()).scale(0.5).add(0, 1, 0);
+                        p1.level().playSound(null, alertMid.x, alertMid.y, alertMid.z,
+                                SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.2f, 1.8f);
+                        p1.level().sendParticles(ParticleTypes.NOTE,
                                 alertMid.x, alertMid.y + 0.5, alertMid.z, 5, 0.3, 0.2, 0.3, 0.1);
                     }
                     boolean bothReleased = s.holdsF.isEmpty();
                     boolean graceExpired = (now - s.firstRelease) > F_RELEASE_GRACE_MS;
                     if (bothReleased) {
-                        Vec3d mid = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1, 0);
-                        p1.getEntityWorld().playSound(null, mid.x, mid.y, mid.z,
-                                SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 1.0f, 1.3f);
-                        p1.getEntityWorld().playSound(null, mid.x, mid.y, mid.z,
-                                ModSounds.DAP_HIT, SoundCategory.PLAYERS, 0.9f, 1.4f);
-                        p1.getEntityWorld().spawnParticles(ParticleTypes.CRIT,
+                        Vec3 mid = p1.position().add(p2.position()).scale(0.5).add(0, 1, 0);
+                        p1.level().playSound(null, mid.x, mid.y, mid.z,
+                                SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.0f, 1.3f);
+                        p1.level().playSound(null, mid.x, mid.y, mid.z,
+                                ModSounds.DAP_HIT, SoundSource.PLAYERS, 0.9f, 1.4f);
+                        p1.level().sendParticles(ParticleTypes.CRIT,
                                 mid.x, mid.y, mid.z, 12, 0.25, 0.25, 0.25, 0.1);
-                        p1.getEntityWorld().spawnParticles(ParticleTypes.ENCHANTED_HIT,
+                        p1.level().sendParticles(ParticleTypes.ENCHANTED_HIT,
                                 mid.x, mid.y, mid.z, 6, 0.2, 0.2, 0.2, 0.06);
                         startQTEStep(s, server, p1, p2, now);
                     } else if (graceExpired) {
@@ -472,38 +472,38 @@ public class HuddleHandler {
                     s.qteOpen = true;
                     s.stageStart = now;
                     String btn = s.expectedButton();
-                    for (ServerPlayerEntity lp : live) {
+                    for (ServerPlayer lp : live) {
                         ServerPlayNetworking.send(lp, new DapFusionHandler.FusionQTEPayload(
-                                lp.getUuid(), btn, s.qteStep, 0L, QTE_WINDOW_MS, true, 0));
+                                lp.getUUID(), btn, s.qteStep, 0L, QTE_WINDOW_MS, true, 0));
                     }
-                    Vec3d mid = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5);
-                    p1.getEntityWorld().playSound(null, mid.x, mid.y, mid.z,
-                            SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS,
+                    Vec3 mid = p1.position().add(p2.position()).scale(0.5);
+                    p1.level().playSound(null, mid.x, mid.y, mid.z,
+                            SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS,
                             0.9f, 1.4f + s.qteStep * 0.1f);
                 }
                 if (!s.qteOpen) return;
                 if (s.allHit()) {
                     s.stepsHit++;
-                    for (ServerPlayerEntity lp : live) {
-                        lp.addStatusEffect(new StatusEffectInstance(
-                                StatusEffects.SPEED, 400, s.stepsHit, false, true));
-                        lp.addStatusEffect(new StatusEffectInstance(
-                                StatusEffects.STRENGTH, 400, s.stepsHit - 1, false, true));
+                    for (ServerPlayer lp : live) {
+                        lp.addEffect(new MobEffectInstance(
+                                MobEffects.SPEED, 400, s.stepsHit, false, true));
+                        lp.addEffect(new MobEffectInstance(
+                                MobEffects.STRENGTH, 400, s.stepsHit - 1, false, true));
                     }
-                    Vec3d flashMid = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5).add(0, 1, 0);
+                    Vec3 flashMid = p1.position().add(p2.position()).scale(0.5).add(0, 1, 0);
                     int flashCount = 4 + s.stepsHit * 4;
-                    p1.getEntityWorld().spawnParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                    p1.level().sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
                             flashMid.x, flashMid.y, flashMid.z, flashCount, 0.4, 0.4, 0.4, 0.2);
-                    p1.getEntityWorld().playSound(null, flashMid.x, flashMid.y, flashMid.z,
-                            SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS,
+                    p1.level().playSound(null, flashMid.x, flashMid.y, flashMid.z,
+                            SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS,
                             1.0f, 1.4f + s.qteStep * 0.15f);
                     if (s.qteStep == 3) {
                         s.qteStep = 0;
                         s.resetQTE();
-                        for (ServerPlayerEntity lp : live) {
+                        for (ServerPlayer lp : live) {
                             PoseNetworking.broadcastAnimState(lp, ANIM_HUDDLE_END);
                             ServerPlayNetworking.send(lp, new DapFusionHandler.FusionQTEPayload(
-                                    lp.getUuid(), "G", 0, 0L, 0L, false, 0));
+                                    lp.getUUID(), "G", 0, 0L, 0L, false, 0));
                         }
                         successHuddle(s, server, live, now);
                     } else {
@@ -517,7 +517,7 @@ public class HuddleHandler {
                             case 3 -> ANIM_HUDDLE_QTE3;
                             default -> ANIM_HUDDLE_QTE1;
                         };
-                        for (ServerPlayerEntity lp : live) PoseNetworking.broadcastAnimState(lp, nextAnim);
+                        for (ServerPlayer lp : live) PoseNetworking.broadcastAnimState(lp, nextAnim);
                     }
                     return;
                 }
@@ -527,7 +527,7 @@ public class HuddleHandler {
             }
             case ENDING -> {
                 if (s.elapsed() >= 1375) {
-                    for (ServerPlayerEntity lp : live) {
+                    for (ServerPlayer lp : live) {
                         ServerPlayNetworking.send(lp, new ChargedDapHandler.PerfectDapFreezePayload(false));
                     }
                     cleanupSession(s, server);
@@ -537,7 +537,7 @@ public class HuddleHandler {
         }
     }
     private static void startQTEStep(HuddleSession s, MinecraftServer server,
-                                     ServerPlayerEntity p1, ServerPlayerEntity p2, long now) {
+                                     ServerPlayer p1, ServerPlayer p2, long now) {
         s.qteStep = 1;
         s.stage = HuddleStage.QTE;
         s.stageStart = now;
@@ -545,70 +545,70 @@ public class HuddleHandler {
         s.qteAnimStarted = true;
         s.qteAnimStart   = now;
         for (UUID uid : s.players) {
-            ServerPlayerEntity lp = server.getPlayerManager().getPlayer(uid);
+            ServerPlayer lp = server.getPlayerList().getPlayer(uid);
             if (lp == null) continue;
             PoseNetworking.broadcastAnimState(lp, ANIM_HUDDLE_QTE1);
         }
     }
     private static void successHuddle(HuddleSession s, MinecraftServer server,
-                                      List<ServerPlayerEntity> live, long now) {
+                                      List<ServerPlayer> live, long now) {
         s.stage = HuddleStage.ENDING;
         s.stageStart = now;
         cooldowns.put(key(s.p1, s.p2), now);
-        for (ServerPlayerEntity lp : live) {
+        for (ServerPlayer lp : live) {
             ServerPlayNetworking.send(lp, new DapFusionHandler.FusionQTEPayload(
-                    lp.getUuid(), "G", 0, 0L, 0L, false, 0));
+                    lp.getUUID(), "G", 0, 0L, 0L, false, 0));
         }
-        for (ServerPlayerEntity lp : live) {
-            lp.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 200, 2));
-            lp.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,        400, 2));
-            lp.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,     400, 1));
-            lp.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,   200, 0));
+        for (ServerPlayer lp : live) {
+            lp.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 2));
+            lp.addEffect(new MobEffectInstance(MobEffects.SPEED,        400, 2));
+            lp.addEffect(new MobEffectInstance(MobEffects.STRENGTH,     400, 1));
+            lp.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,   200, 0));
             lp.experienceLevel += 2;
-            lp.sendMessage(net.minecraft.text.Text.literal(
+            lp.displayClientMessage(net.minecraft.network.chat.Component.literal(
                     "§d§l✦ HUDDLE! ✦ §7+Regen III, Speed III, Strength II, Resistance I"), true);
         }
-        ServerPlayerEntity p1 = live.get(0), p2 = live.get(1);
-        Vec3d center = p1.getEntityPos().add(p2.getEntityPos()).multiply(0.5);
-        ServerWorld flashWorld = p1.getEntityWorld();
+        ServerPlayer p1 = live.get(0), p2 = live.get(1);
+        Vec3 center = p1.position().add(p2.position()).scale(0.5);
+        ServerLevel flashWorld = p1.level();
         flashWorld.playSound(null, center.x, center.y, center.z,
-                SoundEvents.ENTITY_CREEPER_PRIMED, SoundCategory.PLAYERS, 2.0f, 0.6f);
+                SoundEvents.CREEPER_PRIMED, SoundSource.PLAYERS, 2.0f, 0.6f);
         flashWorld.playSound(null, center.x, center.y, center.z,
-                SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 2.0f, 0.8f);
+                SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 2.0f, 0.8f);
         flashWorld.playSound(null, center.x, center.y, center.z,
-                SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 1.5f, 1.0f);
-        final List<ServerPlayerEntity> liveFinal = new ArrayList<>(live);
+                SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.5f, 1.0f);
+        final List<ServerPlayer> liveFinal = new ArrayList<>(live);
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override public void run() {
                 server.execute(() -> {
-                    if (liveFinal.stream().noneMatch(net.minecraft.entity.LivingEntity::isAlive)) return;
-                    Vec3d sum = Vec3d.ZERO;
-                    for (ServerPlayerEntity lp : liveFinal) sum = sum.add(lp.getEntityPos());
-                    Vec3d mid = sum.multiply(1.0 / liveFinal.size()).add(0, 1, 0);
-                    ServerWorld world = liveFinal.get(0).getEntityWorld();
-                    world.spawnParticles(ParticleTypes.HAPPY_VILLAGER,   mid.x, mid.y, mid.z, 80, 0.8, 0.8, 0.8, 0.5);
-                    world.spawnParticles(ParticleTypes.COMPOSTER,        mid.x, mid.y, mid.z, 60, 0.6, 0.6, 0.6, 0.4);
-                    world.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING, mid.x, mid.y, mid.z, 40, 0.6, 0.6, 0.6, 0.3);
-                    world.spawnParticles((TintedParticleEffect.create(ParticleTypes.FLASH, 1f, 1f, 1f)),            mid.x, mid.y, mid.z,  3, 0.1, 0.1, 0.1,   0);
-                    world.spawnParticles(ParticleTypes.FIREWORK,         mid.x, mid.y, mid.z, 40, 0.5, 0.6, 0.5, 0.25);
-                    world.spawnParticles(ParticleTypes.CRIT,             mid.x, mid.y - 0.5, mid.z, 20, 1.0, 0, 1.0, 0.05);
-                    world.spawnParticles(ParticleTypes.HEART,            mid.x, mid.y, mid.z, 15, 0.6, 0.4, 0.6, 0.1);
+                    if (liveFinal.stream().noneMatch(net.minecraft.world.entity.LivingEntity::isAlive)) return;
+                    Vec3 sum = Vec3.ZERO;
+                    for (ServerPlayer lp : liveFinal) sum = sum.add(lp.position());
+                    Vec3 mid = sum.scale(1.0 / liveFinal.size()).add(0, 1, 0);
+                    ServerLevel world = liveFinal.get(0).level();
+                    world.sendParticles(ParticleTypes.HAPPY_VILLAGER,   mid.x, mid.y, mid.z, 80, 0.8, 0.8, 0.8, 0.5);
+                    world.sendParticles(ParticleTypes.COMPOSTER,        mid.x, mid.y, mid.z, 60, 0.6, 0.6, 0.6, 0.4);
+                    world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mid.x, mid.y, mid.z, 40, 0.6, 0.6, 0.6, 0.3);
+                    world.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)),            mid.x, mid.y, mid.z,  3, 0.1, 0.1, 0.1,   0);
+                    world.sendParticles(ParticleTypes.FIREWORK,         mid.x, mid.y, mid.z, 40, 0.5, 0.6, 0.5, 0.25);
+                    world.sendParticles(ParticleTypes.CRIT,             mid.x, mid.y - 0.5, mid.z, 20, 1.0, 0, 1.0, 0.05);
+                    world.sendParticles(ParticleTypes.HEART,            mid.x, mid.y, mid.z, 15, 0.6, 0.4, 0.6, 0.1);
                     for (double a = 0; a < Math.PI * 2; a += 0.4) {
-                        world.spawnParticles(ParticleTypes.HAPPY_VILLAGER,
+                        world.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                                 mid.x + Math.cos(a) * 1.5, mid.y - 0.9, mid.z + Math.sin(a) * 1.5,
                                 2, 0, 0.1, 0, 0.05);
                     }
                     world.playSound(null, mid.x, mid.y, mid.z,
-                            SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 2.0f, 1.2f);
+                            SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 2.0f, 1.2f);
                     world.playSound(null, mid.x, mid.y, mid.z,
-                            SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 1.5f, 1.2f);
+                            SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.5f, 1.2f);
                     world.playSound(null, mid.x, mid.y, mid.z,
-                            SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundCategory.PLAYERS, 1.5f, 2.0f);
-                    net.minecraft.item.ItemStack fw = new net.minecraft.item.ItemStack(net.minecraft.item.Items.FIREWORK_ROCKET);
+                            SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.5f, 2.0f);
+                    net.minecraft.world.item.ItemStack fw = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.FIREWORK_ROCKET);
                     for (int ri = 0; ri < 5; ri++) {
                         double ox = (RANDOM.nextDouble() - 0.5) * 1.2;
                         double oz = (RANDOM.nextDouble() - 0.5) * 1.2;
-                        world.spawnEntity(new net.minecraft.entity.projectile.FireworkRocketEntity(
+                        world.addFreshEntity(new net.minecraft.world.entity.projectile.FireworkRocketEntity(
                                 world, mid.x + ox, mid.y + 0.5, mid.z + oz, fw));
                     }
                 });
@@ -618,10 +618,10 @@ public class HuddleHandler {
             @Override public void run() {
                 server.execute(() -> {
                     if (liveFinal.isEmpty() || !liveFinal.get(0).isAlive()) return;
-                    Vec3d sum2 = Vec3d.ZERO;
-                    for (ServerPlayerEntity lp : liveFinal) sum2 = sum2.add(lp.getEntityPos());
-                    Vec3d mid = sum2.multiply(1.0 / liveFinal.size()).add(0, 1, 0);
-                    ServerWorld world = liveFinal.get(0).getEntityWorld();
+                    Vec3 sum2 = Vec3.ZERO;
+                    for (ServerPlayer lp : liveFinal) sum2 = sum2.add(lp.position());
+                    Vec3 mid = sum2.scale(1.0 / liveFinal.size()).add(0, 1, 0);
+                    ServerLevel world = liveFinal.get(0).level();
                     for (int pulse = 0; pulse < 4; pulse++) {
                         final int pp = pulse;
                         new java.util.Timer().schedule(new java.util.TimerTask() {
@@ -629,9 +629,9 @@ public class HuddleHandler {
                                 server.execute(() -> {
                                     float fade = 1f - pp * 0.25f;
                                     int cnt = (int)(20 * fade);
-                                    world.spawnParticles(ParticleTypes.HAPPY_VILLAGER,
+                                    world.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                                             mid.x, mid.y, mid.z, cnt, 0.9 * fade, 0.7 * fade, 0.9 * fade, 0.15);
-                                    world.spawnParticles(ParticleTypes.COMPOSTER,
+                                    world.sendParticles(ParticleTypes.COMPOSTER,
                                             mid.x, mid.y, mid.z, cnt / 2, 0.7 * fade, 0.6 * fade, 0.7 * fade, 0.1);
                                 });
                             }
@@ -640,40 +640,40 @@ public class HuddleHandler {
                 });
             }
         }, 1875L);
-        for (ServerPlayerEntity lp : live) {
+        for (ServerPlayer lp : live) {
             ServerPlayNetworking.send(lp, new HuddleEndPayload(s.p1, s.p2, true));
         }
     }
     private static void failHuddle(HuddleSession s, MinecraftServer server) {
         cooldowns.put(key(s.p1, s.p2), System.currentTimeMillis());
         if (server == null) { cleanupSession(s, server); return; }
-        List<ServerPlayerEntity> live = new ArrayList<>();
+        List<ServerPlayer> live = new ArrayList<>();
         for (UUID uid : s.players) {
-            ServerPlayerEntity lp = server.getPlayerManager().getPlayer(uid);
+            ServerPlayer lp = server.getPlayerList().getPlayer(uid);
             if (lp != null) live.add(lp);
         }
-        for (ServerPlayerEntity lp : live) {
+        for (ServerPlayer lp : live) {
             ServerPlayNetworking.send(lp, new DapFusionHandler.FusionQTEPayload(
-                    lp.getUuid(), "G", 0, 0L, 0L, false, 0));
+                    lp.getUUID(), "G", 0, 0L, 0L, false, 0));
             PoseNetworking.broadcastAnimState(lp, ANIM_NONE);
-            lp.removeStatusEffect(StatusEffects.SPEED);
-            lp.removeStatusEffect(StatusEffects.STRENGTH);
-            lp.sendMessage(net.minecraft.text.Text.literal("§c✗ Huddle failed!"), true);
+            lp.removeEffect(MobEffects.SPEED);
+            lp.removeEffect(MobEffects.STRENGTH);
+            lp.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Huddle failed!"), true);
             ServerPlayNetworking.send(lp, new HuddleEndPayload(s.p1, s.p2, false));
         }
         if (live.size() >= 2) {
-            net.minecraft.entity.decoration.ArmorStandEntity stand = centerStands.get(key(s.p1, s.p2));
-            Vec3d center = stand != null ? stand.getEntityPos()
-                    : live.get(0).getEntityPos().add(live.get(1).getEntityPos()).multiply(0.5);
-            for (ServerPlayerEntity lp : live) {
-                Vec3d dir = lp.getEntityPos().subtract(center).normalize();
-                lp.addVelocity(dir.x * 0.6, 0.4, dir.z * 0.6);
-                lp.knockedBack = true;
+            net.minecraft.world.entity.decoration.ArmorStand stand = centerStands.get(key(s.p1, s.p2));
+            Vec3 center = stand != null ? stand.position()
+                    : live.get(0).position().add(live.get(1).position()).scale(0.5);
+            for (ServerPlayer lp : live) {
+                Vec3 dir = lp.position().subtract(center).normalize();
+                lp.push(dir.x * 0.6, 0.4, dir.z * 0.6);
+                lp.hurtMarked = true;
             }
-            live.get(0).getEntityWorld().spawnParticles(ParticleTypes.ANGRY_VILLAGER,
+            live.get(0).level().sendParticles(ParticleTypes.ANGRY_VILLAGER,
                     center.x, center.y + 1, center.z, 8, 0.3, 0.3, 0.3, 0.05);
-            live.get(0).getEntityWorld().playSound(null, center.x, center.y, center.z,
-                    SoundEvents.ENTITY_ZOMBIE_INFECT, SoundCategory.PLAYERS, 0.7f, 1.5f);
+            live.get(0).level().playSound(null, center.x, center.y, center.z,
+                    SoundEvents.ZOMBIE_INFECT, SoundSource.PLAYERS, 0.7f, 1.5f);
         }
         cleanupSession(s, server);
     }
@@ -684,11 +684,11 @@ public class HuddleHandler {
             playerSession.remove(uid);
             joinerEnterMs.remove(uid);
             if (server != null) {
-                ServerPlayerEntity lp = server.getPlayerManager().getPlayer(uid);
+                ServerPlayer lp = server.getPlayerList().getPlayer(uid);
                 if (lp != null) ServerPlayNetworking.send(lp, new ChargedDapHandler.PerfectDapFreezePayload(false));
             }
         }
-        net.minecraft.entity.decoration.ArmorStandEntity stand = centerStands.remove(k);
+        net.minecraft.world.entity.decoration.ArmorStand stand = centerStands.remove(k);
         if (stand != null && !stand.isRemoved()) stand.discard();
     }
     public static boolean isInHuddle(UUID id) { return playerSession.containsKey(id); }

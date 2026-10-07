@@ -1,10 +1,10 @@
 package com.cooptest;
 
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
 
 
 public class MahitoCraftingHandler {
@@ -14,7 +14,7 @@ public class MahitoCraftingHandler {
     }
 
 
-    public static boolean isValidMahitoRecipe(RecipeInputInventory inventory) {
+    public static boolean isValidMahitoRecipe(CraftingContainer inventory) {
         if (inventory == null) { //chatgpt fix btw insallah ts works
             return false;
         }
@@ -24,18 +24,18 @@ public class MahitoCraftingHandler {
         int waterBottleCount = 0;
         int otherItems = 0;
 
-        for (int i = 0; i < inventory.size(); i++) { // yeah but inv size can be null which is an invalid packet or whatever idk
-            ItemStack stack = inventory.getStack(i); // and im too lazy to look it up so yeah
+        for (int i = 0; i < inventory.getContainerSize(); i++) { // yeah but inv size can be null which is an invalid packet or whatever idk
+            ItemStack stack = inventory.getItem(i); // and im too lazy to look it up so yeah
             if (stack.isEmpty()) continue;
 
-            if (stack.isOf(Items.GHAST_TEAR)) {
+            if (stack.is(Items.GHAST_TEAR)) {
                 ghastTearCount += stack.getCount();
-            } else if (stack.isOf(Items.ROTTEN_FLESH)) {
+            } else if (stack.is(Items.ROTTEN_FLESH)) {
                 rottenFleshCount += stack.getCount();
-            } else if (stack.isOf(Items.POTION)) {
-                PotionContentsComponent contents = stack.get(DataComponentTypes.POTION_CONTENTS);
+            } else if (stack.is(Items.POTION)) {
+                PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
                 if (contents != null && contents.potion().isPresent()) {
-                    String potionId = contents.potion().get().getIdAsString();
+                    String potionId = contents.potion().get().getRegisteredName();
                     if (potionId.contains("water")) {
                         waterBottleCount += stack.getCount();
                     } else {
@@ -58,24 +58,24 @@ public class MahitoCraftingHandler {
     }
 
 
-    public static void consumeIngredients(RecipeInputInventory inventory) {
+    public static void consumeIngredients(CraftingContainer inventory) {
         int fleshToConsume = 64;
         boolean ghastTearConsumed = false;
         boolean waterBottleConsumed = false;
 
-        for (int i = 0; i < inventory.size(); i++) {
-            ItemStack stack = inventory.getStack(i);
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty()) continue;
 
-            if (stack.isOf(Items.GHAST_TEAR) && !ghastTearConsumed) {
-                stack.decrement(1);
+            if (stack.is(Items.GHAST_TEAR) && !ghastTearConsumed) {
+                stack.shrink(1);
                 ghastTearConsumed = true;
-            } else if (stack.isOf(Items.ROTTEN_FLESH) && fleshToConsume > 0) {
+            } else if (stack.is(Items.ROTTEN_FLESH) && fleshToConsume > 0) {
                 int toRemove = Math.min(stack.getCount(), fleshToConsume);
-                stack.decrement(toRemove);
+                stack.shrink(toRemove);
                 fleshToConsume -= toRemove;
-            } else if (stack.isOf(Items.POTION) && !waterBottleConsumed) {
-                stack.decrement(1);
+            } else if (stack.is(Items.POTION) && !waterBottleConsumed) {
+                stack.shrink(1);
                 waterBottleConsumed = true;
             }
         }

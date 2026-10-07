@@ -3,8 +3,8 @@ import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonConfiguration;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 public class FirstPersonAnimationTest {
     private static boolean isActive = false;
     private static InteractionType currentInteraction = InteractionType.NONE;
@@ -155,9 +155,9 @@ public class FirstPersonAnimationTest {
         );
     }
     public static void stop() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null || !isActive) return;
-        if (!(client.player instanceof AbstractClientPlayerEntity clientPlayer)) return;
+        if (!(client.player instanceof AbstractClientPlayer clientPlayer)) return;
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -175,9 +175,9 @@ public class FirstPersonAnimationTest {
                                            boolean showLeftArm,
                                            boolean showRightItem,
                                            boolean showLeftItem) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        if (!(client.player instanceof AbstractClientPlayerEntity clientPlayer)) return;
+        if (!(client.player instanceof AbstractClientPlayer clientPlayer)) return;
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller == null) {
@@ -199,7 +199,7 @@ public class FirstPersonAnimationTest {
             e.printStackTrace();
         }
     }
-    private static PlayerAnimationController getController(AbstractClientPlayerEntity player) {
+    private static PlayerAnimationController getController(AbstractClientPlayer player) {
         return (PlayerAnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(
                 player,
                 CoopAnimationHandler.ANIMATION_LAYER_ID

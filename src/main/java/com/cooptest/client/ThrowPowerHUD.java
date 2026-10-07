@@ -3,9 +3,9 @@ package com.cooptest.client;
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 
 
 public class ThrowPowerHUD {
@@ -26,12 +26,12 @@ public class ThrowPowerHUD {
         HudRenderCallback.EVENT.register(ThrowPowerHUD::render);
     }
 
-    private static void render(DrawContext context, RenderTickCounter tickCounter) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    private static void render(GuiGraphics context, DeltaTracker tickCounter) {
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
         
         PoseState pose = PoseNetworking.poseStates.getOrDefault(
-            client.player.getUuid(), PoseState.NONE
+            client.player.getUUID(), PoseState.NONE
         );
         
         if (pose != PoseState.GRAB_HOLDING) {
@@ -39,7 +39,7 @@ public class ThrowPowerHUD {
             return;
         }
         
-        float targetCharge = GrabClientState.getChargeProgress(client.player.getUuid());
+        float targetCharge = GrabClientState.getChargeProgress(client.player.getUUID());
         
         if (targetCharge <= 0 && displayedCharge <= 0.01f) {
             return;
@@ -47,15 +47,15 @@ public class ThrowPowerHUD {
         
         displayedCharge += (targetCharge - displayedCharge) * LERP_SPEED;
         
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
         
         int barX = (screenWidth - BAR_WIDTH) / 2;
         int barY = (screenHeight / 2) + BAR_Y_OFFSET;
         
         context.fill(barX - 2, barY - 2, barX + BAR_WIDTH + 2, barY + BAR_HEIGHT + 2, BG_COLOR);
         
-        context.drawStrokedRectangle(barX - 2, barY - 2, BAR_WIDTH + 4, BAR_HEIGHT + 4, BORDER_COLOR);
+        context.renderOutline(barX - 2, barY - 2, BAR_WIDTH + 4, BAR_HEIGHT + 4, BORDER_COLOR);
         
         int fillWidth = (int)(BAR_WIDTH * displayedCharge);
         
@@ -67,7 +67,7 @@ public class ThrowPowerHUD {
         
         if (displayedCharge >= 0.99f) {
             String text = "RELEASE TO THROW!";
-            int textWidth = client.textRenderer.getWidth(text);
+            int textWidth = client.font.width(text);
             int textX = (screenWidth - textWidth) / 2;
             int textY = barY - 12;
             
@@ -76,7 +76,7 @@ public class ThrowPowerHUD {
             int alpha = (int)(155 + pulse * 100);
             int textColor = (alpha << 24) | 0xFFFFFF;
             
-            context.drawText(client.textRenderer, text, textX, textY, textColor, true);
+            context.drawString(client.font, text, textX, textY, textColor, true);
         }
     }
     

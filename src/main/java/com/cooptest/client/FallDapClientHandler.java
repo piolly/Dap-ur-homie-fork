@@ -2,9 +2,8 @@ package com.cooptest.client;
 
 import com.cooptest.FallDapHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,10 +27,10 @@ public class FallDapClientHandler {
 
                         fallDapStates.put(playerId, state);
 
-                        MinecraftClient client = context.client();
-                        if (client.world != null) {
-                            for (PlayerEntity player : client.world.getPlayers()) {
-                                if (player.getUuid().equals(playerId)) {
+                        Minecraft client = context.client();
+                        if (client.level != null) {
+                            for (Player player : client.level.players()) {
+                                if (player.getUUID().equals(playerId)) {
                                     triggerFallDapAnimation(player, state);
                                     break;
                                 }
@@ -48,10 +47,10 @@ public class FallDapClientHandler {
                         UUID playerId = payload.playerId();
 
 
-                        MinecraftClient client = context.client();
-                        if (client.world != null) {
-                            for (PlayerEntity player : client.world.getPlayers()) {
-                                if (player.getUuid().equals(playerId)) {
+                        Minecraft client = context.client();
+                        if (client.level != null) {
+                            for (Player player : client.level.players()) {
+                                if (player.getUUID().equals(playerId)) {
                                     CoopAnimationHandler.playSquashed(player);
                                     break;
                                 }
@@ -62,8 +61,8 @@ public class FallDapClientHandler {
         );
     }
 
-    private static void triggerFallDapAnimation(PlayerEntity player, int state) {
-        UUID playerId = player.getUuid();
+    private static void triggerFallDapAnimation(Player player, int state) {
+        UUID playerId = player.getUUID();
 
         switch (state) {
             case STATE_CHARGING -> CoopAnimationHandler.playFallDapChargeStart(player);

@@ -2,9 +2,9 @@ package com.cooptest.client;
 import com.cooptest.DapFusionHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import java.util.UUID;
 public class FusionClientHandler {
     private static int currentPhase = -1;
@@ -40,9 +40,9 @@ public class FusionClientHandler {
                 }));
         HudRenderCallback.EVENT.register(FusionClientHandler::renderHUD);
     }
-    private static void onPhase(DapFusionHandler.FusionPhasePayload p, MinecraftClient client) {
+    private static void onPhase(DapFusionHandler.FusionPhasePayload p, Minecraft client) {
         if (client.player == null) return;
-        UUID myId = client.player.getUuid();
+        UUID myId = client.player.getUUID();
         if (!myId.equals(p.p1()) && !myId.equals(p.p2())) return;
         currentPhase = p.phase();
         switch (p.phase()) {
@@ -75,9 +75,9 @@ public class FusionClientHandler {
             }
         }
     }
-    private static void onQTE(DapFusionHandler.FusionQTEPayload p, MinecraftClient client) {
+    private static void onQTE(DapFusionHandler.FusionQTEPayload p, Minecraft client) {
         if (client.player == null) return;
-        if (!p.playerId().equals(client.player.getUuid())) return;
+        if (!p.playerId().equals(client.player.getUUID())) return;
         if (!p.open()) {
             qteActive = false; expectedButton = null;
             waitingForGreenUpdate = false;
@@ -88,16 +88,16 @@ public class FusionClientHandler {
         qteActive = true;
         expectedButton = p.button();
         currentStage = p.stage();
-        qteType = p.type();
+        qteType = p.qteType();
         receiveTime = now;
         pressedThisWindow = false;
         if (currentPhase < 0) currentPhase = 0;
-        if (p.type() == 1) {
+        if (p.qteType() == 1) {
             greenZoneStart = now + p.windowStartMs();
             greenZoneEnd   = now + p.windowEndMs();
             windowStart = now;
             windowEnd   = now + DapFusionHandler.TIMING_BAR_TOTAL_MS_CLIENT;
-        } else if (p.type() == 2) {
+        } else if (p.qteType() == 2) {
             long wEnd = p.windowEndMs();
             if (wEnd < 0) {
                 greenZoneStart      = p.windowStartMs();
@@ -191,16 +191,16 @@ public class FusionClientHandler {
     public static boolean isActive()      { return currentPhase >= 0; }
     public static boolean isQTEOpen()     { return qteActive; }
     public static boolean isGWindowOpen() { return gWindowActive; }
-    private static void renderHUD(DrawContext ctx, RenderTickCounter ticker) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    private static void renderHUD(GuiGraphics ctx, DeltaTracker ticker) {
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
         if (blackScreenActive) {
             long elapsed = System.currentTimeMillis() - blackScreenStartTime;
             float alpha = clamp((float) elapsed / 500f);
             int a = (int)(alpha * 255);
-            int sw = client.getWindow().getScaledWidth();
-            int sh = client.getWindow().getScaledHeight();
-            var mat = ctx.getMatrices();
+            int sw = client.getWindow().getGuiScaledWidth();
+            int sh = client.getWindow().getGuiScaledHeight();
+            var mat = ctx.pose();
             mat.pushMatrix();
         //  mat.translate(0, 0, 10000); dont need it i think
             ctx.fill(0, 0, sw, sh, (a << 24) | 0x000000);
@@ -209,9 +209,9 @@ public class FusionClientHandler {
         }
         if (currentPhase < 0) return;
         long now = System.currentTimeMillis();
-        int sw = client.getWindow().getScaledWidth();
-        int sh = client.getWindow().getScaledHeight();
-        var mat = ctx.getMatrices();
+        int sw = client.getWindow().getGuiScaledWidth();
+        int sh = client.getWindow().getGuiScaledHeight();
+        var mat = ctx.pose();
         mat.pushMatrix();
         if (now < flashEndTime) {
             float p = 1f - (float)(now - (flashEndTime - 800)) / 800f;
@@ -232,8 +232,8 @@ public class FusionClientHandler {
                 int fw = (int)(bw * clamp(rem));
                 if (fw > 0) ctx.fill(bx, by, bx+fw, by+bh, gPressed ? 0xFF44BB44 : 0xFFFFAA00);
                 String lbl = gPressed ? "§a✓" : "§6[G]";
-                int lw = client.textRenderer.getWidth(lbl);
-                ctx.drawText(client.textRenderer, lbl, (sw-lw)/2, by - 9, 0xFFFFFFFF, true);
+                int lw = client.font.width(lbl);
+                ctx.drawString(client.font, lbl, (sw-lw)/2, by - 9, 0xFFFFFFFF, true);
             }
         }
         if (qteActive) {
@@ -290,8 +290,8 @@ public class FusionClientHandler {
                         : (float)(Math.sin(now / 120.0) * 0.2 + 0.8);
                 int a = (int)(alpha * 255);
                 String keyText = QTEClientHandler.getExpectedButton();
-                int kw = client.textRenderer.getWidth(keyText);
-                ctx.drawText(client.textRenderer, keyText, (sw-kw)/2, by - 9, (a<<24)|0xFFFFFF, true);
+                int kw = client.font.width(keyText);
+                ctx.drawString(client.font, keyText, (sw-kw)/2, by - 9, (a<<24)|0xFFFFFF, true);
             }
             if (maxStages > 1) {
                 int ds = 3, dg = 2;

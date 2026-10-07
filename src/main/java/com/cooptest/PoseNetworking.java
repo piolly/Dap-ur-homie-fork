@@ -3,14 +3,13 @@ package com.cooptest;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -21,63 +20,63 @@ public class PoseNetworking {
 
     public static final HashMap<UUID, Float> chargeProgress = new HashMap<>();
 
-    public record PoseSyncPayload(UUID playerId, int poseOrdinal) implements CustomPayload {
-        public static final Id<PoseSyncPayload> ID = new Id<>(Identifier.of("cooptest", "pose_sync"));
+    public record PoseSyncPayload(UUID playerId, int poseOrdinal) implements CustomPacketPayload {
+        public static final Type<PoseSyncPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "pose_sync"));
 
-        public static final PacketCodec<PacketByteBuf, PoseSyncPayload> CODEC = PacketCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, PoseSyncPayload> CODEC = StreamCodec.ofMember(
                 (payload, buf) -> {
-                    buf.writeUuid(payload.playerId);
+                    buf.writeUUID(payload.playerId);
                     buf.writeInt(payload.poseOrdinal);
                 },
-                buf -> new PoseSyncPayload(buf.readUuid(), buf.readInt())
+                buf -> new PoseSyncPayload(buf.readUUID(), buf.readInt())
         );
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
 
-    public record ChargeSyncPayload(UUID playerId, float progress) implements CustomPayload {
-        public static final Id<ChargeSyncPayload> ID = new Id<>(Identifier.of("cooptest", "charge_sync"));
+    public record ChargeSyncPayload(UUID playerId, float progress) implements CustomPacketPayload {
+        public static final Type<ChargeSyncPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "charge_sync"));
 
-        public static final PacketCodec<PacketByteBuf, ChargeSyncPayload> CODEC = PacketCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, ChargeSyncPayload> CODEC = StreamCodec.ofMember(
                 (payload, buf) -> {
-                    buf.writeUuid(payload.playerId);
+                    buf.writeUUID(payload.playerId);
                     buf.writeFloat(payload.progress);
                 },
-                buf -> new ChargeSyncPayload(buf.readUuid(), buf.readFloat())
+                buf -> new ChargeSyncPayload(buf.readUUID(), buf.readFloat())
         );
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
 
-    public record ThrowAnimPayload(UUID playerId) implements CustomPayload {
-        public static final Id<ThrowAnimPayload> ID = new Id<>(Identifier.of("cooptest", "throw_anim"));
+    public record ThrowAnimPayload(UUID playerId) implements CustomPacketPayload {
+        public static final Type<ThrowAnimPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "throw_anim"));
 
-        public static final PacketCodec<PacketByteBuf, ThrowAnimPayload> CODEC = PacketCodec.of(
-                (payload, buf) -> buf.writeUuid(payload.playerId),
-                buf -> new ThrowAnimPayload(buf.readUuid())
+        public static final StreamCodec<FriendlyByteBuf, ThrowAnimPayload> CODEC = StreamCodec.ofMember(
+                (payload, buf) -> buf.writeUUID(payload.playerId),
+                buf -> new ThrowAnimPayload(buf.readUUID())
         );
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record AnimStateSyncPayload(UUID playerId, int animStateOrdinal) implements CustomPayload {
-        public static final Id<AnimStateSyncPayload> ID = new Id<>(Identifier.of("cooptest", "anim_state_sync"));
+    public record AnimStateSyncPayload(UUID playerId, int animStateOrdinal) implements CustomPacketPayload {
+        public static final Type<AnimStateSyncPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "anim_state_sync"));
 
-        public static final PacketCodec<PacketByteBuf, AnimStateSyncPayload> CODEC = PacketCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, AnimStateSyncPayload> CODEC = StreamCodec.ofMember(
                 (payload, buf) -> {
-                    buf.writeUuid(payload.playerId);
+                    buf.writeUUID(payload.playerId);
                     buf.writeInt(payload.animStateOrdinal);
                 },
-                buf -> new AnimStateSyncPayload(buf.readUuid(), buf.readInt())
+                buf -> new AnimStateSyncPayload(buf.readUUID(), buf.readInt())
         );
 
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
     public static void registerPayloads() {
@@ -104,7 +103,7 @@ public class PoseNetworking {
                 // Check if player is trying to enter GRAB_READY while in blocking state
                 if (state == PoseState.GRAB_READY && HighFiveHandler.isInBlockingState(id)) {
                     // Reject - send back NONE
-                    ServerPlayerEntity player = context.server().getPlayerManager().getPlayer(id);
+                    ServerPlayer player = context.server().getPlayerList().getPlayer(id);
                     if (player != null) {
                         ServerPlayNetworking.send(player, new PoseSyncPayload(id, PoseState.NONE.ordinal()));
                     }
@@ -113,7 +112,7 @@ public class PoseNetworking {
 
                 poseStates.put(id, state);
 
-                for (ServerPlayerEntity player : context.server().getPlayerManager().getPlayerList()) {
+                for (ServerPlayer player : context.server().getPlayerList().getPlayers()) {
                     ServerPlayNetworking.send(player, new PoseSyncPayload(id, state.ordinal()));
                 }
             });
@@ -127,8 +126,8 @@ public class PoseNetworking {
             context.server().execute(() -> {
                 chargeProgress.put(id, progress);
                 // Broadcast to all OTHER clients (not sender)
-                for (ServerPlayerEntity player : context.server().getPlayerManager().getPlayerList()) {
-                    if (!player.getUuid().equals(id)) {
+                for (ServerPlayer player : context.server().getPlayerList().getPlayers()) {
+                    if (!player.getUUID().equals(id)) {
                         ServerPlayNetworking.send(player, new ChargeSyncPayload(id, progress));
                     }
                 }
@@ -141,8 +140,8 @@ public class PoseNetworking {
 
             context.server().execute(() -> {
                 // Broadcast to all OTHER clients
-                for (ServerPlayerEntity player : context.server().getPlayerManager().getPlayerList()) {
-                    if (!player.getUuid().equals(id)) {
+                for (ServerPlayer player : context.server().getPlayerList().getPlayers()) {
+                    if (!player.getUUID().equals(id)) {
                         ServerPlayNetworking.send(player, new ThrowAnimPayload(id));
                     }
                 }
@@ -156,8 +155,8 @@ public class PoseNetworking {
 
             context.server().execute(() -> {
                 // Broadcast to all OTHER clients
-                for (ServerPlayerEntity player : context.server().getPlayerManager().getPlayerList()) {
-                    if (!player.getUuid().equals(id)) {
+                for (ServerPlayer player : context.server().getPlayerList().getPlayers()) {
+                    if (!player.getUUID().equals(id)) {
                         ServerPlayNetworking.send(player, new AnimStateSyncPayload(id, animState));
                     }
                 }
@@ -173,9 +172,9 @@ public class PoseNetworking {
             poseStates.put(id, state);
 
             context.client().execute(() -> {
-                if (context.client().world != null) {
-                    for (PlayerEntity player : context.client().world.getPlayers()) {
-                        if (player.getUuid().equals(id)) {
+                if (context.client().level != null) {
+                    for (Player player : context.client().level.players()) {
+                        if (player.getUUID().equals(id)) {
                             com.cooptest.client.CoopAnimationHandler.updatePlayerAnimation(player, state);
                             break;
                         }
@@ -203,7 +202,7 @@ public class PoseNetworking {
 
             // Find the player and apply animation
             context.client().execute(() -> {
-                if (context.client().world != null) {
+                if (context.client().level != null) {
                     var localPlayer = context.client().player;
 
                     // If NONE state, cleanup all client handlers for this player
@@ -218,9 +217,9 @@ public class PoseNetworking {
                     }
 
                     // Find the player entity that matches the UID
-                    PlayerEntity targetPlayer = null;
-                    for (PlayerEntity player : context.client().world.getPlayers()) {
-                        if (player.getUuid().equals(id)) {
+                    Player targetPlayer = null;
+                    for (Player player : context.client().level.players()) {
+                        if (player.getUUID().equals(id)) {
                             targetPlayer = player;
                             break;
                         }
@@ -228,7 +227,7 @@ public class PoseNetworking {
 
                     if (targetPlayer != null) {
                         if (localPlayer != null && (animState == 10 || animState == 18)) {
-                            boolean isLocalPlayer = id.equals(localPlayer.getUuid());
+                            boolean isLocalPlayer = id.equals(localPlayer.getUUID());
                             String animName = (animState == 10) ? "DAP_HIT" : "PERFECT_DAP_HIT";
                             String playerName = targetPlayer.getName().getString();
 
@@ -270,7 +269,7 @@ public class PoseNetworking {
 
     public static void broadcastPoseChange(MinecraftServer server, UUID playerId, PoseState state) {
         poseStates.put(playerId, state);
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, new PoseSyncPayload(playerId, state.ordinal()));
         }
     }
@@ -278,14 +277,14 @@ public class PoseNetworking {
     /**
      * Broadcast animation state from server to all clients
      */
-    public static void broadcastAnimState(ServerPlayerEntity sourcePlayer, int animStateOrdinal) {
-        var server = sourcePlayer.getEntityWorld().getServer();
+    public static void broadcastAnimState(ServerPlayer sourcePlayer, int animStateOrdinal) {
+        var server = sourcePlayer.level().getServer();
         if (server == null) return;
 
-        UUID playerId = sourcePlayer.getUuid();
+        UUID playerId = sourcePlayer.getUUID();
         AnimStateSyncPayload payload = new AnimStateSyncPayload(playerId, animStateOrdinal);
 
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
     }

@@ -8,108 +8,108 @@ import com.zigythebird.playeranimcore.enums.PlayState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 @Environment(EnvType.CLIENT)
 public class CoopAnimationHandler {
     private static final String MOD_ID = "testcoop";
-    public static final Identifier ANIMATION_LAYER_ID = Identifier.of(MOD_ID, "coop_animations");
-    public static final Identifier GRAB_HOLDING_ANIM = Identifier.of(MOD_ID, "grab_holding");
-    public static final Identifier GRAB_HOLDING_CHARGE_ANIM = Identifier.of(MOD_ID, "grab_holding_charge");
-    public static final Identifier GRAB_HOLDING_CHARGE_IDLE_ANIM = Identifier.of(MOD_ID, "grab_holding_charge_idle");
-    public static final Identifier GRAB_THROW_ANIM = Identifier.of(MOD_ID, "grab_throw");
-    public static final Identifier GRAB_READY_ANIM = Identifier.of(MOD_ID, "grab_ready");
-    public static final Identifier GRAB_READY_IDLE_ANIM = Identifier.of(MOD_ID, "grab_ready_idle");
-    public static final Identifier DAP_CHARGE_ANIM = Identifier.of(MOD_ID, "dap_charge");
-    public static final Identifier DAP_CHARGE_IDLE_ANIM = Identifier.of(MOD_ID, "dap_charge_idle");
-    public static final Identifier DAP_HIT_ANIM = Identifier.of(MOD_ID, "dap_hit");
-    public static final Identifier FIRE_DAP_CHARGE_ANIM = Identifier.of(MOD_ID, "fire_dap_charge");
-    public static final Identifier FIRE_DAP_CHARGE_IDLE_ANIM = Identifier.of(MOD_ID, "fire_dap_charge_idle");
-    public static final Identifier FIRE_DAP_HIT_ANIM = Identifier.of(MOD_ID, "fire_dap_hit");
-    public static final Identifier PUSH_START_ANIM = Identifier.of(MOD_ID, "push_start");
-    public static final Identifier PUSH_IDLE_ANIM = Identifier.of(MOD_ID, "push_idle");
-    public static final Identifier PUSH_ANIM = Identifier.of(MOD_ID, "push");
-    public static final Identifier CATCH_ANIM = Identifier.of(MOD_ID, "catch");
-    public static final Identifier MAHITO_ANIM = Identifier.of(MOD_ID, "mahito");
-    public static final Identifier HIGHFIVE_START_ANIM = Identifier.of(MOD_ID, "highfive_start");
-    public static final Identifier HIGHFIVE_END_ANIM = Identifier.of(MOD_ID, "highfive_end");
-    public static final Identifier HIGHFIVE_HIT_ANIM = Identifier.of(MOD_ID, "highfive_hit");
-    public static final Identifier HIGHFIVE_HIT_COMBO_ANIM = Identifier.of(MOD_ID, "highfive_hitcombo");
-    public static final Identifier DAP_CHARGE_FALL_START_ANIM = Identifier.of(MOD_ID, "dap_charge_fall_start");
-    public static final Identifier DAP_CHARGE_FALLING_ANIM = Identifier.of(MOD_ID, "dap_charge_falling");
-    public static final Identifier DAP_CHARGE_FALL_HIT_ANIM = Identifier.of(MOD_ID, "dap_charge_fall_hit");
-    public static final Identifier SQUASHED_ANIM = Identifier.of(MOD_ID, "squashed");
-    public static final Identifier PERFECT_DAP_HIT_ANIM = Identifier.of(MOD_ID, "perfect_dap_hit");
-    public static final Identifier DAP_DOWN_ANIM = Identifier.of(MOD_ID, "dap_down");
-    public static final Identifier DAP_HIT_WEAK_ANIM = Identifier.of(MOD_ID, "dap_hit_weak");
-    public static final Identifier PERFECT_DAP_EXTEND1_P1_ANIM = Identifier.of(MOD_ID, "perfect_dap_extandp1");
-    public static final Identifier PERFECT_DAP_EXTEND1_P2_ANIM = Identifier.of(MOD_ID, "perfect_dap_extandp2");
-    public static final Identifier PERFECT_DAP_MYBOY_P1_ANIM = Identifier.of(MOD_ID, "perfect_dap_extande_myboyp1");
-    public static final Identifier PERFECT_DAP_MYBOY_P2_ANIM = Identifier.of(MOD_ID, "perfect_dap_extande_myboyp2");
-    public static final Identifier PERFECT_DAP_EXTEND_BOTH_ANIM = Identifier.of(MOD_ID, "perfect_dap_extand_both");
-    public static final Identifier HEAVE_DAP_ANIM = Identifier.of(MOD_ID, "heave_dap");
-    public static final Identifier HOLD_SHIELD_ANIM = Identifier.of(MOD_ID, "hold_shield");
-    public static final Identifier SHIELD_ANIM = Identifier.of(MOD_ID, "shield");
-    public static final Identifier MARIO_JUMP_ANIM = Identifier.of(MOD_ID, "jumpmario");
-    public static final Identifier POP_ANIM = Identifier.of(MOD_ID, "pop");
-    public static final Identifier HUG_START_ANIM = Identifier.of(MOD_ID, "hug_start");
-    public static final Identifier HUGGING_ANIM = Identifier.of(MOD_ID, "hugging");
-    public static final Identifier HUGGING2_ANIM = Identifier.of(MOD_ID, "hugging2");
-    public static final Identifier HUG_END_ANIM = Identifier.of(MOD_ID, "hugend");
-    public static final Identifier FIRE_DAP_HIT_PERFECT_ANIM = Identifier.of(MOD_ID, "fire_dap_hit_perfect");
-    public static final Identifier FIRE_DAP_COMBO_P1_ANIM = Identifier.of(MOD_ID, "fire_dap_hitp1");
-    public static final Identifier FIRE_DAP_COMBO_P2_ANIM = Identifier.of(MOD_ID, "fire_dap_hitp2");
-    public static final Identifier DAPHOLD_HIGHFIVE_ANIM = Identifier.of(MOD_ID, "highfive_dap");
-    public static final Identifier DAPHOLD_DAP_ANIM = Identifier.of(MOD_ID, "dap_high");
-    public static final Identifier DAPHOLD_DAPPING_ANIM = Identifier.of(MOD_ID, "dapping");
-    public static final Identifier DAPHOLD_DAPPING_END_ANIM = Identifier.of(MOD_ID, "dapping_end");
-    public static final Identifier CLAP_ANIM        = Identifier.of(MOD_ID, "clap");
-    public static final Identifier CLAP_SPAM_ANIM   = Identifier.of(MOD_ID, "clapspam");
-    public static final Identifier CLAP_STRONG_ANIM = Identifier.of(MOD_ID, "clap_strong");
-    public static final Identifier FUSION_START_P1_ANIM = Identifier.of(MOD_ID, "fusion_startp1");
-    public static final Identifier FUSION_START_P2_ANIM = Identifier.of(MOD_ID, "fusion_startp2");
-    public static final Identifier FUSION_HIT_P1_ANIM   = Identifier.of(MOD_ID, "fusion_hitp1");
-    public static final Identifier FUSION_HIT_P2_ANIM   = Identifier.of(MOD_ID, "fusion_hitp2");
-    public static final Identifier FUSION_IDLE_P1_ANIM  = Identifier.of(MOD_ID, "fusion_idlep1");
-    public static final Identifier FUSION_IDLE_P2_ANIM  = Identifier.of(MOD_ID, "fusion_idlep2");
-    public static final Identifier AURA_WALK_ANIM       = Identifier.of(MOD_ID, "walk_aura");
-    public static final Identifier HIGHFIVE_HUG_ANIM    = Identifier.of(MOD_ID, "highfive_hug");
-    public static final Identifier HIGHFIVE_HUG2_ANIM   = Identifier.of(MOD_ID, "highfive_hug2");
-    public static final Identifier KICK_ANIM               = Identifier.of(MOD_ID, "kick");
-    public static final Identifier DROP_KICK_ANIM          = Identifier.of(MOD_ID, "drop_kick");
-    public static final Identifier HIGHFIVE_SIKE_ANIM      = Identifier.of(MOD_ID, "highfive_sike");
-    public static final Identifier SPIN_ANIM               = Identifier.of(MOD_ID, "spin");
-    public static final Identifier GROUND_POUND_DIVE_ANIM  = Identifier.of(MOD_ID, "ground_pound_dive");
-    public static final Identifier GROUND_POUND_LAND_ANIM  = Identifier.of(MOD_ID, "ground_pound_land");
-    public static final Identifier SLAP_ANIM               = Identifier.of(MOD_ID, "slap");
-    public static final Identifier END_GROUP_ANIM          = Identifier.of(MOD_ID, "end_group");
-    public static final Identifier PERFECT_DAP_HIT_COMBO_ANIM = Identifier.of(MOD_ID, "perfect_dap_hitcombo");
-    public static final Identifier PERFECT_DAP_HIT_COMBO_END_ANIM = Identifier.of(MOD_ID, "perfect_dap_hitcombo_end");
-    public static final Identifier FACING_DAP_P1_ANIM  = Identifier.of(MOD_ID, "perfect_dap_hitp1");
-    public static final Identifier FACING_DAP_P2_ANIM  = Identifier.of(MOD_ID, "perfect_dap_hitp2");
-    public static final Identifier HUDDLE_START_ANIM       = Identifier.of(MOD_ID, "huddle_start");
-    public static final Identifier HUDDLE_IDLE_ANIM        = Identifier.of(MOD_ID, "huddle_idle");
-    public static final Identifier HUDDLE_QTE1_ANIM        = Identifier.of(MOD_ID, "huddle_qte1");
-    public static final Identifier HUDDLE_QTE2_ANIM        = Identifier.of(MOD_ID, "huddle_qte2");
-    public static final Identifier HUDDLE_QTE3_ANIM        = Identifier.of(MOD_ID, "huddle_qte3");
-    public static final Identifier LAY_DOWN_ANIM            = Identifier.of(MOD_ID, "lay_down");
-    public static final Identifier BONK_ANIM               = Identifier.of(MOD_ID, "bonk");
-    public static final Identifier DAP_HIT_FACE_ANIM       = Identifier.of(MOD_ID, "dap_hit_face");
-    public static final Identifier SLAP_FRONT_ANIM         = Identifier.of(MOD_ID, "slap_front");
-    public static final Identifier DAP_HIT_BAD_ANIM        = Identifier.of(MOD_ID, "dap_hit_bad");
-    public static final Identifier DAP_LOOP_ANIM           = Identifier.of(MOD_ID, "dap_loop");
-    public static final Identifier DAP_LOOP_END_ANIM       = Identifier.of(MOD_ID, "dap_loop_end");
-    public static final Identifier HEAVEN_DAP_ANIM         = Identifier.of(MOD_ID, "heaven_dap");
-    public static final Identifier SITTING_ANIM            = Identifier.of(MOD_ID, "sitting");
-    public static final Identifier REACH_DOWN_ANIM         = Identifier.of(MOD_ID, "reach_down");
-    public static final Identifier REACH_PICKUP_ANIM       = Identifier.of(MOD_ID, "reach_pickup");
-    public static final Identifier STAND_UP_ANIM           = Identifier.of(MOD_ID, "stand_up");
-    public static final Identifier HUDDLE_END_ANIM         = Identifier.of(MOD_ID, "huddle_end");
+    public static final Identifier ANIMATION_LAYER_ID = Identifier.fromNamespaceAndPath(MOD_ID, "coop_animations");
+    public static final Identifier GRAB_HOLDING_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "grab_holding");
+    public static final Identifier GRAB_HOLDING_CHARGE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "grab_holding_charge");
+    public static final Identifier GRAB_HOLDING_CHARGE_IDLE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "grab_holding_charge_idle");
+    public static final Identifier GRAB_THROW_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "grab_throw");
+    public static final Identifier GRAB_READY_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "grab_ready");
+    public static final Identifier GRAB_READY_IDLE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "grab_ready_idle");
+    public static final Identifier DAP_CHARGE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_charge");
+    public static final Identifier DAP_CHARGE_IDLE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_charge_idle");
+    public static final Identifier DAP_HIT_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_hit");
+    public static final Identifier FIRE_DAP_CHARGE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fire_dap_charge");
+    public static final Identifier FIRE_DAP_CHARGE_IDLE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fire_dap_charge_idle");
+    public static final Identifier FIRE_DAP_HIT_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fire_dap_hit");
+    public static final Identifier PUSH_START_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "push_start");
+    public static final Identifier PUSH_IDLE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "push_idle");
+    public static final Identifier PUSH_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "push");
+    public static final Identifier CATCH_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "catch");
+    public static final Identifier MAHITO_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "mahito");
+    public static final Identifier HIGHFIVE_START_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_start");
+    public static final Identifier HIGHFIVE_END_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_end");
+    public static final Identifier HIGHFIVE_HIT_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_hit");
+    public static final Identifier HIGHFIVE_HIT_COMBO_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_hitcombo");
+    public static final Identifier DAP_CHARGE_FALL_START_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_charge_fall_start");
+    public static final Identifier DAP_CHARGE_FALLING_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_charge_falling");
+    public static final Identifier DAP_CHARGE_FALL_HIT_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_charge_fall_hit");
+    public static final Identifier SQUASHED_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "squashed");
+    public static final Identifier PERFECT_DAP_HIT_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_hit");
+    public static final Identifier DAP_DOWN_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_down");
+    public static final Identifier DAP_HIT_WEAK_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_hit_weak");
+    public static final Identifier PERFECT_DAP_EXTEND1_P1_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_extandp1");
+    public static final Identifier PERFECT_DAP_EXTEND1_P2_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_extandp2");
+    public static final Identifier PERFECT_DAP_MYBOY_P1_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_extande_myboyp1");
+    public static final Identifier PERFECT_DAP_MYBOY_P2_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_extande_myboyp2");
+    public static final Identifier PERFECT_DAP_EXTEND_BOTH_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_extand_both");
+    public static final Identifier HEAVE_DAP_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "heave_dap");
+    public static final Identifier HOLD_SHIELD_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "hold_shield");
+    public static final Identifier SHIELD_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "shield");
+    public static final Identifier MARIO_JUMP_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "jumpmario");
+    public static final Identifier POP_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "pop");
+    public static final Identifier HUG_START_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "hug_start");
+    public static final Identifier HUGGING_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "hugging");
+    public static final Identifier HUGGING2_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "hugging2");
+    public static final Identifier HUG_END_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "hugend");
+    public static final Identifier FIRE_DAP_HIT_PERFECT_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fire_dap_hit_perfect");
+    public static final Identifier FIRE_DAP_COMBO_P1_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fire_dap_hitp1");
+    public static final Identifier FIRE_DAP_COMBO_P2_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fire_dap_hitp2");
+    public static final Identifier DAPHOLD_HIGHFIVE_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_dap");
+    public static final Identifier DAPHOLD_DAP_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dap_high");
+    public static final Identifier DAPHOLD_DAPPING_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dapping");
+    public static final Identifier DAPHOLD_DAPPING_END_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "dapping_end");
+    public static final Identifier CLAP_ANIM        = Identifier.fromNamespaceAndPath(MOD_ID, "clap");
+    public static final Identifier CLAP_SPAM_ANIM   = Identifier.fromNamespaceAndPath(MOD_ID, "clapspam");
+    public static final Identifier CLAP_STRONG_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "clap_strong");
+    public static final Identifier FUSION_START_P1_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fusion_startp1");
+    public static final Identifier FUSION_START_P2_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "fusion_startp2");
+    public static final Identifier FUSION_HIT_P1_ANIM   = Identifier.fromNamespaceAndPath(MOD_ID, "fusion_hitp1");
+    public static final Identifier FUSION_HIT_P2_ANIM   = Identifier.fromNamespaceAndPath(MOD_ID, "fusion_hitp2");
+    public static final Identifier FUSION_IDLE_P1_ANIM  = Identifier.fromNamespaceAndPath(MOD_ID, "fusion_idlep1");
+    public static final Identifier FUSION_IDLE_P2_ANIM  = Identifier.fromNamespaceAndPath(MOD_ID, "fusion_idlep2");
+    public static final Identifier AURA_WALK_ANIM       = Identifier.fromNamespaceAndPath(MOD_ID, "walk_aura");
+    public static final Identifier HIGHFIVE_HUG_ANIM    = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_hug");
+    public static final Identifier HIGHFIVE_HUG2_ANIM   = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_hug2");
+    public static final Identifier KICK_ANIM               = Identifier.fromNamespaceAndPath(MOD_ID, "kick");
+    public static final Identifier DROP_KICK_ANIM          = Identifier.fromNamespaceAndPath(MOD_ID, "drop_kick");
+    public static final Identifier HIGHFIVE_SIKE_ANIM      = Identifier.fromNamespaceAndPath(MOD_ID, "highfive_sike");
+    public static final Identifier SPIN_ANIM               = Identifier.fromNamespaceAndPath(MOD_ID, "spin");
+    public static final Identifier GROUND_POUND_DIVE_ANIM  = Identifier.fromNamespaceAndPath(MOD_ID, "ground_pound_dive");
+    public static final Identifier GROUND_POUND_LAND_ANIM  = Identifier.fromNamespaceAndPath(MOD_ID, "ground_pound_land");
+    public static final Identifier SLAP_ANIM               = Identifier.fromNamespaceAndPath(MOD_ID, "slap");
+    public static final Identifier END_GROUP_ANIM          = Identifier.fromNamespaceAndPath(MOD_ID, "end_group");
+    public static final Identifier PERFECT_DAP_HIT_COMBO_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_hitcombo");
+    public static final Identifier PERFECT_DAP_HIT_COMBO_END_ANIM = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_hitcombo_end");
+    public static final Identifier FACING_DAP_P1_ANIM  = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_hitp1");
+    public static final Identifier FACING_DAP_P2_ANIM  = Identifier.fromNamespaceAndPath(MOD_ID, "perfect_dap_hitp2");
+    public static final Identifier HUDDLE_START_ANIM       = Identifier.fromNamespaceAndPath(MOD_ID, "huddle_start");
+    public static final Identifier HUDDLE_IDLE_ANIM        = Identifier.fromNamespaceAndPath(MOD_ID, "huddle_idle");
+    public static final Identifier HUDDLE_QTE1_ANIM        = Identifier.fromNamespaceAndPath(MOD_ID, "huddle_qte1");
+    public static final Identifier HUDDLE_QTE2_ANIM        = Identifier.fromNamespaceAndPath(MOD_ID, "huddle_qte2");
+    public static final Identifier HUDDLE_QTE3_ANIM        = Identifier.fromNamespaceAndPath(MOD_ID, "huddle_qte3");
+    public static final Identifier LAY_DOWN_ANIM            = Identifier.fromNamespaceAndPath(MOD_ID, "lay_down");
+    public static final Identifier BONK_ANIM               = Identifier.fromNamespaceAndPath(MOD_ID, "bonk");
+    public static final Identifier DAP_HIT_FACE_ANIM       = Identifier.fromNamespaceAndPath(MOD_ID, "dap_hit_face");
+    public static final Identifier SLAP_FRONT_ANIM         = Identifier.fromNamespaceAndPath(MOD_ID, "slap_front");
+    public static final Identifier DAP_HIT_BAD_ANIM        = Identifier.fromNamespaceAndPath(MOD_ID, "dap_hit_bad");
+    public static final Identifier DAP_LOOP_ANIM           = Identifier.fromNamespaceAndPath(MOD_ID, "dap_loop");
+    public static final Identifier DAP_LOOP_END_ANIM       = Identifier.fromNamespaceAndPath(MOD_ID, "dap_loop_end");
+    public static final Identifier HEAVEN_DAP_ANIM         = Identifier.fromNamespaceAndPath(MOD_ID, "heaven_dap");
+    public static final Identifier SITTING_ANIM            = Identifier.fromNamespaceAndPath(MOD_ID, "sitting");
+    public static final Identifier REACH_DOWN_ANIM         = Identifier.fromNamespaceAndPath(MOD_ID, "reach_down");
+    public static final Identifier REACH_PICKUP_ANIM       = Identifier.fromNamespaceAndPath(MOD_ID, "reach_pickup");
+    public static final Identifier STAND_UP_ANIM           = Identifier.fromNamespaceAndPath(MOD_ID, "stand_up");
+    public static final Identifier HUDDLE_END_ANIM         = Identifier.fromNamespaceAndPath(MOD_ID, "huddle_end");
     private static final Map<UUID, PoseState> currentPoses = new HashMap<>();
     private static final Map<UUID, AnimState> animStates = new HashMap<>();
     public enum AnimState {
@@ -275,15 +275,15 @@ public class CoopAnimationHandler {
             return false;
         }
     }
-    private static PlayerAnimationController getController(AbstractClientPlayerEntity player) {
+    private static PlayerAnimationController getController(AbstractClientPlayer player) {
         return (PlayerAnimationController) PlayerAnimationAccess.getPlayerAnimationLayer(
                 player, ANIMATION_LAYER_ID
         );
     }
-    public static void updatePlayerAnimation(PlayerEntity player, PoseState newPose) {
+    public static void updatePlayerAnimation(Player player, PoseState newPose) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         PoseState currentPose = currentPoses.get(playerId);
         if (currentPose == newPose) return;
         AnimState currentAnimState = animStates.get(playerId);
@@ -291,8 +291,8 @@ public class CoopAnimationHandler {
                 + " pose " + currentPose + " -> " + newPose
                 + " | animState=" + currentAnimState);
         currentPoses.put(playerId, newPose);
-        MinecraftClient client = MinecraftClient.getInstance();
-        boolean isLocalPlayer = client.player != null && client.player.getUuid().equals(playerId);
+        Minecraft client = Minecraft.getInstance();
+        boolean isLocalPlayer = client.player != null && client.player.getUUID().equals(playerId);
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller == null) return;
@@ -308,7 +308,7 @@ public class CoopAnimationHandler {
                     } else {
                         animStates.put(playerId, AnimState.GRAB_READY);
                     }
-                    chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                    chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
                 }
                 case GRAB_HOLDING -> {
                     controller.triggerAnimation(GRAB_HOLDING_ANIM);
@@ -327,7 +327,7 @@ public class CoopAnimationHandler {
                     } else {
                         animStates.put(playerId, AnimState.PUSH_START);
                     }
-                    chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                    chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
                 }
                 case NONE -> {
                     System.out.println("[DAPANIM] updatePlayerAnimation NONE is STOPPING CONTROLLER for "
@@ -348,10 +348,10 @@ public class CoopAnimationHandler {
             System.err.println("[CoopMoves] Animation error: " + e.getMessage());
         }
     }
-    public static void startGrabCharge(PlayerEntity player) {
+    public static void startGrabCharge(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         AnimState currentState = animStates.get(playerId);
         if (currentState != AnimState.GRAB_HOLDING && currentState != AnimState.GRAB_CHARGE_IDLE) {
             return;
@@ -361,55 +361,55 @@ public class CoopAnimationHandler {
             if (controller != null) {
                 controller.triggerAnimation(GRAB_HOLDING_CHARGE_ANIM);
                 syncAnimState(playerId, AnimState.GRAB_CHARGING);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playThrowAnimation(PlayerEntity player) {
+    public static void playThrowAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(GRAB_THROW_ANIM);
                 syncAnimState(playerId, AnimState.GRAB_THROWING);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playThrow();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void startDapCharge(PlayerEntity player) {
+    public static void startDapCharge(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(DAP_CHARGE_ANIM);
                 syncAnimState(playerId, AnimState.DAP_CHARGING);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playDapCharge();
                 }
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
             }
         } catch (Exception e) {
         }
     }
-    public static void stopDapCharge(PlayerEntity player) {
+    public static void stopDapCharge(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         AnimState state = animStates.get(playerId);
         System.out.println("[DAPANIM] stopDapCharge called for " + player.getName().getString() + " state=" + state + " <<WILL SYNC NONE>>");
         if (state == AnimState.DAP_CHARGING || state == AnimState.DAP_CHARGE_IDLE
@@ -420,8 +420,8 @@ public class CoopAnimationHandler {
                     controller.stop();
                     syncAnimState(playerId, AnimState.NONE);
                     chargeStartTime.remove(playerId);
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    Minecraft client = Minecraft.getInstance();
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
@@ -429,10 +429,10 @@ public class CoopAnimationHandler {
             }
         }
     }
-    public static void stopDapChargeLocalOnly(PlayerEntity player) {
+    public static void stopDapChargeLocalOnly(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         AnimState state = animStates.get(playerId);
         System.out.println("[DAPANIM] stopDapChargeLocalOnly called for " + player.getName().getString() + " state=" + state + " (no network sync)");
         if (state == AnimState.DAP_CHARGING || state == AnimState.DAP_CHARGE_IDLE
@@ -443,8 +443,8 @@ public class CoopAnimationHandler {
                     controller.stop();
                     animStates.put(playerId, AnimState.NONE);
                     chargeStartTime.remove(playerId);
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    Minecraft client = Minecraft.getInstance();
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
@@ -452,10 +452,10 @@ public class CoopAnimationHandler {
             }
         }
     }
-    public static void cancelDapCharge(PlayerEntity player) {
+    public static void cancelDapCharge(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         AnimState state = animStates.get(playerId);
         try {
             PlayerAnimationController controller = getController(clientPlayer);
@@ -475,13 +475,13 @@ public class CoopAnimationHandler {
     }
     public static void tick() {
         if (!initialized) return;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
-        long currentTime = client.world.getTime();
-        UUID localPlayerId = client.player != null ? client.player.getUuid() : null;
-        for (PlayerEntity player : client.world.getPlayers()) {
-            if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) continue;
-            UUID playerId = player.getUuid();
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) return;
+        long currentTime = client.level.getGameTime();
+        UUID localPlayerId = client.player != null ? client.player.getUUID() : null;
+        for (Player player : client.level.players()) {
+            if (!(player instanceof AbstractClientPlayer clientPlayer)) continue;
+            UUID playerId = player.getUUID();
             AnimState state = animStates.get(playerId);
             if (state == null) continue;
             boolean isLocalPlayer = playerId.equals(localPlayerId);
@@ -762,7 +762,7 @@ public class CoopAnimationHandler {
                     case DAP_LOOP_END  -> {
                     }
                     case SITTING -> {
-                        if (client.player != null && client.player.getUuid().equals(playerId))
+                        if (client.player != null && client.player.getUUID().equals(playerId))
                             FirstPersonAnimationTest.showBothHands();
                     }
                     case REACH_DOWN    -> {
@@ -835,9 +835,9 @@ public class CoopAnimationHandler {
             }
         }
     }
-    public static void stopAnimation(PlayerEntity player) {
+    public static void stopAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -845,7 +845,7 @@ public class CoopAnimationHandler {
             }
         } catch (Exception e) {
         }
-        UUID playerId = player.getUuid();
+        UUID playerId = player.getUUID();
         currentPoses.remove(playerId);
         animStates.remove(playerId);
         chargeStartTime.remove(playerId);
@@ -861,10 +861,10 @@ public class CoopAnimationHandler {
         return state == AnimState.GRAB_CHARGE_IDLE || state == AnimState.DAP_CHARGE_IDLE
                 || state == AnimState.FIRE_DAP_CHARGE_IDLE;
     }
-    public static void playDapHit(PlayerEntity player) {
+    public static void playDapHit(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         if (DapHoldClientHandler.isAnimationLocked(playerId)) {
             return;
         }
@@ -873,47 +873,47 @@ public class CoopAnimationHandler {
             if (controller != null) {
                 controller.triggerAnimation(DAP_HIT_ANIM);
                 syncAnimState(playerId, AnimState.DAP_HIT);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playDapHit();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playFireDapHit(PlayerEntity player) {
+    public static void playFireDapHit(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(FIRE_DAP_HIT_ANIM);
                 syncAnimState(playerId, AnimState.FIRE_DAP_HIT);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
             }
         } catch (Exception e) {
         }
     }
-    public static void startFireDapCharge(PlayerEntity player) {
+    public static void startFireDapCharge(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(FIRE_DAP_CHARGE_ANIM);
                 syncAnimState(playerId, AnimState.FIRE_DAP_CHARGING);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
             }
         } catch (Exception e) {
         }
     }
-    public static void playFireDapChargeIdle(PlayerEntity player) {
+    public static void playFireDapChargeIdle(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -923,10 +923,10 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playDapChargeIdle(PlayerEntity player) {
+    public static void playDapChargeIdle(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -936,44 +936,44 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playPushAnimation(PlayerEntity player) {
+    public static void playPushAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(PUSH_ANIM);
                 syncAnimState(playerId, AnimState.PUSHING);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playPush();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playCatchAnimation(PlayerEntity player) {
+    public static void playCatchAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(CATCH_ANIM);
                 syncAnimState(playerId, AnimState.CATCHING);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playMahitoAnimation(PlayerEntity player) {
+    public static void playMahitoAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -983,41 +983,41 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playHighFiveStart(PlayerEntity player) {
+    public static void playHighFiveStart(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(HIGHFIVE_START_ANIM);
                 syncAnimState(playerId, AnimState.HIGHFIVE_START);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playHighFiveStart();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playHighFiveEnd(PlayerEntity player) {
+    public static void playHighFiveEnd(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(HIGHFIVE_END_ANIM);
                 syncAnimState(playerId, AnimState.HIGHFIVE_END);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
             }
         } catch (Exception e) {
         }
     }
-    public static void playHighFiveHit(PlayerEntity player) {
+    public static void playHighFiveHit(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         if (DapHoldClientHandler.isAnimationLocked(playerId)) {
             return;
         }
@@ -1026,19 +1026,19 @@ public class CoopAnimationHandler {
             if (controller != null) {
                 controller.triggerAnimation(HIGHFIVE_HIT_ANIM);
                 syncAnimState(playerId, AnimState.HIGHFIVE_HIT);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playHighFiveHit();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playFallDapChargeStart(PlayerEntity player) {
+    public static void playFallDapChargeStart(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -1048,10 +1048,10 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playFallDapFalling(PlayerEntity player) {
+    public static void playFallDapFalling(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -1061,10 +1061,10 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playFallDapHit(PlayerEntity player) {
+    public static void playFallDapHit(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -1074,10 +1074,10 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playSquashed(PlayerEntity player) {
+    public static void playSquashed(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -1087,76 +1087,76 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playPerfectDapHit(PlayerEntity player) {
+    public static void playPerfectDapHit(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(PERFECT_DAP_HIT_ANIM);
                 syncAnimState(playerId, AnimState.PERFECT_DAP_HIT);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playPerfectDap();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playDapDown(PlayerEntity player) {
+    public static void playDapDown(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(DAP_DOWN_ANIM);
                 syncAnimState(playerId, AnimState.DAP_DOWN);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
             }
         } catch (Exception e) {
         }
     }
-    public static void playHoldShield(PlayerEntity player) {
+    public static void playHoldShield(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(HOLD_SHIELD_ANIM);
                 syncAnimState(playerId, AnimState.HOLD_SHIELD);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playShield(PlayerEntity player) {
+    public static void playShield(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(SHIELD_ANIM);
                 syncAnimState(playerId, AnimState.SHIELD);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void stopShieldAnimation(PlayerEntity player) {
+    public static void stopShieldAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -1188,12 +1188,12 @@ public class CoopAnimationHandler {
     public static AnimState getAnimState(UUID playerId) {
         return animStates.getOrDefault(playerId, AnimState.NONE);
     }
-    public static void setAnimStateFromNetwork(PlayerEntity player, int stateOrdinal) {
+    public static void setAnimStateFromNetwork(Player player, int stateOrdinal) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        MinecraftClient client = MinecraftClient.getInstance();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        Minecraft client = Minecraft.getInstance();
         if (stateOrdinal == 0) {
-            UUID playerId = player.getUuid();
+            UUID playerId = player.getUUID();
             AnimState prevState = animStates.get(playerId);
             System.out.println("[DAPANIM] NONE received for " + player.getName().getString()
                     + " | prev=" + prevState
@@ -1210,7 +1210,7 @@ public class CoopAnimationHandler {
             return;
         }
         AnimState state = AnimState.values()[stateOrdinal];
-        UUID playerId = player.getUuid();
+        UUID playerId = player.getUUID();
         AnimState current = animStates.get(playerId);
         System.out.println("[DAPANIM] SET " + state + " for " + player.getName().getString()
                 + " | prev=" + current);
@@ -1220,112 +1220,112 @@ public class CoopAnimationHandler {
             switch (state) {
                 case GRAB_READY -> {
                     controller.triggerAnimation(GRAB_READY_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case GRAB_READY_IDLE -> {
                     controller.triggerAnimation(GRAB_READY_IDLE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case GRAB_HOLDING -> {
                     controller.triggerAnimation(GRAB_HOLDING_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case GRAB_CHARGING -> {
                     controller.triggerAnimation(GRAB_HOLDING_CHARGE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case GRAB_CHARGE_IDLE -> controller.triggerAnimation(GRAB_HOLDING_CHARGE_IDLE_ANIM);
                 case GRAB_THROWING -> {
                     controller.triggerAnimation(GRAB_THROW_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playThrow();
                     }
                 }
                 case DAP_CHARGING -> {
                     controller.triggerAnimation(DAP_CHARGE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playDapCharge();
                     }
                 }
                 case DAP_CHARGE_IDLE -> {
                     controller.triggerAnimation(DAP_CHARGE_IDLE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playDapCharge();
                     }
                 }
                 case DAP_HIT -> {
                     controller.triggerAnimation(DAP_HIT_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playDapHit();
                     }
                 }
                 case FIRE_DAP_CHARGING -> {
                     controller.triggerAnimation(FIRE_DAP_CHARGE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case FIRE_DAP_CHARGE_IDLE -> {
                     controller.triggerAnimation(FIRE_DAP_CHARGE_IDLE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case FIRE_DAP_HIT -> {
                     controller.triggerAnimation(FIRE_DAP_HIT_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PUSH_START -> {
                     controller.triggerAnimation(PUSH_START_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PUSH_IDLE -> {
                     controller.triggerAnimation(PUSH_IDLE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PUSHING -> {
                     controller.triggerAnimation(PUSH_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playPush();
                     }
                 }
                 case CATCHING -> {
                     controller.triggerAnimation(CATCH_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case MAHITO -> controller.triggerAnimation(MAHITO_ANIM);
                 case HIGHFIVE_START -> {
                     controller.triggerAnimation(HIGHFIVE_START_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHighFiveStart();
                     }
                 }
                 case HIGHFIVE_END -> controller.triggerAnimation(HIGHFIVE_END_ANIM);
                 case HIGHFIVE_HIT -> {
                     controller.triggerAnimation(HIGHFIVE_HIT_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHighFiveHit();
                     }
                 }
                 case HIGHFIVE_HIT_COMBO -> {
                     controller.triggerAnimation(HIGHFIVE_HIT_COMBO_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHighFiveCombo();
                     }
                 }
@@ -1335,61 +1335,61 @@ public class CoopAnimationHandler {
                 case SQUASHED -> controller.triggerAnimation(SQUASHED_ANIM);
                 case PERFECT_DAP_HIT -> {
                     controller.triggerAnimation(PERFECT_DAP_HIT_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playPerfectDap();
                     }
                 }
                 case PERFECT_DAP_EXTEND1_P1 -> {
                     controller.triggerAnimation(PERFECT_DAP_EXTEND1_P1_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PERFECT_DAP_EXTEND1_P2 -> {
                     controller.triggerAnimation(PERFECT_DAP_EXTEND1_P2_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PERFECT_DAP_MYBOY_P1 -> {
                     controller.triggerAnimation(PERFECT_DAP_MYBOY_P1_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PERFECT_DAP_MYBOY_P2 -> {
                     controller.triggerAnimation(PERFECT_DAP_MYBOY_P2_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PERFECT_DAP_EXTEND_BOTH -> {
                     controller.triggerAnimation(PERFECT_DAP_EXTEND_BOTH_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case HEAVE_DAP -> {
                     controller.triggerAnimation(HEAVE_DAP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case DAP_DOWN -> {
                     controller.triggerAnimation(DAP_DOWN_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
                 case HOLD_SHIELD -> {
                     controller.triggerAnimation(HOLD_SHIELD_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case SHIELD -> {
                     controller.triggerAnimation(SHIELD_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
@@ -1397,7 +1397,7 @@ public class CoopAnimationHandler {
                 case POP -> controller.triggerAnimation(POP_ANIM);
                 case HUG_START -> {
                     controller.triggerAnimation(HUG_START_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHug();
                     }
                 }
@@ -1405,67 +1405,67 @@ public class CoopAnimationHandler {
                 case HUGGING2 -> controller.triggerAnimation(HUGGING2_ANIM);
                 case HUG_END -> {
                     controller.triggerAnimation(HUG_END_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
                 case FIRE_DAP_COMBO_P1 -> {
                     controller.triggerAnimation(FIRE_DAP_COMBO_P1_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case FIRE_DAP_COMBO_P2 -> {
                     controller.triggerAnimation(FIRE_DAP_COMBO_P2_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case DAPHOLD_HIGHFIVE -> {
                     controller.triggerAnimation(DAPHOLD_HIGHFIVE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHighFiveStart();
                     }
                 }
                 case DAPHOLD_DAP -> {
                     controller.triggerAnimation(DAPHOLD_DAP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playDapHit();
                     }
                 }
                 case DAPHOLD_DAPPING -> {
                     controller.triggerAnimation(DAPHOLD_DAPPING_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case DAPHOLD_DAPPING_END -> {
                     controller.triggerAnimation(DAPHOLD_DAPPING_END_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
                 case NONE -> {
                     controller.stop();
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
                 case CLAP -> {
                     controller.triggerAnimation(CLAP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case CLAP_SPAM -> {
                     controller.triggerAnimation(CLAP_SPAM_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case CLAP_STRONG -> {
                     controller.triggerAnimation(CLAP_STRONG_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
@@ -1478,112 +1478,112 @@ public class CoopAnimationHandler {
                 case AURA_WALK       -> controller.triggerAnimation(AURA_WALK_ANIM);
                 case HIGHFIVE_HUG   -> {
                     controller.triggerAnimation(HIGHFIVE_HUG_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHug();
                     }
                 }
                 case HIGHFIVE_HUG2  -> {
                     controller.triggerAnimation(HIGHFIVE_HUG2_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playHug();
                     }
                 }
                 case KICK -> {
                     controller.triggerAnimation(KICK_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playKick();
                     }
                 }
                 case DROP_KICK -> {
                     controller.triggerAnimation(DROP_KICK_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playDropKick();
                     }
                 }
                 case HIGHFIVE_SIKE -> {
                     controller.triggerAnimation(HIGHFIVE_SIKE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case SPIN -> {
                     controller.triggerAnimation(SPIN_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case GROUND_POUND_DIVE -> {
                     controller.triggerAnimation(GROUND_POUND_DIVE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
                 case GROUND_POUND_LAND -> {
                     controller.triggerAnimation(GROUND_POUND_LAND_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.stop();
                     }
                 }
                 case SLAP -> {
                     controller.triggerAnimation(SLAP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.playSlap();
                     }
                 }
                 case END_GROUP -> {
                     controller.triggerAnimation(END_GROUP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
                 case PERFECT_DAP_HIT_COMBO -> {
                     controller.triggerAnimation(PERFECT_DAP_HIT_COMBO_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case PERFECT_DAP_HIT_COMBO_END -> {
                     controller.triggerAnimation(PERFECT_DAP_HIT_COMBO_END_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case FACING_DAP_P1 -> {
                     controller.triggerAnimation(FACING_DAP_P1_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case FACING_DAP_P2 -> {
                     controller.triggerAnimation(FACING_DAP_P2_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case HUDDLE_START -> {
                     controller.triggerAnimation(HUDDLE_START_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case HUDDLE_IDLE -> {
                     controller.triggerAnimation(HUDDLE_IDLE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case HUDDLE_QTE1 -> {
                     controller.triggerAnimation(HUDDLE_QTE1_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case HUDDLE_QTE2 -> {
                     controller.triggerAnimation(HUDDLE_QTE2_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case HUDDLE_QTE3 -> {
                     controller.triggerAnimation(HUDDLE_QTE3_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case HUDDLE_END -> {
                     controller.triggerAnimation(HUDDLE_END_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case LAY_DOWN -> {
@@ -1591,60 +1591,60 @@ public class CoopAnimationHandler {
                 }
                 case BONK -> {
                     controller.triggerAnimation(BONK_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case DAP_HIT_FACE -> {
                     controller.triggerAnimation(DAP_HIT_FACE_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case SLAP_FRONT -> {
                     controller.triggerAnimation(SLAP_FRONT_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case DAP_LOOP -> {
                     controller.triggerAnimation(DAP_LOOP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case DAP_LOOP_END -> {
                     controller.triggerAnimation(DAP_LOOP_END_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case SITTING -> {
                     controller.triggerAnimation(SITTING_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case REACH_DOWN -> {
                     controller.triggerAnimation(REACH_DOWN_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case REACH_PICKUP -> {
                     controller.triggerAnimation(REACH_PICKUP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case STAND_UP -> { controller.triggerAnimation(STAND_UP_ANIM); }
                 case HEAVEN_DAP -> {
                     controller.triggerAnimation(HEAVEN_DAP_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId))
+                    if (client.player != null && client.player.getUUID().equals(playerId))
                         FirstPersonAnimationTest.showBothHands();
                 }
                 case DAP_HIT_BAD -> {
                     controller.triggerAnimation(DAP_HIT_BAD_ANIM);
-                    if (client.player != null && client.player.getUuid().equals(playerId)) {
+                    if (client.player != null && client.player.getUUID().equals(playerId)) {
                         ChargedDapClientHandler.triggerDapBadBlock();
                         FirstPersonAnimationTest.showBothHands();
                     }
                 }
             }
-            if (client.world != null) {
-                long worldTime = client.world.getTime();
+            if (client.level != null) {
+                long worldTime = client.level.getGameTime();
                 switch (state) {
                     case DAP_HIT, FIRE_DAP_HIT, PERFECT_DAP_HIT,
                          HIGHFIVE_END, HIGHFIVE_HIT, HIGHFIVE_HUG, HIGHFIVE_HUG2,
@@ -1665,67 +1665,67 @@ public class CoopAnimationHandler {
         } catch (Exception e) {
         }
     }
-    public static void playFireDapHitPerfect(PlayerEntity player) {
+    public static void playFireDapHitPerfect(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(FIRE_DAP_HIT_PERFECT_ANIM);
                 syncAnimState(playerId, AnimState.FIRE_DAP_HIT);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playFireDapComboP1(PlayerEntity player) {
+    public static void playFireDapComboP1(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(FIRE_DAP_COMBO_P1_ANIM);
                 syncAnimState(playerId, AnimState.FIRE_DAP_HIT);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playFireDapComboP2(PlayerEntity player) {
+    public static void playFireDapComboP2(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(FIRE_DAP_COMBO_P2_ANIM);
                 syncAnimState(playerId, AnimState.FIRE_DAP_HIT);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playDapHoldStart(net.minecraft.entity.player.PlayerEntity player, int role) {
+    public static void playDapHoldStart(net.minecraft.world.entity.player.Player player, int role) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 animStates.put(playerId, AnimState.NONE);
-                MinecraftClient client = MinecraftClient.getInstance();
-                boolean isLocalPlayer = client.player != null && client.player.getUuid().equals(playerId);
+                Minecraft client = Minecraft.getInstance();
+                boolean isLocalPlayer = client.player != null && client.player.getUUID().equals(playerId);
                 if (role == 0) {
                     controller.triggerAnimation(DAPHOLD_HIGHFIVE_ANIM);
                     syncAnimState(playerId, AnimState.DAPHOLD_HIGHFIVE);
@@ -1744,27 +1744,27 @@ public class CoopAnimationHandler {
             e.printStackTrace();
         }
     }
-    public static void playDapHoldDapping(net.minecraft.entity.player.PlayerEntity player) {
+    public static void playDapHoldDapping(net.minecraft.world.entity.player.Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(DAPHOLD_DAPPING_ANIM);
                 syncAnimState(playerId, AnimState.DAPHOLD_DAPPING);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playDapHoldResume(net.minecraft.entity.player.PlayerEntity player, int role) {
+    public static void playDapHoldResume(net.minecraft.world.entity.player.Player player, int role) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
@@ -1775,132 +1775,132 @@ public class CoopAnimationHandler {
                     controller.triggerAnimation(DAPHOLD_DAP_ANIM);
                     syncAnimState(playerId, AnimState.DAPHOLD_DAP);
                 }
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.stop();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playDapHoldEnd(net.minecraft.entity.player.PlayerEntity player) {
+    public static void playDapHoldEnd(net.minecraft.world.entity.player.Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(DAPHOLD_DAPPING_END_ANIM);
                 syncAnimState(playerId, AnimState.DAPHOLD_DAPPING_END);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playKick(PlayerEntity player) {
+    public static void playKick(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(KICK_ANIM);
                 syncAnimState(playerId, AnimState.KICK);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playKick();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playDropKick(PlayerEntity player) {
+    public static void playDropKick(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(DROP_KICK_ANIM);
                 syncAnimState(playerId, AnimState.DROP_KICK);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playDropKick();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playHighFiveSike(PlayerEntity player) {
+    public static void playHighFiveSike(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(HIGHFIVE_SIKE_ANIM);
                 syncAnimState(playerId, AnimState.HIGHFIVE_SIKE);
-                chargeStartTime.put(playerId, MinecraftClient.getInstance().world.getTime());
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                chargeStartTime.put(playerId, Minecraft.getInstance().level.getGameTime());
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }
         } catch (Exception e) {
         }
     }
-    public static void playSlap(PlayerEntity player) {
+    public static void playSlap(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(SLAP_ANIM);
                 animStates.put(playerId, AnimState.SLAP);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.playSlap();
                 }
-                chargeStartTime.put(playerId, client.world != null ? client.world.getTime() : 0L);
+                chargeStartTime.put(playerId, client.level != null ? client.level.getGameTime() : 0L);
             }
         } catch (Exception e) {
         }
     }
-    public static void playEndGroup(PlayerEntity player) {
+    public static void playEndGroup(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(END_GROUP_ANIM);
                 animStates.put(playerId, AnimState.END_GROUP);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
-                chargeStartTime.put(playerId, client.world != null ? client.world.getTime() : 0L);
+                chargeStartTime.put(playerId, client.level != null ? client.level.getGameTime() : 0L);
             }
         } catch (Exception e) {
         }
     }
-    public static void playSpinAnimation(PlayerEntity player) {
+    public static void playSpinAnimation(Player player) {
         if (!initialized) return;
-        if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) return;
-        UUID playerId = player.getUuid();
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return;
+        UUID playerId = player.getUUID();
         try {
             PlayerAnimationController controller = getController(clientPlayer);
             if (controller != null) {
                 controller.triggerAnimation(SPIN_ANIM);
                 animStates.put(playerId, AnimState.SPIN);
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(playerId)) {
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(playerId)) {
                     FirstPersonAnimationTest.showBothHands();
                 }
             }

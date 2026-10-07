@@ -1,15 +1,15 @@
 package com.cooptest;
 
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 /**
 UNDER CONSTRUCTION
@@ -23,52 +23,52 @@ public class FireSlapHandler {
 
     public static void register() {
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (world.isClient()) return ActionResult.PASS;
-            if (!(player instanceof ServerPlayerEntity serverPlayer)) return ActionResult.PASS;
-            if (!(entity instanceof LivingEntity target)) return ActionResult.PASS;
-            if (entity instanceof PlayerEntity) return ActionResult.PASS; // Don't slap players
+            if (world.isClientSide()) return InteractionResult.PASS;
+            if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
+            if (!(entity instanceof LivingEntity target)) return InteractionResult.PASS;
+            if (entity instanceof Player) return InteractionResult.PASS; // Don't slap players
 
-            float fireLevel = ChargedDapHandler.fireLevel.getOrDefault(player.getUuid(), 0f);
-            if (fireLevel < MIN_FIRE_LEVEL) return ActionResult.PASS;
+            float fireLevel = ChargedDapHandler.fireLevel.getOrDefault(player.getUUID(), 0f);
+            if (fireLevel < MIN_FIRE_LEVEL) return InteractionResult.PASS;
 
             executeFireSlap(serverPlayer, target);
 
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
     }
 
-    private static void executeFireSlap(ServerPlayerEntity player, LivingEntity target) {
-        ServerWorld world = player.getEntityWorld();
-        Vec3d playerPos = player.getEntityPos();
-        Vec3d targetEntityPos = target.getEntityPos();
+    private static void executeFireSlap(ServerPlayer player, LivingEntity target) {
+        ServerLevel world = player.level();
+        Vec3 playerPos = player.position();
+        Vec3 targetEntityPos = target.position();
 
-        Vec3d direction = targetEntityPos.subtract(playerPos).normalize();
+        Vec3 direction = targetEntityPos.subtract(playerPos).normalize();
 
-        target.setVelocity(
+        target.setDeltaMovement(
                 direction.x * SLAP_KNOCKBACK,
                 SLAP_VERTICAL,
                 direction.z * SLAP_KNOCKBACK
         );
-        target.knockedBack = true;
+        target.hurtMarked = true;
 
-        target.setOnFireFor(2);
+        target.igniteForSeconds(2);
 
         // Spawn fire particles at impact
         double x = target.getX();
-        double y = target.getY() + target.getHeight() / 2;
+        double y = target.getY() + target.getBbHeight() / 2;
         double z = target.getZ();
 
-        world.spawnParticles(ParticleTypes.FLAME, x, y, z, 8, 0.3, 0.3, 0.3, 0.05);
-        world.spawnParticles(ParticleTypes.SMOKE, x, y, z, 5, 0.2, 0.2, 0.2, 0.02);
-        world.spawnParticles(ParticleTypes.CRIT, x, y, z, 6, 0.3, 0.3, 0.3, 0.1);
+        world.sendParticles(ParticleTypes.FLAME, x, y, z, 8, 0.3, 0.3, 0.3, 0.05);
+        world.sendParticles(ParticleTypes.SMOKE, x, y, z, 5, 0.2, 0.2, 0.2, 0.02);
+        world.sendParticles(ParticleTypes.CRIT, x, y, z, 6, 0.3, 0.3, 0.3, 0.1);
 
         world.playSound(null, x, y, z,
-                SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK, SoundCategory.PLAYERS, 1.0f, 0.8f);
+                SoundEvents.PLAYER_ATTACK_KNOCKBACK, SoundSource.PLAYERS, 1.0f, 0.8f);
         world.playSound(null, x, y, z,
-                SoundEvents.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 0.5f, 1.2f);
+                SoundEvents.BLAZE_HURT, SoundSource.PLAYERS, 0.5f, 1.2f);
 
-        player.sendMessage(net.minecraft.text.Text.literal("§c FIRE SLAP! "), true);
+        player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c FIRE SLAP! "), true);
 
-        ChargedDapHandler.fireLevel.put(player.getUuid(), 0.5f);
+        ChargedDapHandler.fireLevel.put(player.getUUID(), 0.5f);
     }
 }

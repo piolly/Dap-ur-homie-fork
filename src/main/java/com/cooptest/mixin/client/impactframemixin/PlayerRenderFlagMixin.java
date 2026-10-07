@@ -1,13 +1,13 @@
 package com.cooptest.mixin.client.impactframemixin;
 
 import com.cooptest.client.CoopImpactHandler;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,23 +18,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
     @Mixin(LivingEntityRenderer.class)
     public class PlayerRenderFlagMixin {
         @Inject(
-                method = "render",
+                method = "submit",
                 at = @At("HEAD")
         )
-        private void onRenderStart(EntityRenderState state, MatrixStack matrices,
-                                   VertexConsumerProvider provider, int light, CallbackInfo ci) {
-            if (state instanceof PlayerEntityRenderState) {
+        private void onRenderStart(EntityRenderState state, PoseStack matrices,
+                                   MultiBufferSource provider, int light, CallbackInfo ci) {
+            if (state instanceof AvatarRenderState) {
                 CoopImpactHandler.renderingPlayer = true;
             }
         }
 
         @Inject(
-                method = "render",
+                method = "submit",
                 at = @At("RETURN")
         )
-        private void onRenderEnd(EntityRenderState state, MatrixStack matrices,
-                                 VertexConsumerProvider provider, int light, CallbackInfo ci) {
-            if (state instanceof PlayerEntityRenderState) {
+        private void onRenderEnd(EntityRenderState state, PoseStack matrices,
+                                 MultiBufferSource provider, int light, CallbackInfo ci) {
+            if (state instanceof AvatarRenderState) {
                 CoopImpactHandler.renderingPlayer = false;
             }
         }

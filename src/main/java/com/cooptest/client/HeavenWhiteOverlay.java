@@ -1,7 +1,7 @@
 package com.cooptest.client;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.sounds.SoundSource;
 public class HeavenWhiteOverlay {
     private static boolean active = false;
     private static float opacity = 0.0f;
@@ -32,12 +32,12 @@ public class HeavenWhiteOverlay {
         currentPhase = HeavenPhase.NONE;
         unmuteSounds();
     }
-    public static void render(DrawContext context, float tickDelta) {
+    public static void render(GuiGraphics context, float tickDelta) {
         if (!active || opacity <= 0.0f) return;
         int alpha = (int)(opacity * 255);
         int color = (alpha << 24) | 0xFFFFFF;
-        int screenWidth = context.getScaledWindowWidth();
-        int screenHeight = context.getScaledWindowHeight();
+        int screenWidth = context.guiWidth();
+        int screenHeight = context.guiHeight();
         context.fill(0, 0, screenWidth, screenHeight, color);
     }
     public static void tick() {
@@ -92,21 +92,21 @@ public class HeavenWhiteOverlay {
     }
     private static void muteSounds() {
         if (soundsMuted) return;
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.options != null && client.getSoundManager() != null) {
-            originalMasterVolume = client.options.getSoundVolumeOption(SoundCategory.MASTER).getValue().floatValue();
-            originalMusicVolume = client.options.getSoundVolumeOption(SoundCategory.MUSIC).getValue().floatValue();
-            client.getSoundManager().stopAll();
-            client.options.getSoundVolumeOption(SoundCategory.MASTER).setValue(0.0);
+            originalMasterVolume = client.options.getSoundSourceOptionInstance(SoundSource.MASTER).get().floatValue();
+            originalMusicVolume = client.options.getSoundSourceOptionInstance(SoundSource.MUSIC).get().floatValue();
+            client.getSoundManager().stop();
+            client.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
             soundsMuted = true;
         }
     }
     private static void unmuteSounds() {
         if (!soundsMuted) return;
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.options != null) {
-            client.options.getSoundVolumeOption(SoundCategory.MASTER).setValue((double)originalMasterVolume);
-            client.options.getSoundVolumeOption(SoundCategory.MUSIC).setValue((double)originalMusicVolume);
+            client.options.getSoundSourceOptionInstance(SoundSource.MASTER).set((double)originalMasterVolume);
+            client.options.getSoundSourceOptionInstance(SoundSource.MUSIC).set((double)originalMusicVolume);
             soundsMuted = false;
         }
     }

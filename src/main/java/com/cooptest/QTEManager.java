@@ -1,8 +1,7 @@
 package com.cooptest;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 public class QTEManager {
     private static final int STAGE_1_DELAY_TICKS = 8;
@@ -31,8 +30,8 @@ public class QTEManager {
         public QTECallback onAllStagesComplete;
         public QTECallback onFail;
         public StageCallback onStageComplete;
-        public ServerPlayerEntity player1Ref;
-        public ServerPlayerEntity player2Ref;
+        public ServerPlayer player1Ref;
+        public ServerPlayer player2Ref;
         public enum QTEPhase {
             WAIT,
             ACTIVE,
@@ -72,22 +71,22 @@ public class QTEManager {
     }
     @FunctionalInterface
     public interface QTECallback {
-        void execute(ServerPlayerEntity p1, ServerPlayerEntity p2);
+        void execute(ServerPlayer p1, ServerPlayer p2);
     }
     @FunctionalInterface
     public interface StageCallback {
-        void execute(ServerPlayerEntity p1, ServerPlayerEntity p2, int completedStage);
+        void execute(ServerPlayer p1, ServerPlayer p2, int completedStage);
     }
     public static QTESession triggerQTE(
-            ServerPlayerEntity p1,
-            ServerPlayerEntity p2,
+            ServerPlayer p1,
+            ServerPlayer p2,
             int maxStages,
             QTECallback onSuccess,
             QTECallback onFail,
             StageCallback onStage
     ) {
-        UUID id1 = p1.getUuid();
-        UUID id2 = p2.getUuid();
+        UUID id1 = p1.getUUID();
+        UUID id2 = p2.getUUID();
         if (activeSessions.containsKey(id1) || activeSessions.containsKey(id2)) {
             return null;
         }
@@ -103,13 +102,13 @@ public class QTEManager {
         return session;
     }
     public static QTESession triggerQTESolo(
-            ServerPlayerEntity player,
+            ServerPlayer player,
             int maxStages,
             QTECallback onSuccess,
             QTECallback onFail,
             StageCallback onStage
     ) {
-        UUID id = player.getUuid();
+        UUID id = player.getUUID();
         UUID fakeId = UUID.randomUUID();
         if (activeSessions.containsKey(id)) {
             return null;
@@ -124,22 +123,22 @@ public class QTEManager {
         sendQTEWindowToClient(player, session);
         return session;
     }
-    public static void onButtonPress(ServerPlayerEntity player, String button) {
+    public static void onButtonPress(ServerPlayer player, String button) {
         if (player == null || button == null) return;
-        UUID playerId = player.getUuid();
+        UUID playerId = player.getUUID();
         QTESession session = activeSessions.get(playerId);
         if (session == null) {
             return;
         }
         if (!button.equals(session.expectedButton)) {
-            player.sendMessage(Text.literal("§c§lWRONG BUTTON!"), true);
+            player.displayClientMessage(Component.literal("§c§lWRONG BUTTON!"), true);
             return;
         }
         if (session.phase != QTESession.QTEPhase.ACTIVE) {
             if (session.phase == QTESession.QTEPhase.WAIT) {
-                player.sendMessage(Text.literal("§c§lTOO EARLY!"), true);
+                player.displayClientMessage(Component.literal("§c§lTOO EARLY!"), true);
             } else {
-                player.sendMessage(Text.literal("§c§lTOO LATE!"), true);
+                player.displayClientMessage(Component.literal("§c§lTOO LATE!"), true);
             }
             return;
         }
@@ -196,12 +195,12 @@ public class QTEManager {
             case GRACE -> {
                 if (session.ticksInStage >= TIMEOUT_GRACE_TICKS) {
                     if (session.player1Ref != null) {
-                        session.player1Ref.sendMessage(Text.literal("§c§l✖ MISSED!"), true);
+                        session.player1Ref.displayClientMessage(Component.literal("§c§l✖ MISSED!"), true);
                         ServerPlayNetworking.send(session.player1Ref,
                                 new QTEClearPayload(session.player1Id));
                     }
                     if (session.player2Ref != null && !session.isSolo) {
-                        session.player2Ref.sendMessage(Text.literal("§c§l✖ MISSED!"), true);
+                        session.player2Ref.displayClientMessage(Component.literal("§c§l✖ MISSED!"), true);
                         ServerPlayNetworking.send(session.player2Ref,
                                 new QTEClearPayload(session.player2Id));
                     }
@@ -239,14 +238,14 @@ public class QTEManager {
             if (session.player1Ref != null) {
                 ServerPlayNetworking.send(session.player1Ref,
                         new QTEClearPayload(session.player1Id));
-                session.player1Ref.sendMessage(
-                        Text.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"), true);
+                session.player1Ref.displayClientMessage(
+                        Component.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"), true);
             }
             if (session.player2Ref != null && !session.isSolo) {
                 ServerPlayNetworking.send(session.player2Ref,
                         new QTEClearPayload(session.player2Id));
-                session.player2Ref.sendMessage(
-                        Text.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"), true);
+                session.player2Ref.displayClientMessage(
+                        Component.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"), true);
             }
         } else {
             session.phase = QTESession.QTEPhase.COMPLETE;
@@ -286,11 +285,11 @@ public class QTEManager {
             ));
         }
     }
-    private static void sendQTEWindowToClient(ServerPlayerEntity player, QTESession session) {
+    private static void sendQTEWindowToClient(ServerPlayer player, QTESession session) {
         long windowStartOffset = (long) session.delayTicks * 50;
         long windowDuration = (long) session.windowTicks * 50;
         ServerPlayNetworking.send(player, new QTEWindowPayload(
-                player.getUuid(),
+                player.getUUID(),
                 session.expectedButton,
                 session.currentStage,
                 windowStartOffset,
@@ -302,12 +301,12 @@ public class QTEManager {
                 ? " §7(Stage " + session.currentStage + "/" + session.maxStages + ")"
                 : "";
         if (session.player1Ref != null) {
-            session.player1Ref.sendMessage(
-                    Text.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText), true);
+            session.player1Ref.displayClientMessage(
+                    Component.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText), true);
         }
         if (session.player2Ref != null && !session.isSolo) {
-            session.player2Ref.sendMessage(
-                    Text.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText), true);
+            session.player2Ref.displayClientMessage(
+                    Component.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText), true);
         }
     }
     private static void cleanupSession(QTESession session) {

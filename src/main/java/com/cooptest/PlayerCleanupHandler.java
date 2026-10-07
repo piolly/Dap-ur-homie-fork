@@ -1,13 +1,13 @@
 package com.cooptest;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.server.network.ServerPlayerEntity;
 import java.util.UUID;
 public class PlayerCleanupHandler {
     public static void register() {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            ServerPlayerEntity player = handler.getPlayer();
-            UUID uuid = player.getUuid();
+            ServerPlayer player = handler.getPlayer();
+            UUID uuid = player.getUUID();
             PoseNetworking.poseStates.remove(uuid);
             GrabMechanic.fullCleanup(uuid);
             HighFiveHandler.cleanup(uuid);
@@ -28,8 +28,8 @@ public class PlayerCleanupHandler {
             SpinHandler.cleanup(uuid);
             GroundPoundHandler.cleanup(uuid);
             ChargedDapHandler.cleanup(uuid);
-            for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
-                if (!other.getUuid().equals(uuid)) {
+            for (ServerPlayer other : server.getPlayerList().getPlayers()) {
+                if (!other.getUUID().equals(uuid)) {
                     try {
                         ServerPlayNetworking.send(other,
                                 new PoseNetworking.AnimStateSyncPayload(uuid, 0));

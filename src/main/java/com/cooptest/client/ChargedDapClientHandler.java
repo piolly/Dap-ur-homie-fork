@@ -3,16 +3,16 @@ package com.cooptest.client;
 import com.cooptest.ChargedDapHandler;
 
 import com.cooptest.ModKeyCategories;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public class ChargedDapClientHandler {
 
-    private static KeyBinding chargedDapKey;
+    private static KeyMapping chargedDapKey;
     private static boolean wasKeyPressed = false;
     private static boolean isCharging = false;
     private static boolean wasFireCharging = false;
@@ -67,9 +67,9 @@ public class ChargedDapClientHandler {
 
     private static boolean facingDapImpactActive = false;
     private static long    facingDapImpactStartMs = 0;
-    private static net.minecraft.util.Identifier IMPAC7_TEXTURE;
-    private static net.minecraft.util.Identifier IMPAC8_TEXTURE;
-    private static net.minecraft.util.Identifier IMPAC9_TEXTURE;
+    private static net.minecraft.resources.Identifier IMPAC7_TEXTURE;
+    private static net.minecraft.resources.Identifier IMPAC8_TEXTURE;
+    private static net.minecraft.resources.Identifier IMPAC9_TEXTURE;
 
 
 
@@ -105,21 +105,21 @@ public class ChargedDapClientHandler {
     private static final long IMPACT3_END = 180;
 
 
-    private static net.minecraft.util.Identifier IMPACT1_TEXTURE;
-    private static net.minecraft.util.Identifier IMPACT2_TEXTURE;
-    private static net.minecraft.util.Identifier IMPACT3_TEXTURE;
+    private static net.minecraft.resources.Identifier IMPACT1_TEXTURE;
+    private static net.minecraft.resources.Identifier IMPACT2_TEXTURE;
+    private static net.minecraft.resources.Identifier IMPACT3_TEXTURE;
 
 
-    private static net.minecraft.util.Identifier PERFECT_FRAME0_TEXTURE;
-    private static net.minecraft.util.Identifier PERFECT_FRAME1_TEXTURE;
-    private static net.minecraft.util.Identifier PERFECT_FRAME2_TEXTURE;
-    private static net.minecraft.util.Identifier PERFECT_FRAME3_TEXTURE;
+    private static net.minecraft.resources.Identifier PERFECT_FRAME0_TEXTURE;
+    private static net.minecraft.resources.Identifier PERFECT_FRAME1_TEXTURE;
+    private static net.minecraft.resources.Identifier PERFECT_FRAME2_TEXTURE;
+    private static net.minecraft.resources.Identifier PERFECT_FRAME3_TEXTURE;
 
 
-    private static KeyBinding fireDapComboKey;
+    private static KeyMapping fireDapComboKey;
 
     public static boolean isFireDapJKeyHeld() {
-        return fireDapComboKey != null && fireDapComboKey.isPressed();
+        return fireDapComboKey != null && fireDapComboKey.isDown();
     }
     private static boolean fireDapWasKeyPressed = false;
 
@@ -151,15 +151,15 @@ public class ChargedDapClientHandler {
     }
 
     public static void register() {
-        chargedDapKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.coopmoves.dap", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, ModKeyCategories.COOPMOVES
+        chargedDapKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.coopmoves.dap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, ModKeyCategories.COOPMOVES
         ));
 
         ClientPlayNetworking.registerGlobalReceiver(ChargedDapHandler.ChargeSyncPayload.ID,
                 (payload, context) -> {
                     context.client().execute(() -> {
                         UUID playerId = payload.playerId();
-                        MinecraftClient client = MinecraftClient.getInstance();
+                        Minecraft client = Minecraft.getInstance();
 
                         if (payload.isCharging()) {
                             otherPlayerCharges.put(playerId, payload.chargePercent());
@@ -167,7 +167,7 @@ public class ChargedDapClientHandler {
                             otherPlayerCharging.put(playerId, true);
 
 
-                            if (client.player != null && client.player.getUuid().equals(playerId)) {
+                            if (client.player != null && client.player.getUUID().equals(playerId)) {
 
                                 float newFireLevel = com.cooptest.CoopMovesConfig.get().enableFireDap
                                         ? payload.firePercent() : 0f;
@@ -185,7 +185,7 @@ public class ChargedDapClientHandler {
                             otherPlayerCharging.remove(playerId);
 
 
-                            if (client.player != null && client.player.getUuid().equals(playerId)) {
+                            if (client.player != null && client.player.getUUID().equals(playerId)) {
                                 localFireLevel = 0f;
                             }
                         }
@@ -209,7 +209,7 @@ public class ChargedDapClientHandler {
                         lastFireLevel = 0f;
 
 
-                        MinecraftClient client = MinecraftClient.getInstance();
+                        Minecraft client = Minecraft.getInstance();
                         if (client.player != null) {
                             CoopAnimationHandler.stopDapCharge(client.player);
                         }
@@ -228,9 +228,9 @@ public class ChargedDapClientHandler {
 
 
                             if (IMPACT1_TEXTURE == null) {
-                                IMPACT1_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact1.png");
-                                IMPACT2_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact2.png");
-                                IMPACT3_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact3.png");
+                                IMPACT1_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact1.png");
+                                IMPACT2_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact2.png");
+                                IMPACT3_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact3.png");
                             }
                         }
                     });
@@ -274,9 +274,9 @@ public class ChargedDapClientHandler {
                     context.client().execute(() -> {
 
                         if (IMPAC7_TEXTURE == null) {
-                            IMPAC7_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impac7.png");
-                            IMPAC8_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impac8.png");
-                            IMPAC9_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impac9.png");
+                            IMPAC7_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impac7.png");
+                            IMPAC8_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impac8.png");
+                            IMPAC9_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impac9.png");
                         }
                         facingDapImpactActive = true;
                         facingDapImpactStartMs = System.currentTimeMillis();
@@ -288,11 +288,11 @@ public class ChargedDapClientHandler {
         ClientPlayNetworking.registerGlobalReceiver(ChargedDapHandler.HeavenReadyPayload.ID,
                 (payload, context) -> {
                     context.client().execute(() -> {
-                        MinecraftClient client = MinecraftClient.getInstance();
+                        Minecraft client = Minecraft.getInstance();
                         if (client.player == null) return;
 
 
-                        if (client.player.getUuid().equals(payload.playerId())) {
+                        if (client.player.getUUID().equals(payload.playerId())) {
                             if (payload.ready()) {
 
                                 isHeavenReady = true;
@@ -308,9 +308,9 @@ public class ChargedDapClientHandler {
 
 
 
-        fireDapComboKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        fireDapComboKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.coopmoves.fire_dap_combo",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_J,
                 ModKeyCategories.COOPMOVES
         ));
@@ -346,14 +346,14 @@ public class ChargedDapClientHandler {
 
 
                             var client = context.client();
-                            if (client.player != null && client.player.getUuid().equals(playerId)) {
+                            if (client.player != null && client.player.getUUID().equals(playerId)) {
                             }
                         } else {
                             fireDapFirstPersonPlayers.remove(playerId);
 
 
                             var client = context.client();
-                            if (client.player != null && client.player.getUuid().equals(playerId)) {
+                            if (client.player != null && client.player.getUUID().equals(playerId)) {
                             }
                         }
                     });
@@ -366,7 +366,7 @@ public class ChargedDapClientHandler {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null) return;
 
-            boolean isKeyPressed = chargedDapKey.isPressed();
+            boolean isKeyPressed = chargedDapKey.isDown();
 
 
 
@@ -377,7 +377,7 @@ public class ChargedDapClientHandler {
             boolean inHighFive = HighFiveClientHandler.isLocalPlayerInHighFive();
 
 
-            boolean inBlocking = CoopAnimationHandler.isInBlockingState(client.player.getUuid());
+            boolean inBlocking = CoopAnimationHandler.isInBlockingState(client.player.getUUID());
 
 
             if (isKeyPressed && !wasKeyPressed) {
@@ -433,9 +433,9 @@ public class ChargedDapClientHandler {
                     return;
                 } else if (onCooldown) {
                     long remaining = (whiffCooldownEnd - System.currentTimeMillis()) / 100;
-                    client.player.sendMessage(Text.literal("§cDap on cooldown! " + (remaining / 10.0) + "s"), true);
-                } else if (!client.player.getMainHandStack().isEmpty()) {
-                    client.player.sendMessage(Text.literal("§cMain hand must be empty for charged dap!"), true);
+                    client.player.displayClientMessage(Component.literal("§cDap on cooldown! " + (remaining / 10.0) + "s"), true);
+                } else if (!client.player.getMainHandItem().isEmpty()) {
+                    client.player.displayClientMessage(Component.literal("§cMain hand must be empty for charged dap!"), true);
                 } else {
                     isCharging = true;
                     chargeStartTime = System.currentTimeMillis();
@@ -512,7 +512,7 @@ public class ChargedDapClientHandler {
 
 
 
-            boolean fireDapJKeyPressed = fireDapComboKey.isPressed();
+            boolean fireDapJKeyPressed = fireDapComboKey.isDown();
 
 
             if (inFireDapComboWindow && fireDapJKeyPressed && !fireDapWasKeyPressed) {
@@ -540,10 +540,10 @@ public class ChargedDapClientHandler {
     }
 
     private static void onDapResult(double x, double y, double z, UUID player1, UUID player2, int tier, boolean perfectHit) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
 
-        UUID myId = client.player.getUuid();
+        UUID myId = client.player.getUUID();
         boolean iAmInDap = myId.equals(player1) || myId.equals(player2);
 
 
@@ -576,20 +576,20 @@ public class ChargedDapClientHandler {
         spawnTierParticles(client, x, y, z, tier, perfectHit);
     }
 
-    private static void spawnTierParticles(MinecraftClient client, double x, double y, double z, int tier, boolean perfect) {
-        if (client.world == null) return;
+    private static void spawnTierParticles(Minecraft client, double x, double y, double z, int tier, boolean perfect) {
+        if (client.level == null) return;
 
-        net.minecraft.particle.ParticleEffect particle;
+        net.minecraft.core.particles.ParticleOptions particle;
         int particleCount;
 
         switch (tier) {
-            case 0 -> { particle = net.minecraft.particle.ParticleTypes.SMOKE; particleCount = 5; }
-            case 1 -> { particle = net.minecraft.particle.ParticleTypes.CRIT; particleCount = 10; }
-            case 2 -> { particle = net.minecraft.particle.ParticleTypes.HAPPY_VILLAGER; particleCount = 15; }
-            case 3 -> { particle = net.minecraft.particle.ParticleTypes.ENCHANT; particleCount = 20; }
-            case 4 -> { particle = net.minecraft.particle.ParticleTypes.TOTEM_OF_UNDYING; particleCount = 25; }
-            case 5 -> { particle = net.minecraft.particle.ParticleTypes.FLAME; particleCount = 30; }
-            default -> { particle = net.minecraft.particle.ParticleTypes.CRIT; particleCount = 5; }
+            case 0 -> { particle = net.minecraft.core.particles.ParticleTypes.SMOKE; particleCount = 5; }
+            case 1 -> { particle = net.minecraft.core.particles.ParticleTypes.CRIT; particleCount = 10; }
+            case 2 -> { particle = net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER; particleCount = 15; }
+            case 3 -> { particle = net.minecraft.core.particles.ParticleTypes.ENCHANT; particleCount = 20; }
+            case 4 -> { particle = net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING; particleCount = 25; }
+            case 5 -> { particle = net.minecraft.core.particles.ParticleTypes.FLAME; particleCount = 30; }
+            default -> { particle = net.minecraft.core.particles.ParticleTypes.CRIT; particleCount = 5; }
         }
 
 
@@ -601,7 +601,7 @@ public class ChargedDapClientHandler {
             double velY = Math.random() * 0.2;
             double velZ = (Math.random() - 0.5) * 0.3;
 
-            client.world.addParticleClient(particle, x + offsetX, y + offsetY, z + offsetZ, velX, velY, velZ);
+            client.level.addParticle(particle, x + offsetX, y + offsetY, z + offsetZ, velX, velY, velZ);
         }
 
 
@@ -610,18 +610,18 @@ public class ChargedDapClientHandler {
                 double angle = (i / 8.0) * Math.PI * 2;
                 double offsetX = Math.cos(angle) * 0.3;
                 double offsetZ = Math.sin(angle) * 0.3;
-                client.world.addParticleClient(net.minecraft.particle.ParticleTypes.ENCHANT,
+                client.level.addParticle(net.minecraft.core.particles.ParticleTypes.ENCHANT,
                         x + offsetX, y + 0.5, z + offsetZ, 0, 0.1, 0);
             }
         }
     }
 
-    private static void renderHUD(DrawContext context, RenderTickCounter tickCounter) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
 
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
 
 
         long timeSinceFlash = System.currentTimeMillis() - flashStartTime;
@@ -667,13 +667,13 @@ public class ChargedDapClientHandler {
                 context.fill(0, 0, screenWidth, screenHeight, (alpha << 24) | 0xFFFFFF);
             } else if (elapsed < IMPACT1_END) {
                 // Impact1
-                context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, IMPACT1_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
+                context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, IMPACT1_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
             } else if (elapsed < IMPACT2_END) {
                 // Impact2
-                context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, IMPACT2_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
+                context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, IMPACT2_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
             } else if (elapsed < IMPACT3_END) {
                 // Impact3
-                context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, IMPACT3_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
+                context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, IMPACT3_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
             } else {
                 // Done - reset
                 perfectImpactActive = false;
@@ -687,23 +687,23 @@ public class ChargedDapClientHandler {
 
 
             if (IMPACT3_TEXTURE == null) {
-                IMPACT1_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact1.png");
-                IMPACT2_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact2.png");
-                IMPACT3_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact3.png");
+                IMPACT1_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact1.png");
+                IMPACT2_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact2.png");
+                IMPACT3_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact3.png");
             }
 
 
             if (PERFECT_FRAME0_TEXTURE == null) {
-                PERFECT_FRAME0_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/frame0.png");
-                PERFECT_FRAME1_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/frame1.png");
-                PERFECT_FRAME2_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/frame2.png");
-                PERFECT_FRAME3_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/frame3.png");
+                PERFECT_FRAME0_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/frame0.png");
+                PERFECT_FRAME1_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/frame1.png");
+                PERFECT_FRAME2_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/frame2.png");
+                PERFECT_FRAME3_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/frame3.png");
             }
 
 
 
 
-            net.minecraft.util.Identifier frameTexture;
+            net.minecraft.resources.Identifier frameTexture;
             if (elapsed < 33) {
                 frameTexture = PERFECT_FRAME0_TEXTURE;
             } else if (elapsed < 66) {
@@ -729,7 +729,7 @@ public class ChargedDapClientHandler {
             }
 
 
-            context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, IMPACT1_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
+            context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, IMPACT1_TEXTURE, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
         }
 
 
@@ -740,7 +740,7 @@ public class ChargedDapClientHandler {
 
         if (facingDapImpactActive) {
             long elapsed = System.currentTimeMillis() - facingDapImpactStartMs;
-            net.minecraft.util.Identifier facingFrame;
+            net.minecraft.resources.Identifier facingFrame;
 
             if (elapsed < 50) {
                 facingFrame = IMPAC7_TEXTURE;
@@ -757,7 +757,7 @@ public class ChargedDapClientHandler {
             }
 
             if (facingFrame != null) {
-                context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, facingFrame, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
+                context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, facingFrame, 0, 0, 0.0f, 0.0f, screenWidth, screenHeight, 1920, 1080, 1920, 1080);
             }
         }
 
@@ -773,11 +773,11 @@ public class ChargedDapClientHandler {
             } else {
 
                 if (IMPACT1_TEXTURE == null) {
-                    IMPACT1_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact1.png");
-                    IMPACT2_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact2.png");
-                    IMPACT3_TEXTURE = net.minecraft.util.Identifier.of("testcoop", "textures/gui/impact/impact3.png");
+                    IMPACT1_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact1.png");
+                    IMPACT2_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact2.png");
+                    IMPACT3_TEXTURE = net.minecraft.resources.Identifier.fromNamespaceAndPath("testcoop", "textures/gui/impact/impact3.png");
                 }
-                net.minecraft.util.Identifier dkTex;
+                net.minecraft.resources.Identifier dkTex;
                 float dkAlpha;
                 if (dke < DK_FADE_IN) {
 
@@ -798,7 +798,7 @@ public class ChargedDapClientHandler {
                     dkAlpha = 1.0f - (float)(dke - DK_FRAME3) / (DK_FADE_OUT - DK_FRAME3);
                 }
 //              com.mojang.blaze3d.systems.RenderSystem.enableBlend();
-                context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, dkTex, 0, 0, screenWidth, screenHeight, 0, 0, 1920, 1080, 1920, 1080);
+                context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, dkTex, 0, 0, screenWidth, screenHeight, 0, 0, 1920, 1080, 1920, 1080);
 //              com.mojang.blaze3d.systems.RenderSystem.disableBlend();
             }
         }
@@ -827,7 +827,7 @@ public class ChargedDapClientHandler {
 
             if (remaining > 0) {
                 String text = "§c§l🔥 PRESS J! 🔥";
-                int textWidth = client.textRenderer.getWidth(text);
+                int textWidth = client.font.width(text);
                 int textX = (screenWidth - textWidth) / 2;
                 int textY = screenHeight / 2 + 10;
 
@@ -839,7 +839,7 @@ public class ChargedDapClientHandler {
                 float timeProgress = (float) elapsed / FIRE_DAP_COMBO_WINDOW_MS;
                 int color = timeProgress < 0.5f ? (alpha << 24) | 0xFF8800 : (alpha << 24) | 0xFF0000;
 
-                context.drawText(client.textRenderer, text, textX, textY, color, true);
+                context.drawString(client.font, text, textX, textY, color, true);
 
 
                 int barWidth = 100;
@@ -964,13 +964,13 @@ public class ChargedDapClientHandler {
             int partnerY = barY + 8;
             for (Map.Entry<UUID, Float> entry : otherPlayerCharges.entrySet()) {
                 if (!otherPlayerCharging.getOrDefault(entry.getKey(), false)) continue;
-                if (entry.getKey().equals(client.player.getUuid())) continue;
+                if (entry.getKey().equals(client.player.getUUID())) continue;
 
 
                 boolean inRange = false;
-                if (client.world != null) {
-                    for (var player : client.world.getPlayers()) {
-                        if (player.getUuid().equals(entry.getKey())) {
+                if (client.level != null) {
+                    for (var player : client.level.players()) {
+                        if (player.getUUID().equals(entry.getKey())) {
                             if (client.player.distanceTo(player) <= 20.0) {
                                 inRange = true;
                             }
@@ -1006,8 +1006,8 @@ public class ChargedDapClientHandler {
         return isCharging;
     }
 
-    public static net.minecraft.client.option.KeyBinding getChargeKey() { return chargedDapKey; }
-    public static net.minecraft.client.option.KeyBinding getComboKey()  { return fireDapComboKey; }
+    public static net.minecraft.client.KeyMapping getChargeKey() { return chargedDapKey; }
+    public static net.minecraft.client.KeyMapping getComboKey()  { return fireDapComboKey; }
 
     public static float getChargePercent() {
         if (!isCharging) return 0f;
@@ -1020,24 +1020,24 @@ public class ChargedDapClientHandler {
     }
 
     public static boolean isPlayerCharging(UUID playerId) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null && client.player.getUuid().equals(playerId)) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player != null && client.player.getUUID().equals(playerId)) {
             return isCharging;
         }
         return otherPlayerCharging.getOrDefault(playerId, false);
     }
 
     public static float getPlayerChargePercent(UUID playerId) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null && client.player.getUuid().equals(playerId)) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player != null && client.player.getUUID().equals(playerId)) {
             return getChargePercent();
         }
         return otherPlayerCharges.getOrDefault(playerId, 0f);
     }
 
     public static float getPlayerFireLevel(UUID playerId) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null && client.player.getUuid().equals(playerId)) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player != null && client.player.getUUID().equals(playerId)) {
             return localFireLevel;
         }
         return otherPlayerFire.getOrDefault(playerId, 0f);
@@ -1058,15 +1058,15 @@ public class ChargedDapClientHandler {
 
 
     public static boolean isLocalPlayerFireDapFrozen() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return false;
-        return fireDapFrozenPlayers.getOrDefault(client.player.getUuid(), false);
+        return fireDapFrozenPlayers.getOrDefault(client.player.getUUID(), false);
     }
 
     public static boolean shouldShowFireDapFirstPerson() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return false;
-        return fireDapFirstPersonPlayers.contains(client.player.getUuid());
+        return fireDapFirstPersonPlayers.contains(client.player.getUUID());
     }
 
 

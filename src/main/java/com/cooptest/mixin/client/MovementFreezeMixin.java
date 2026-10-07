@@ -3,10 +3,10 @@ package com.cooptest.mixin.client;
 import com.cooptest.client.ChargedDapClientHandler;
 import com.cooptest.client.DapHoldClientHandler;
 import com.cooptest.client.HighFiveClientHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.input.Input;
-import net.minecraft.client.input.KeyboardInput;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.world.phys.Vec2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,14 +29,14 @@ public class MovementFreezeMixin {
                         || isInHuddle();
 
         if (shouldFreeze) {
-            Input input = (Input) (Object) this;
-            ((InputAccessor) input).setMovementVector(Vec2f.ZERO);
+            ClientInput input = (ClientInput) (Object) this;
+            ((InputAccessor) input).setMovementVector(Vec2.ZERO);
         }
     }
 
     private static boolean isInHuddle() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return false;
-        return com.cooptest.client.CoopAnimationHandler.isInHuddleAnim(client.player.getUuid());
+        return com.cooptest.client.CoopAnimationHandler.isInHuddleAnim(client.player.getUUID());
     }
 }

@@ -1,8 +1,7 @@
 package com.cooptest;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.server.network.ServerPlayerEntity;
-
+import net.minecraft.server.level.ServerPlayer;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -14,8 +13,8 @@ public class AnimationTickHandler {
 
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                UUID id = player.getUuid();
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                UUID id = player.getUUID();
                 PoseState currentState = PoseNetworking.poseStates.getOrDefault(id, PoseState.NONE);
 
                 if (currentState == PoseState.PUSH_ACTION) {

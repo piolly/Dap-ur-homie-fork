@@ -2,53 +2,52 @@ package com.cooptest;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.server.level.ServerPlayer;
 import java.util.UUID;
 
 public class GrabNetworking {
 
     // ===== PAYLOADS SKBIDI =====
 
-    public record ThrowRequestPayload(float power) implements CustomPayload {
-        public static final Id<ThrowRequestPayload> ID = new Id<>(Identifier.of("cooptest", "throw_request"));
-        public static final PacketCodec<PacketByteBuf, ThrowRequestPayload> CODEC = PacketCodec.of(
+    public record ThrowRequestPayload(float power) implements CustomPacketPayload {
+        public static final Type<ThrowRequestPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "throw_request"));
+        public static final StreamCodec<FriendlyByteBuf, ThrowRequestPayload> CODEC = StreamCodec.ofMember(
                 (payload, buf) -> buf.writeFloat(payload.power),
                 buf -> new ThrowRequestPayload(buf.readFloat())
         );
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record DropRequestPayload() implements CustomPayload {
-        public static final Id<DropRequestPayload> ID = new Id<>(Identifier.of("cooptest", "drop_request"));
-        public static final PacketCodec<PacketByteBuf, DropRequestPayload> CODEC = PacketCodec.unit(new DropRequestPayload());
+    public record DropRequestPayload() implements CustomPacketPayload {
+        public static final Type<DropRequestPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "drop_request"));
+        public static final StreamCodec<FriendlyByteBuf, DropRequestPayload> CODEC = StreamCodec.unit(new DropRequestPayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record EscapeRequestPayload() implements CustomPayload {
-        public static final Id<EscapeRequestPayload> ID = new Id<>(Identifier.of("cooptest", "escape_request"));
-        public static final PacketCodec<PacketByteBuf, EscapeRequestPayload> CODEC = PacketCodec.unit(new EscapeRequestPayload());
+    public record EscapeRequestPayload() implements CustomPacketPayload {
+        public static final Type<EscapeRequestPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "escape_request"));
+        public static final StreamCodec<FriendlyByteBuf, EscapeRequestPayload> CODEC = StreamCodec.unit(new EscapeRequestPayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record ElytraBoostRequestPayload() implements CustomPayload {
-        public static final Id<ElytraBoostRequestPayload> ID = new Id<>(Identifier.of("cooptest", "elytra_boost"));
-        public static final PacketCodec<PacketByteBuf, ElytraBoostRequestPayload> CODEC = PacketCodec.unit(new ElytraBoostRequestPayload());
+    public record ElytraBoostRequestPayload() implements CustomPacketPayload {
+        public static final Type<ElytraBoostRequestPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "elytra_boost"));
+        public static final StreamCodec<FriendlyByteBuf, ElytraBoostRequestPayload> CODEC = StreamCodec.unit(new ElytraBoostRequestPayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record AirMovementPayload(float forward, float strafe) implements CustomPayload {
-        public static final Id<AirMovementPayload> ID = new Id<>(Identifier.of("cooptest", "air_movement"));
-        public static final PacketCodec<PacketByteBuf, AirMovementPayload> CODEC = PacketCodec.of(
+    public record AirMovementPayload(float forward, float strafe) implements CustomPacketPayload {
+        public static final Type<AirMovementPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "air_movement"));
+        public static final StreamCodec<FriendlyByteBuf, AirMovementPayload> CODEC = StreamCodec.ofMember(
                 (payload, buf) -> {
                     buf.writeFloat(payload.forward);
                     buf.writeFloat(payload.strafe);
@@ -56,28 +55,28 @@ public class GrabNetworking {
                 buf -> new AirMovementPayload(buf.readFloat(), buf.readFloat())
         );
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record GrabStatePayload(UUID holderUuid, UUID heldUuid, boolean isStart) implements CustomPayload {
-        public static final Id<GrabStatePayload> ID = new Id<>(Identifier.of("cooptest", "grab_state"));
-        public static final PacketCodec<PacketByteBuf, GrabStatePayload> CODEC = PacketCodec.of(
+    public record GrabStatePayload(UUID holderUuid, UUID heldUuid, boolean isStart) implements CustomPacketPayload {
+        public static final Type<GrabStatePayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "grab_state"));
+        public static final StreamCodec<FriendlyByteBuf, GrabStatePayload> CODEC = StreamCodec.ofMember(
                 (payload, buf) -> {
-                    buf.writeUuid(payload.holderUuid);
-                    buf.writeUuid(payload.heldUuid);
+                    buf.writeUUID(payload.holderUuid);
+                    buf.writeUUID(payload.heldUuid);
                     buf.writeBoolean(payload.isStart);
                 },
-                buf -> new GrabStatePayload(buf.readUuid(), buf.readUuid(), buf.readBoolean())
+                buf -> new GrabStatePayload(buf.readUUID(), buf.readUUID(), buf.readBoolean())
         );
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public record ShieldTogglePayload() implements CustomPayload {
-        public static final Id<ShieldTogglePayload> ID = new Id<>(Identifier.of("cooptest", "shield_toggle"));
-        public static final PacketCodec<PacketByteBuf, ShieldTogglePayload> CODEC = PacketCodec.unit(new ShieldTogglePayload());
+    public record ShieldTogglePayload() implements CustomPacketPayload {
+        public static final Type<ShieldTogglePayload> ID = new Type<>(Identifier.fromNamespaceAndPath("cooptest", "shield_toggle"));
+        public static final StreamCodec<FriendlyByteBuf, ShieldTogglePayload> CODEC = StreamCodec.unit(new ShieldTogglePayload());
         @Override
-        public Id<? extends CustomPayload> getId() { return ID; }
+        public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
     // ===== REGISTRATION =====
@@ -94,7 +93,7 @@ public class GrabNetworking {
 
     public static void registerServerReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(ThrowRequestPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             float power = payload.power();
             context.server().execute(() -> {
                 if (GrabMechanic.isHolding(player)) {
@@ -104,7 +103,7 @@ public class GrabNetworking {
         });
 
         ServerPlayNetworking.registerGlobalReceiver(DropRequestPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> {
                 if (GrabMechanic.isHolding(player)) {
                     GrabMechanic.tryDrop(player);
@@ -113,7 +112,7 @@ public class GrabNetworking {
         });
 
         ServerPlayNetworking.registerGlobalReceiver(EscapeRequestPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> {
                 if (GrabMechanic.isBeingHeld(player)) {
                     GrabMechanic.tryEscape(player);
@@ -122,21 +121,21 @@ public class GrabNetworking {
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ElytraBoostRequestPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> {
-                GrabMechanic.requestElytraBoost(player.getUuid());
+                GrabMechanic.requestElytraBoost(player.getUUID());
             });
         });
 
         ServerPlayNetworking.registerGlobalReceiver(AirMovementPayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> {
-                GrabMechanic.setAirMovementInput(player.getUuid(), payload.forward(), payload.strafe());
+                GrabMechanic.setAirMovementInput(player.getUUID(), payload.forward(), payload.strafe());
             });
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ShieldTogglePayload.ID, (payload, context) -> {
-            ServerPlayerEntity player = context.player();
+            ServerPlayer player = context.player();
             context.server().execute(() -> {
                 GrabMechanic.toggleShieldMode(player);
             });
@@ -147,7 +146,7 @@ public class GrabNetworking {
 
     public static void broadcastGrabState(MinecraftServer server, UUID holderUuid, UUID heldUuid, boolean isStart) {
         GrabStatePayload payload = new GrabStatePayload(holderUuid, heldUuid, isStart);
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
     }
