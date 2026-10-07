@@ -17,9 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CoopScreenSquishMixin {
    @Inject(
       method = "renderLevel",
-      at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lcom/mojang/blaze3d/vertex/PoseStack;F)V")
+      at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V")
    )
-   private void coopApplySquish(DeltaTracker tickCounter, CallbackInfo ci, @Local PoseStack matrixStack) {
+   private void coopApplySquish(CallbackInfo ci, @Local PoseStack matrixStack) {
       long startMs = CoopScreenSquishHandler.getStartMs();
       if (startMs >= 0L) {
          long elapsed = System.currentTimeMillis() - startMs;

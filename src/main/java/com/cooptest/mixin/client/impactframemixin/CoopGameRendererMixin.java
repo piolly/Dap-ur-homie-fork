@@ -32,13 +32,7 @@ public abstract class CoopGameRendererMixin {
    @Unique
    private static boolean coop$radialBroken = false;
 
-   @Shadow
-   public abstract void setPostEffect(Identifier var1);
-
-   @Shadow
-   public abstract void clearPostEffect();
-
-   @Inject(method = "render", at = @At("HEAD"))
+   @Inject(method = "extract", at = @At("HEAD"))
    private void coopHandlePostEffects(DeltaTracker counter, boolean tick, CallbackInfo ci) {
       boolean wantRadial = CoopRadialBlurHandler.isActive() && !coop$radialBroken;
       boolean wantChroma = CoopChromaHandler.isActive() && !coop$chromaBroken;
@@ -62,7 +56,7 @@ public abstract class CoopGameRendererMixin {
          }
       } else if (coop$chromaLoaded || coop$radialLoaded) {
          try {
-            this.clearPostEffect();
+            
          } catch (Throwable var7) {
          }
 
@@ -74,7 +68,7 @@ public abstract class CoopGameRendererMixin {
    @Unique
    private boolean coop$trySet(Identifier id, String name) {
       try {
-         this.setPostEffect(id);
+         if (true) throw new UnsupportedOperationException("post effects not ported to 26.3 yet");
          return true;
       } catch (Throwable t) {
          System.err
@@ -89,7 +83,7 @@ public abstract class CoopGameRendererMixin {
          t.printStackTrace();
 
          try {
-            this.clearPostEffect();
+            
          } catch (Throwable var5) {
          }
 

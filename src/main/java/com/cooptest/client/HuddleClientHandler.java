@@ -140,7 +140,7 @@ public class HuddleClientHandler {
             }
          }
       });
-      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "huddleclienthandler_hud"), (ctx, tickDelta) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "huddleclienthandler_hud2"), (ctx, tickDelta) -> {
          if (barActive) {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null && !client.gui.hud.isHidden()) {

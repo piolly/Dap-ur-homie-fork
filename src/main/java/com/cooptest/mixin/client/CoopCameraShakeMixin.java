@@ -4,8 +4,7 @@ import com.cooptest.client.CoopCameraShakeHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.DeltaTracker;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,8 +23,8 @@ public abstract class CoopCameraShakeMixin {
    @Shadow
    public abstract float xRot();
 
-   @Inject(method = "setup", at = @At("TAIL"))
-   private void coopApplyShake(Level area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+   @Inject(method = "update", at = @At("TAIL"))
+   private void coopApplyShake(DeltaTracker deltaTracker, CallbackInfo ci) {
       if (CoopCameraShakeHandler.isActive()) {
          this.setRotation(this.yRot() + CoopCameraShakeHandler.yawOffset, this.xRot() + CoopCameraShakeHandler.pitchOffset);
       }

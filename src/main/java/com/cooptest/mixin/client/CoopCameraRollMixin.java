@@ -25,9 +25,9 @@ public class CoopCameraRollMixin {
 
    @Inject(
       method = "renderLevel",
-      at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lcom/mojang/blaze3d/vertex/PoseStack;F)V")
+      at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V")
    )
-   private void coopApplyRoll(DeltaTracker tickCounter, CallbackInfo ci, @Local PoseStack matrixStack) {
+   private void coopApplyRoll(CallbackInfo ci, @Local PoseStack matrixStack) {
       if (CoopCameraShakeHandler.isActive()) {
          if (this.minecraft.player != null) {
             matrixStack.rotate(Axis.ZP.rotationDegrees(CoopCameraShakeHandler.rollOffset));
