@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
 
 public class FusionClientHandler {
@@ -261,7 +261,7 @@ public class FusionClientHandler {
       return gWindowActive;
    }
 
-   private static void renderHUD(GuiGraphics ctx, DeltaTracker ticker) {
+   private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker ticker) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null) {
          if (blackScreenActive) {

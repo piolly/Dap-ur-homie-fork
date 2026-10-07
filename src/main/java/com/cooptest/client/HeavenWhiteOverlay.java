@@ -1,7 +1,7 @@
 package com.cooptest.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.sounds.SoundSource;
 
 public class HeavenWhiteOverlay {
@@ -28,7 +28,7 @@ public class HeavenWhiteOverlay {
       unmuteSounds();
    }
 
-   public static void render(GuiGraphics context, float tickDelta) {
+   public static void render(GuiGraphicsExtractor context, float tickDelta) {
       if (active && !(opacity <= 0.0F)) {
          int alpha = (int)(opacity * 255.0F);
          int color = alpha << 24 | 16777215;

@@ -2,8 +2,8 @@ package com.cooptest.client;
 
 import com.cooptest.HeavenDapPayloads;
 import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
 import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -11,8 +11,8 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.BeforeEntities;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.BeforeEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -32,7 +32,7 @@ public class HeavenDapClientHandler {
    );
 
    public static void register() {
-      WorldRenderEvents.BEFORE_ENTITIES.register((BeforeEntities)ctx -> {
+      LevelRenderEvents.BEFORE_ENTITIES.register((BeforeEntities)ctx -> {
          if (CoopImpactHandler.playing) {
             int argb = switch (CoopImpactHandler.currentFrameType) {
                case BLACK -> -16777216;
@@ -45,7 +45,7 @@ public class HeavenDapClientHandler {
             RenderSystem.getDevice().createCommandEncoder().clearColorTexture(client.getMainRenderTarget().getColorTexture(), argb);
          }
       });
-      WorldRenderEvents.END_MAIN.register(CoopShockwaveRenderer::render);
+      LevelRenderEvents.END_MAIN.register(CoopShockwaveRenderer::render);
       HudRenderCallback.EVENT.register((HudRenderCallback)(context, tickCounter) -> {
          HeavenWhiteOverlay.render(context, tickCounter.getGameTimeDeltaTicks());
          if (CoopImpactHandler.playing) {

@@ -6,8 +6,8 @@ import com.cooptest.PoseState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ClipContext.Block;
@@ -27,10 +27,10 @@ public class TrajectoryRenderer {
    private static final float MAX_POWER_MULT = 3.5F;
 
    public static void register() {
-      WorldRenderEvents.END_MAIN.register(TrajectoryRenderer::render);
+      LevelRenderEvents.END_MAIN.register(TrajectoryRenderer::render);
    }
 
-   private static void render(WorldRenderContext context) {
+   private static void render(LevelRenderContext context) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null && client.level != null) {
          PoseState pose = PoseNetworking.poseStates.getOrDefault(client.player.getUUID(), PoseState.NONE);
@@ -67,7 +67,7 @@ public class TrajectoryRenderer {
       }
    }
 
-   private static void renderTrajectoryDots(WorldRenderContext context, Vec3[] points, float charge) {
+   private static void renderTrajectoryDots(LevelRenderContext context, Vec3[] points, float charge) {
       Vec3 camPos = context.worldState().cameraRenderState.pos;
       PoseStack matrices = context.matrices();
       matrices.pushPose();

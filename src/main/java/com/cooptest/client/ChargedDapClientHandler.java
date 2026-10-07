@@ -15,13 +15,13 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.particles.ParticleOptions;
@@ -173,7 +173,7 @@ public class ChargedDapClientHandler {
    }
 
    public static void register() {
-      chargedDapKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.dap", 71, CoopKeyCategories.COOPMOVES));
+      chargedDapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.dap", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 71, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(ChargedDapHandler.ChargeSyncPayload.ID, (payload, context) -> context.client().execute(() -> {
          UUID playerId = payload.playerId();
          Minecraft client = Minecraft.getInstance();
@@ -261,7 +261,7 @@ public class ChargedDapClientHandler {
             }
          }
       }));
-      fireDapComboKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.fire_dap_combo", 74, CoopKeyCategories.COOPMOVES));
+      fireDapComboKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.fire_dap_combo", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 74, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(ChargedDapHandler.FireDapWindowPayload.ID, (payload, context) -> context.client().execute(() -> {
          fireDapComboWindowStart = System.currentTimeMillis();
          inFireDapComboWindow = true;
@@ -537,7 +537,7 @@ public class ChargedDapClientHandler {
       }
    }
 
-   private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+   private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null) {
          if (!inFaceDapSession && !CoopAnimationHandler.isInHuddleAnim(client.player.getUUID())) {

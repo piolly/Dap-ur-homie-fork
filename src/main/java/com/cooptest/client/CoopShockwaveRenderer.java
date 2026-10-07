@@ -3,7 +3,7 @@ package com.cooptest.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,7 +21,7 @@ public class CoopShockwaveRenderer {
       startMs = System.currentTimeMillis();
    }
 
-   public static void render(WorldRenderContext context) {
+   public static void render(LevelRenderContext context) {
       if (center != null) {
          long elapsed = System.currentTimeMillis() - startMs;
          if (elapsed > 450L) {

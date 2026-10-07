@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class SlapClientHandler {
@@ -61,7 +61,7 @@ public class SlapClientHandler {
       HudRenderCallback.EVENT.register(SlapClientHandler::renderHUD);
    }
 
-   private static void renderHUD(GuiGraphics ctx, DeltaTracker tickCounter) {
+   private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker tickCounter) {
       if (fishFlashEndTime > 0L) {
          Minecraft client = Minecraft.getInstance();
          if (client.player != null) {

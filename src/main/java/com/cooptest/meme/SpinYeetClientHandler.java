@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -26,7 +26,7 @@ public class SpinYeetClientHandler {
    private static volatile float cameraRollDegrees = 0.0F;
 
    public static void register() {
-      spinYeetKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.spin_yeet", 77, CoopKeyCategories.COOPMOVES));
+      spinYeetKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.spin_yeet", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 77, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(SpinYeetGrabberYawPayload.ID, (payload, ctx) -> ctx.client().execute(() -> {
          if (ctx.client().player != null && weAreGrabber) {
             ctx.client().player.setYRot(ctx.client().player.getYRot() + payload.yawDelta());

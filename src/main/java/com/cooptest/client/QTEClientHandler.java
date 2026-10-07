@@ -6,7 +6,7 @@ import com.cooptest.QTEWindowPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
 
 public class QTEClientHandler {
@@ -63,7 +63,7 @@ public class QTEClientHandler {
       return true;
    }
 
-   public static void renderHUD(GuiGraphics context, int screenWidth, int screenHeight) {
+   public static void renderHUD(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
       if (active) {
          long now = System.currentTimeMillis();
          Matrix3x2fStack matrices = context.pose();

@@ -3,7 +3,7 @@ package com.cooptest.client;
 import com.cooptest.BonkHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 
@@ -15,7 +15,7 @@ public class BonkClientHandler {
    private static boolean jerkPending = false;
 
    public static void register() {
-      keyBonk = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.cooptest.bonk", 76, CoopKeyCategories.COOPTEST));
+      keyBonk = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.cooptest.bonk", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 76, CoopKeyCategories.COOPTEST));
       ClientPlayNetworking.registerGlobalReceiver(
          BonkHandler.BonkMoveLockPayload.ID, (payload, context) -> context.client().execute(() -> movementLocked = payload.locked())
       );

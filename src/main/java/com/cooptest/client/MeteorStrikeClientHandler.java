@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
 
@@ -48,7 +48,7 @@ public class MeteorStrikeClientHandler {
       HudRenderCallback.EVENT.register(MeteorStrikeClientHandler::renderHUD);
    }
 
-   private static void renderHUD(GuiGraphics ctx, DeltaTracker ticker) {
+   private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker ticker) {
       if (hasAbility) {
          Minecraft client = Minecraft.getInstance();
          if (client.player != null) {

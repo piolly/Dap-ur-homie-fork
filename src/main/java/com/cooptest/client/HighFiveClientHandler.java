@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +43,7 @@ public class HighFiveClientHandler {
    private static final Map<UUID, Boolean> frozenPlayers = new HashMap<>();
 
    public static void register() {
-      highFiveKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.highfive", 72, CoopKeyCategories.COOPMOVES));
+      highFiveKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.highfive", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 72, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(HighFiveHandler.HandRaisedSyncPayload.ID, (payload, context) -> context.client().execute(() -> {
          raisedHands.put(payload.playerId(), payload.raised());
          Minecraft client = context.client();
@@ -314,7 +314,7 @@ public class HighFiveClientHandler {
       }
    }
 
-   private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+   private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null) {
          int screenWidth = client.getWindow().getGuiScaledWidth();

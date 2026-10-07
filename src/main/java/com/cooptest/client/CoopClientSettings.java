@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -171,7 +171,7 @@ public class CoopClientSettings {
          this.addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.onClose()).bounds(cx + 2, y + 64, 108, 20).build());
       }
 
-      public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
+      public void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
          super.render(ctx, mouseX, mouseY, delta);
          int cx = this.width / 2;
          ctx.drawCenteredString(this.font, this.title, cx, this.height / 4 - 4, -1);

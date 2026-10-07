@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
 
@@ -99,7 +99,7 @@ public class KickClientHandler {
       }
    }
 
-   private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+   private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null && !client.options.hideGui) {
          int sw = context.guiWidth();

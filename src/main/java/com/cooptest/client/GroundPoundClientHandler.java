@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class GroundPoundClientHandler {
@@ -38,7 +38,7 @@ public class GroundPoundClientHandler {
       HudRenderCallback.EVENT.register(GroundPoundClientHandler::renderHUD);
    }
 
-   private static void renderHUD(GuiGraphics context, DeltaTracker tc) {
+   private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
       if (localDiving) {
          Minecraft client = Minecraft.getInstance();
          if (client.player != null && !client.options.hideGui) {

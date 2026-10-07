@@ -1,7 +1,7 @@
 package com.cooptest.client;
 
 import java.util.Random;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
 
 public class CoopSpeedLinesRenderer {
@@ -40,7 +40,7 @@ public class CoopSpeedLinesRenderer {
       }
    }
 
-   public static void render(GuiGraphics context) {
+   public static void render(GuiGraphicsExtractor context) {
       if (active) {
          long elapsed = System.currentTimeMillis() - startMs;
          float progress = (float)elapsed / 300.0F;

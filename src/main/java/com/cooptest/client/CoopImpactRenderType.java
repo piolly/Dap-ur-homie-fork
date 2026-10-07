@@ -1,7 +1,7 @@
 package com.cooptest.client;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.renderer.RenderPipelines;

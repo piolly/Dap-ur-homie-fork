@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -91,9 +91,9 @@ public class GrabInputHandler {
    }
 
    public static void register() {
-      grabKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.grab", 82, CoopKeyCategories.COOPMOVES));
-      throwKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.throw", 84, CoopKeyCategories.COOPMOVES));
-      shieldKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.coopmoves.shield", 86, CoopKeyCategories.COOPMOVES));
+      grabKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.grab", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 82, CoopKeyCategories.COOPMOVES));
+      throwKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.throw", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 84, CoopKeyCategories.COOPMOVES));
+      shieldKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.shield", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 86, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(GrabMechanic.ShieldModePayload.ID, (payload, context) -> context.client().execute(() -> {
          clientShieldMode.put(payload.holderId(), payload.enabled());
          if (!payload.enabled()) {

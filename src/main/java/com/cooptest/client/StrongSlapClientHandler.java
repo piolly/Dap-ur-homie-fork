@@ -11,7 +11,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundSource;
 
@@ -151,7 +151,7 @@ public class StrongSlapClientHandler {
       }
    }
 
-   private static void renderHUD(GuiGraphics ctx, DeltaTracker tickCounter) {
+   private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker tickCounter) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null) {
          int screenW = ctx.guiWidth();

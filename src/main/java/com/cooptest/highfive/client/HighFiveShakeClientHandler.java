@@ -14,7 +14,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.D
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 @Environment(EnvType.CLIENT)
@@ -95,7 +95,7 @@ public class HighFiveShakeClientHandler {
       HudRenderCallback.EVENT.register(HighFiveShakeClientHandler::renderHud);
    }
 
-   private static void renderHud(GuiGraphics ctx, DeltaTracker tc) {
+   private static void renderHud(GuiGraphicsExtractor ctx, DeltaTracker tc) {
       Minecraft client = Minecraft.getInstance();
       int sw = client.getWindow().getGuiScaledWidth();
       long now = System.currentTimeMillis();
@@ -107,7 +107,7 @@ public class HighFiveShakeClientHandler {
       }
    }
 
-   private static void renderSessionHud(GuiGraphics ctx, Minecraft client, int sw, long now) {
+   private static void renderSessionHud(GuiGraphicsExtractor ctx, Minecraft client, int sw, long now) {
       int streakColor = 16777215;
       long sinceResult = now - lastResultTime;
       if (lastResultTime != 0L && sinceResult < 400L) {
@@ -149,7 +149,7 @@ public class HighFiveShakeClientHandler {
       }
    }
 
-   private static void drawKey(GuiGraphics ctx, Minecraft client, HighFiveShakeHandler.Dir dir, int x, int y, int size, long now) {
+   private static void drawKey(GuiGraphicsExtractor ctx, Minecraft client, HighFiveShakeHandler.Dir dir, int x, int y, int size, long now) {
       String label = dir.name();
       boolean flashing = false;
       String presserName = null;

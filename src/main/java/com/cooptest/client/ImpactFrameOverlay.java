@@ -1,12 +1,12 @@
 package com.cooptest.client;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.pipeline.RenderPipeline.Snippet;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
 import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import java.util.Random;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
@@ -30,7 +30,7 @@ public class ImpactFrameOverlay {
    private static int currentFrame = 0;
    private static int lastFlipFrame = -1;
 
-   public static void render(GuiGraphics context) {
+   public static void render(GuiGraphicsExtractor context) {
       if (CoopClientSettings.get().impactFramesEnabled) {
          if (CoopImpactHandler.playing) {
             int frameIdx = (int)((System.currentTimeMillis() - CoopImpactHandler.getStartMs()) / 33L);

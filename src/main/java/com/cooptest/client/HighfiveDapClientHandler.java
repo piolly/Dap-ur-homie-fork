@@ -12,7 +12,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -187,7 +187,7 @@ public class HighfiveDapClientHandler {
       return colour + "▌".repeat(filled) + "§8▌".repeat(max - filled) + " §f" + score + "/" + max;
    }
 
-   private static void renderHud(GuiGraphics ctx, DeltaTracker tickCounter) {
+   private static void renderHud(GuiGraphicsExtractor ctx, DeltaTracker tickCounter) {
       if (active && inIdle) {
          Minecraft client = Minecraft.getInstance();
          if (client.player != null && !client.options.hideGui) {

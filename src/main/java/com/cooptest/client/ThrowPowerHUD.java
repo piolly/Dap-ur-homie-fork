@@ -5,7 +5,7 @@ import com.cooptest.PoseState;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class ThrowPowerHUD {
    private static final int BAR_WIDTH = 100;
@@ -24,7 +24,7 @@ public class ThrowPowerHUD {
       HudRenderCallback.EVENT.register(ThrowPowerHUD::render);
    }
 
-   private static void render(GuiGraphics context, DeltaTracker tickCounter) {
+   private static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
       Minecraft client = Minecraft.getInstance();
       if (client.player != null) {
          PoseState pose = PoseNetworking.poseStates.getOrDefault(client.player.getUUID(), PoseState.NONE);

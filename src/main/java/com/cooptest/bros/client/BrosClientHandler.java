@@ -14,7 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
@@ -22,7 +22,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -451,7 +451,7 @@ public final class BrosClientHandler {
       }
 
       Minecraft mc = Minecraft.getInstance();
-      int code = KeyBindingHelper.getBoundKeyOf(kb).getValue();
+      int code = KeyMappingHelper.getBoundKeyOf(kb).getValue();
       if (code < 0) {
          return false;
       }
@@ -564,7 +564,7 @@ public final class BrosClientHandler {
       legDrivenNext.add(e.getId());
    }
 
-   private static void renderHud(GuiGraphics ctx) {
+   private static void renderHud(GuiGraphicsExtractor ctx) {
       Minecraft mc = Minecraft.getInstance();
       BrosClientHandler.Track t = localTrack;
       if (t != null && mc.player != null && !mc.options.hideGui) {
@@ -617,7 +617,7 @@ public final class BrosClientHandler {
       }
 
       try {
-         String n = KeyBindingHelper.getBoundKeyOf(kb).getDisplayName().getString();
+         String n = KeyMappingHelper.getBoundKeyOf(kb).getDisplayName().getString();
          return n.isEmpty() ? fallback : n.toUpperCase();
       } catch (Throwable ignored) {
          return fallback;
