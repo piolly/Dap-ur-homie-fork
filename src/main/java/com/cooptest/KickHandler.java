@@ -234,7 +234,7 @@ public class KickHandler {
                   if (isDropKick) {
                      living.setDeltaMovement(fwdX * 4.0, 0.8, fwdZ * 4.0);
                   } else {
-                     living.knockback(kbStrength, -dx, -dz);
+                     com.cooptest.CoopKnockback.apply(living, kbStrength, -dx, -dz);
                      Vec3 vel2 = living.getDeltaMovement();
                      living.setDeltaMovement(vel2.x, upwardPop, vel2.z);
                   }

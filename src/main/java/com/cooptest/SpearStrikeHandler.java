@@ -351,7 +351,7 @@ public final class SpearStrikeHandler {
                   double speed = s.motion.length();
                   float dmg = (float)Math.min(c.spearMaxDamage, c.spearBaseDamage + speed * c.spearSpeedDamage);
                   target.hurtServer(w, w.damageSources().playerAttack(p), dmg);
-                  target.knockback(c.spearKnockback, -dir.x, -dir.z);
+                  com.cooptest.CoopKnockback.apply(target, c.spearKnockback, -dir.x, -dir.z);
                   target.push(0.0, 0.3, 0.0);
                   if (target instanceof ServerPlayer tp) {
                      tp.connection.send(new ClientboundSetEntityMotionPacket(tp));
@@ -423,7 +423,7 @@ public final class SpearStrikeHandler {
 
                hurt(w, target, w.damageSources().playerAttack(p), c.spearMissileDamage);
                Vec3 kb = at.subtract(from).normalize();
-               target.knockback(c.spearKnockback * 2.0, -kb.x, -kb.z);
+               com.cooptest.CoopKnockback.apply(target, c.spearKnockback * 2.0, -kb.x, -kb.z);
                w.explode(p, at.x, at.y, at.z, 2.0F, false, ExplosionInteraction.NONE);
                s.lockedId = -1;
                s.missileSpent = true;

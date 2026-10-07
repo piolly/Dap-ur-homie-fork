@@ -357,7 +357,7 @@ public final class BrosAbilities {
       for (LivingEntity t : sw.getEntitiesOfClass(LivingEntity.class, zone, e -> e.isAlive())) {
          if (t != s.a && t != s.b && !(t instanceof ArmorStand) && !(t instanceof ServerPlayer sp && sp.isSpectator()) && s.rushHit.add(t.getId())) {
             t.hurtServer(sw, dmg, RUSH_DAMAGE);
-            t.knockback(1.4, -s.rushDx, -s.rushDz);
+            com.cooptest.CoopKnockback.apply(t, 1.4, -s.rushDx, -s.rushDz);
             t.push(0.0, 0.35, 0.0);
             syncVelocity(t);
             sw.sendParticles(ParticleTypes.SWEEP_ATTACK, t.getX(), t.getY() + 1.0, t.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
@@ -401,7 +401,7 @@ public final class BrosAbilities {
 
                      t.hurtServer(sw, dmg, PULSE_DAMAGE);
                      double falloff = 1.0 - 0.5 * (d / PULSE_RADIUS);
-                     t.knockback(PULSE_KNOCKBACK * falloff, -dx / d, -dz / d);
+                     com.cooptest.CoopKnockback.apply(t, PULSE_KNOCKBACK * falloff, -dx / d, -dz / d);
                      t.push(0.0, 0.3, 0.0);
                      syncVelocity(t);
                   }

@@ -118,19 +118,19 @@ public class FusionClientHandler {
                qteActive = true;
                expectedButton = p.button();
                currentStage = p.stage();
-               qteType = p.type();
+               qteType = p.qteType();
                receiveTime = now;
                pressedThisWindow = false;
                if (currentPhase < 0) {
                   currentPhase = 0;
                }
 
-               if (p.type() == 1) {
+               if (p.qteType() == 1) {
                   greenZoneStart = now + p.windowStartMs();
                   greenZoneEnd = now + p.windowEndMs();
                   windowStart = now;
                   windowEnd = now + 1800L;
-               } else if (p.type() == 2) {
+               } else if (p.qteType() == 2) {
                   long wEnd = p.windowEndMs();
                   if (wEnd < 0L) {
                      greenZoneStart = p.windowStartMs();

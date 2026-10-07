@@ -1161,7 +1161,7 @@ public class DapFusionHandler {
       }
    }
 
-   public record FusionQTEPayload(UUID playerId, String button, int stage, long windowStartMs, long windowEndMs, boolean open, int type)
+   public record FusionQTEPayload(UUID playerId, String button, int stage, long windowStartMs, long windowEndMs, boolean open, int qteType)
       implements CustomPacketPayload {
       public static final Type<DapFusionHandler.FusionQTEPayload> ID = new Type(Identifier.fromNamespaceAndPath("cooptest", "fusion_qte"));
       public static final StreamCodec<FriendlyByteBuf, DapFusionHandler.FusionQTEPayload> CODEC = StreamCodec.ofMember(
@@ -1172,7 +1172,7 @@ public class DapFusionHandler {
             buf.writeLong(p.windowStartMs);
             buf.writeLong(p.windowEndMs);
             buf.writeBoolean(p.open);
-            buf.writeInt(p.type);
+            buf.writeInt(p.qteType);
          },
          buf -> new DapFusionHandler.FusionQTEPayload(
             buf.readUUID(), buf.readUtf(), buf.readInt(), buf.readLong(), buf.readLong(), buf.readBoolean(), buf.readInt()
