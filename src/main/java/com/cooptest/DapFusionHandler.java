@@ -781,7 +781,7 @@ public class DapFusionHandler {
         p2.yRotO = yaw2; p2.yBodyRotO = yaw2; p2.yHeadRotO = yaw2;
     }
     private static void sendSwingToOthers(MinecraftServer server, ServerPlayer player) {
-        net.minecraft.network.protocol.game.ClientboundAnimatePacket swingPacket =
+        net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket swingPacket =
                 new net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket(player, net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         for (ServerPlayer other : server.getPlayerList().getPlayers()) {
             if (!other.getUUID().equals(player.getUUID())) {

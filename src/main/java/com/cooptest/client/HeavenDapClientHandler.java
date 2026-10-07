@@ -13,9 +13,9 @@ public class HeavenDapClientHandler {
 
 
     public static void register() {
-        HudRenderCallback.EVENT.register((context, tickCounter) -> {
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("cooptest", "heaven_white_overlay"), (context, tickCounter) -> {
             HeavenWhiteOverlay.render(context, tickCounter.getGameTimeDeltaTicks());
-        });
+        }));
 
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(client -> {
             HeavenWhiteOverlay.tick();
