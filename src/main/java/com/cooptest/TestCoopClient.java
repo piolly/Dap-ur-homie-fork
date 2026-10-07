@@ -152,97 +152,26 @@ public class TestCoopClient implements ClientModInitializer {
                   conditionType.getClassLoader(),
                   new Class[]{conditionType},
                   (proxy, method, args) -> {
-                     // $VF: Couldn't be decompiled
-                     // Please report this to the Vineflower issue tracker, at https://github.com/Vineflower/vineflower/issues with a copy of the class file (if you have the rights to distribute it!)
-                     // java.lang.RuntimeException: invalid constant type: Ljava/io/Serializable; with value CoopEMFPauseCondition
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent.toJava(ConstExprent.java:364)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.exps.SwitchExprent.toJava(SwitchExprent.java:152)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor.getCastedExprent(ExprProcessor.java:1054)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent.toJava(ExitExprent.java:85)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor.listToJava(ExprProcessor.java:925)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement.toJava(BasicBlockStatement.java:87)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor.jmpWrapper(ExprProcessor.java:860)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement.toJava(SequenceStatement.java:107)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor.jmpWrapper(ExprProcessor.java:860)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement.toJava(IfStatement.java:238)
-                     //   at org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement.toJava(RootStatement.java:36)
-                     //   at org.jetbrains.java.decompiler.main.ClassWriter.methodLambdaToJava(ClassWriter.java:1017)
-                     //
-                     // Bytecode:
-                     // 00: aload 1
-                     // 01: invokevirtual java/lang/reflect/Method.getDeclaringClass ()Ljava/lang/Class;
-                     // 04: ldc java/lang/Object
-                     // 06: if_acmpne 88
-                     // 09: aload 1
-                     // 0a: invokevirtual java/lang/reflect/Method.getName ()Ljava/lang/String;
-                     // 0d: astore 3
-                     // 0e: bipush -1
-                     // 0f: istore 4
-                     // 11: aload 3
-                     // 12: invokevirtual java/lang/String.hashCode ()I
-                     // 15: lookupswitch 56 2 -1295482945 43 147696667 27
-                     // 30: aload 3
-                     // 31: ldc_w "hashCode"
-                     // 34: invokevirtual java/lang/String.equals (Ljava/lang/Object;)Z
-                     // 37: ifeq 4d
-                     // 3a: bipush 0
-                     // 3b: istore 4
-                     // 3d: goto 4d
-                     // 40: aload 3
-                     // 41: ldc_w "equals"
-                     // 44: invokevirtual java/lang/String.equals (Ljava/lang/Object;)Z
-                     // 47: ifeq 4d
-                     // 4a: bipush 1
-                     // 4b: istore 4
-                     // 4d: iload 4
-                     // 4f: lookupswitch 53 2 0 25 1 35
-                     // 68: aload 0
-                     // 69: invokestatic java/lang/System.identityHashCode (Ljava/lang/Object;)I
-                     // 6c: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
-                     // 6f: goto 87
-                     // 72: aload 0
-                     // 73: aload 2
-                     // 74: bipush 0
-                     // 75: aaload
-                     // 76: if_acmpne 7d
-                     // 79: bipush 1
-                     // 7a: goto 7e
-                     // 7d: bipush 0
-                     // 7e: invokestatic java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;
-                     // 81: goto 87
-                     // 84: ldc_w "CoopEMFPauseCondition"
-                     // 87: areturn
-                     // 88: aload 2
-                     // 89: bipush 0
-                     // 8a: aaload
-                     // 8b: astore 3
-                     // 8c: aload 3
-                     // 8d: invokevirtual java/lang/Object.getClass ()Ljava/lang/Class;
-                     // 90: ldc_w "etf$getUuid"
-                     // 93: bipush 0
-                     // 94: anewarray 270
-                     // 97: invokevirtual java/lang/Class.getMethod (Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
-                     // 9a: aload 3
-                     // 9b: bipush 0
-                     // 9c: anewarray 4
-                     // 9f: invokevirtual java/lang/reflect/Method.invoke (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
-                     // a2: checkcast java/util/UUID
-                     // a5: astore 4
-                     // a7: aload 4
-                     // a9: ifnonnull b1
-                     // ac: bipush 0
-                     // ad: invokestatic java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;
-                     // b0: areturn
-                     // b1: aload 4
-                     // b3: invokestatic com/cooptest/client/CoopAnimationHandler.isAnimating (Ljava/util/UUID;)Z
-                     // b6: invokestatic java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;
-                     // b9: areturn
-                     // ba: astore 3
-                     // bb: bipush 0
-                     // bc: invokestatic java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;
-                     // bf: areturn
-                     // try (43 -> 63): 68 java/lang/Exception
-                     // try (64 -> 67): 68 java/lang/Exception
+                     if (method.getDeclaringClass() == Object.class) {
+                        String n = method.getName();
+                        if (n.equals("hashCode")) {
+                           return System.identityHashCode(proxy);
+                        }
+                        if (n.equals("equals")) {
+                           return proxy == args[0];
+                        }
+                        return "CoopEMFPauseCondition";
+                     }
+                     try {
+                        Object entity = args[0];
+                        java.util.UUID uuid = (java.util.UUID)entity.getClass().getMethod("etf$getUuid").invoke(entity);
+                        if (uuid == null) {
+                           return false;
+                        }
+                        return CoopAnimationHandler.isAnimating(uuid);
+                     } catch (Exception e) {
+                        return false;
+                     }
                   }
                );
                registerMethod.invoke(null, condition);
