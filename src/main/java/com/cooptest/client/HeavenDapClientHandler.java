@@ -68,8 +68,8 @@ public class HeavenDapClientHandler {
       }));
       ClientPlayNetworking.registerGlobalReceiver(HeavenDapPayloads.HeavenDapEndPayload.ID, (payload, ctx) -> ctx.client().execute(HeavenWhiteOverlay::stop));
       ClientPlayNetworking.registerGlobalReceiver(HeavenDapPayloads.HeavenImpactPayload.ID, (payload, ctx) -> ctx.client().execute(() -> {
-         CoopImpactHandler.start(CoopImpactHandler.HEAVEN_DAP_SEQUENCE, 33L, false);
-         CoopCameraShakeHandler.shake(1.5F, CoopImpactHandler.HEAVEN_DAP_SEQUENCE.length * 33L);
+         CoopImpactHandler.start(CoopImpactHandler.HEAVEN_DAP_SEQUENCE, 80L, false);
+         CoopCameraShakeHandler.shake(1.5F, CoopImpactHandler.HEAVEN_DAP_SEQUENCE.length * 80L);
          CoopChromaHandler.start();
          CoopRadialBlurHandler.start();
          CoopSpeedLinesRenderer.start();

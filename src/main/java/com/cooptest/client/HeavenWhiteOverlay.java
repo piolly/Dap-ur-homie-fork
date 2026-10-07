@@ -15,7 +15,7 @@ public class HeavenWhiteOverlay {
 
    public static void start() {
       active = true;
-      opacity = 1.0F;
+      opacity = 0.6F;
       currentPhase = HeavenWhiteOverlay.HeavenPhase.FULL_WHITE;
       phaseStartTime = System.currentTimeMillis();
       muteSounds();
@@ -43,8 +43,8 @@ public class HeavenWhiteOverlay {
          long elapsed = System.currentTimeMillis() - phaseStartTime;
          switch (currentPhase) {
             case FULL_WHITE:
-               opacity = 1.0F;
-               if (elapsed >= 3000L) {
+               opacity = 0.6F;
+               if (elapsed >= 800L) {
                   currentPhase = HeavenWhiteOverlay.HeavenPhase.FADE_TO_THIRTY;
                   phaseStartTime = System.currentTimeMillis();
                   System.out.println("[Heaven Overlay] Fading to 30%");
@@ -52,7 +52,7 @@ public class HeavenWhiteOverlay {
                break;
             case FADE_TO_THIRTY:
                float progressxx = Math.min((float)elapsed / 500.0F, 1.0F);
-               opacity = 1.0F - progressxx * 0.7F;
+               opacity = 0.6F - progressxx * 0.3F;
                if (progressxx >= 1.0F) {
                   opacity = 0.3F;
                   currentPhase = HeavenWhiteOverlay.HeavenPhase.HEAVEN;
@@ -61,23 +61,23 @@ public class HeavenWhiteOverlay {
                break;
             case HEAVEN:
                opacity = 0.3F;
-               if (elapsed >= 6000L) {
+               if (elapsed >= 3000L) {
                   currentPhase = HeavenWhiteOverlay.HeavenPhase.FADE_OUT;
                   phaseStartTime = System.currentTimeMillis();
                }
                break;
             case FADE_OUT:
-               float progressx = Math.min((float)elapsed / 2000.0F, 1.0F);
-               opacity = 0.3F + progressx * 0.7F;
+               float progressx = Math.min((float)elapsed / 1500.0F, 1.0F);
+               opacity = 0.3F + progressx * 0.3F;
                if (progressx >= 1.0F) {
-                  opacity = 1.0F;
+                  opacity = 0.6F;
                   currentPhase = HeavenWhiteOverlay.HeavenPhase.FADE_TO_NORMAL;
                   phaseStartTime = System.currentTimeMillis();
                }
                break;
             case FADE_TO_NORMAL:
-               float progress = Math.min((float)elapsed / 5000.0F, 1.0F);
-               opacity = 1.0F - progress;
+               float progress = Math.min((float)elapsed / 2500.0F, 1.0F);
+               opacity = 0.6F * (1.0F - progress);
                if (progress >= 1.0F) {
                   opacity = 0.0F;
                   currentPhase = HeavenWhiteOverlay.HeavenPhase.DONE;
@@ -96,7 +96,7 @@ public class HeavenWhiteOverlay {
             originalMasterVolume = ((Double)client.options.getSoundSourceOptionInstance(SoundSource.MASTER).get()).floatValue();
             originalMusicVolume = ((Double)client.options.getSoundSourceOptionInstance(SoundSource.MUSIC).get()).floatValue();
             client.getSoundManager().stop();
-            client.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
+            // volume is no longer changed
             soundsMuted = true;
          }
       }
@@ -106,8 +106,8 @@ public class HeavenWhiteOverlay {
       if (soundsMuted) {
          Minecraft client = Minecraft.getInstance();
          if (client.options != null) {
-            client.options.getSoundSourceOptionInstance(SoundSource.MASTER).set((double)originalMasterVolume);
-            client.options.getSoundSourceOptionInstance(SoundSource.MUSIC).set((double)originalMusicVolume);
+            // volume is no longer changed
+            // volume is no longer changed
             soundsMuted = false;
          }
       }

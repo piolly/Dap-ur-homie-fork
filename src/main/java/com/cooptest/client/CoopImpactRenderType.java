@@ -19,7 +19,7 @@ public class CoopImpactRenderType {
       return RenderPipelines.register(
          RenderPipeline.builder(new Snippet[]{RenderPipelines.ENTITY_SNIPPET})
             .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/" + name))
-            .withVertexShader(Identifier.fromNamespaceAndPath("cooptest", "core/" + name))
+            .withVertexShader(Identifier.fromNamespaceAndPath("minecraft", "core/entity"))
             .withFragmentShader(Identifier.fromNamespaceAndPath("cooptest", "core/" + name))
             .build()
       );

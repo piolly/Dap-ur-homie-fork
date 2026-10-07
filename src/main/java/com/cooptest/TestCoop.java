@@ -143,8 +143,12 @@ public class TestCoop implements ModInitializer {
          LaunchedPlayerTracker.register();
          CarryingSlowdown.register();
          SpinYeetConfig.load();
+         BonkHandler.registerPayloads();
+         DivineFlamCombo.registerPayloads();
          SpinYeetHandler.registerPayloads();
          SpinYeetHandler.register();
+         BonkHandler.register();
+         DivineFlamCombo.register();
          PactHandler.register();
          HighFiveStreakHandler.register();
          CoopSlowCleanup.register();

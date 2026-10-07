@@ -126,6 +126,7 @@ public class TestCoopClient implements ClientModInitializer {
       CoopAnimationHandler.register();
       SitClientHandler.register();
       BlackHoodClientHandler.register();
+      com.cooptest.client.CoopShockwaveRenderer.register();
       com.cooptest.meme.SpinYeetClientHandler.register();
       com.cooptest.client.BonkClientHandler.register();
       com.cooptest.client.DivineFlamComboClient.register();
@@ -185,8 +186,8 @@ public class TestCoopClient implements ClientModInitializer {
 
       ClientCommandRegistrationCallback.EVENT.register((ClientCommandRegistrationCallback)(dispatcher, registryAccess) -> {
          dispatcher.register((LiteralArgumentBuilder)ClientCommands.literal("impacttest").executes(ctx -> {
-            CoopImpactHandler.start(CoopImpactHandler.REGULAR_DAP_SEQUENCE, 33L, true);
-            CoopCameraShakeHandler.shake(0.6F, CoopImpactHandler.REGULAR_DAP_SEQUENCE.length * 33L);
+            CoopImpactHandler.start(CoopImpactHandler.REGULAR_DAP_SEQUENCE, 33L + 1000L / CoopImpactHandler.REGULAR_DAP_SEQUENCE.length, true);
+            CoopCameraShakeHandler.shake(0.6F, CoopImpactHandler.REGULAR_DAP_SEQUENCE.length * 33L + 1000L);
             return 1;
          }));
          dispatcher.register((LiteralArgumentBuilder)ClientCommands.literal("impactperfect").executes(ctx -> {
