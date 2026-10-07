@@ -75,7 +75,7 @@ public class SlapClientHandler {
                alpha = Math.min(230, Math.max(0, alpha));
                ctx.fill(0, 0, screenW, screenH, alpha << 24 | 17578);
                int textAlpha = Math.min(255, alpha + 25);
-               ctx.drawCenteredString(client.font, Component.literal("§b§l\ud83d\udc1f FISH SLAPPED"), screenW / 2, screenH / 2 - 10, textAlpha << 24 | 5636095);
+               ctx.centeredText(client.font, Component.literal("§b§l\ud83d\udc1f FISH SLAPPED"), screenW / 2, screenH / 2 - 10, textAlpha << 24 | 5636095);
             }
          }
       }

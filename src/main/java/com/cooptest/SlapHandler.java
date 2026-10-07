@@ -236,7 +236,7 @@ public class SlapHandler {
                world.playSound(null, hitPos.x, hitPos.y, hitPos.z, SoundEvents.PLAYER_SPLASH, SoundSource.PLAYERS, 2.0F, 1.1F);
                world.playSound(null, hitPos.x, hitPos.y, hitPos.z, SoundEvents.PLAYER_SPLASH_HIGH_SPEED, SoundSource.PLAYERS, 1.5F, 0.9F);
                world.playSound(null, hitPos.x, hitPos.y, hitPos.z, ModSounds.SLAP, SoundSource.PLAYERS, 1.4F, 0.6F);
-               Cod cod = (Cod)EntityType.COD.create(world, EntitySpawnReason.MOB_SUMMONED);
+               Cod cod = (Cod)net.minecraft.world.entity.EntityTypes.COD.create(world, EntitySpawnReason.MOB_SUMMONED);
                if (cod != null) {
                   cod.setPos(hitPos);
                   cod.setDeltaMovement((Math.random() - 0.5) * 0.4, 0.4 + Math.random() * 0.3, (Math.random() - 0.5) * 0.4);

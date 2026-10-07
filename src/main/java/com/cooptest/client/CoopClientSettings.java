@@ -174,9 +174,9 @@ public class CoopClientSettings {
       public void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
          super.render(ctx, mouseX, mouseY, delta);
          int cx = this.width / 2;
-         ctx.drawCenteredString(this.font, this.title, cx, this.height / 4 - 4, -1);
-         ctx.drawCenteredString(this.font, Component.literal("§7These apply to your client only"), cx, this.height / 4 + 8, -5592406);
-         ctx.drawCenteredString(this.font, Component.literal("§8config/coopmoves_client.json"), cx, this.height / 4 + 104, -7829368);
+         ctx.centeredText(this.font, this.title, cx, this.height / 4 - 4, -1);
+         ctx.centeredText(this.font, Component.literal("§7These apply to your client only"), cx, this.height / 4 + 8, -5592406);
+         ctx.centeredText(this.font, Component.literal("§8config/coopmoves_client.json"), cx, this.height / 4 + 104, -7829368);
       }
 
       public void onClose() {

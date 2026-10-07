@@ -39,7 +39,7 @@ public class PlayerEntityRendererMixin {
          CoopRenderStateData.PLAYER_SNAPSHOT,
          new CoopRenderStateData.PlayerSnapshot(
             player.getUUID(),
-            player instanceof LivingEntity le && le.swinging,
+            player instanceof LivingEntity le && le.isSwinging(),
             player instanceof LivingEntity le2 && le2.isUsingItem(),
             player.onGround(),
             player.isPassenger(),
