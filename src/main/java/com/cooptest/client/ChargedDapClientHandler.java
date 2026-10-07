@@ -5,7 +5,7 @@ import com.cooptest.ChargedDapHandler;
 import com.cooptest.ModKeyCategories;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
@@ -151,7 +151,7 @@ public class ChargedDapClientHandler {
     }
 
     public static void register() {
-        chargedDapKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        chargedDapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.dap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, ModKeyCategories.COOPMOVES
         ));
 
@@ -308,7 +308,7 @@ public class ChargedDapClientHandler {
 
 
 
-        fireDapComboKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        fireDapComboKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.fire_dap_combo",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_J,
@@ -433,9 +433,9 @@ public class ChargedDapClientHandler {
                     return;
                 } else if (onCooldown) {
                     long remaining = (whiffCooldownEnd - System.currentTimeMillis()) / 100;
-                    client.player.displayClientMessage(Component.literal("§cDap on cooldown! " + (remaining / 10.0) + "s"), true);
+                    client.player.sendOverlayMessage(Component.literal("§cDap on cooldown! " + (remaining / 10.0) + "s"));
                 } else if (!client.player.getMainHandItem().isEmpty()) {
-                    client.player.displayClientMessage(Component.literal("§cMain hand must be empty for charged dap!"), true);
+                    client.player.sendOverlayMessage(Component.literal("§cMain hand must be empty for charged dap!"));
                 } else {
                     isCharging = true;
                     chargeStartTime = System.currentTimeMillis();

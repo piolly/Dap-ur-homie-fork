@@ -43,7 +43,7 @@ public class ClapHandler {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(ClapRequestPayload.ID, ClapRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ClapRequestPayload.ID, ClapRequestPayload.CODEC);
     }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(ClapRequestPayload.ID, (payload, context) -> {

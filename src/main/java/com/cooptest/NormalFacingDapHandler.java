@@ -30,9 +30,9 @@ public class NormalFacingDapHandler {
         @Override public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playC2S()
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.serverboundPlay()
                 .register(DapLoopHoldPayload.ID, DapLoopHoldPayload.CODEC);
-        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C()
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.clientboundPlay()
                 .register(FaceDapSessionPayload.ID, FaceDapSessionPayload.CODEC);
     }
     private static final double FACE_DIST      = 1.3;
@@ -117,7 +117,7 @@ public class NormalFacingDapHandler {
         UUID sid = sp.getUUID(), tid = target.getUUID();
         clickMap.put(sid, tid);
         clickTime.put(sid, System.currentTimeMillis());
-        sp.displayClientMessage(net.minecraft.network.chat.Component.literal("§e✦ Waiting for homie..."), true);
+        sp.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e✦ Waiting for homie..."));
     }
     public static boolean isConfirmed(UUID id1, UUID id2) {
         long now = System.currentTimeMillis();
@@ -224,8 +224,8 @@ public class NormalFacingDapHandler {
         Vec3 m = a.position().add(b.position()).scale(0.5).add(0, 1.3, 0);
         Long ls = loopStartTime.get(k);
         long sec = ls != null ? (now - ls) / 1000L : 0;
-        a.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + count + " §f" + sec + "s"), true);
-        b.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + count + " §f" + sec + "s"), true);
+        a.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + count + " §f" + sec + "s"));
+        b.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + count + " §f" + sec + "s"));
         w.playSound(null, m.x, m.y, m.z, ModSounds.DAP_HIT, SoundSource.PLAYERS, 1.0f + Math.min(count * 0.03f, 0.5f), 1.0f);
         w.sendParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 4 + Math.min(count, 20), 0.2, 0.2, 0.2, 0.05);
         if (count >= 9)  w.sendParticles(ParticleTypes.END_ROD, m.x, m.y, m.z, count, 0.5, 0.3, 0.5, 0.05);

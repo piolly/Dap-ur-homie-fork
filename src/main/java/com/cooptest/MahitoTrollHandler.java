@@ -54,7 +54,7 @@ public class MahitoTrollHandler {
     }
     
     public static void register() {
-        PayloadTypeRegistry.playS2C().register(MahitoAnimPayload.ID, MahitoAnimPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MahitoAnimPayload.ID, MahitoAnimPayload.CODEC);
         
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             long now = System.currentTimeMillis();
@@ -116,7 +116,7 @@ public class MahitoTrollHandler {
         
         // Notify troller
         if (troller != null) {
-            troller.displayClientMessage(Component.literal("§c§l☠ You cursed " + victim.getName().getString() + "! ☠"), true);
+            troller.sendOverlayMessage(Component.literal("§c§l☠ You cursed " + victim.getName().getString() + "! ☠"));
         }
     }
     
@@ -144,7 +144,7 @@ public class MahitoTrollHandler {
             15, 0.4, 0.8, 0.4, 0.01);
         
         // Message
-        victim.displayClientMessage(Component.literal("§4§l☠ MAHITO'S CURSE! ☠"), true);
+        victim.sendOverlayMessage(Component.literal("§4§l☠ MAHITO'S CURSE! ☠"));
         
         // Sound effects
         world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
@@ -178,7 +178,7 @@ public class MahitoTrollHandler {
         // Announce
         for (ServerPlayer player : world.players()) {
             if (player != victim) {
-                player.displayClientMessage(Component.literal("§4" + victim.getName().getString() + " §7was trolled by §cMahito's Curse!"), false);
+                player.sendSystemMessage(Component.literal("§4" + victim.getName().getString() + " §7was trolled by §cMahito's Curse!"));
             }
         }
     }

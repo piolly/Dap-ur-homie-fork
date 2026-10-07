@@ -121,7 +121,7 @@ public class GrabMechanic {
         if (heldId == null) return false;
 
         if (isInShieldMode(holder.getUUID())) {
-            holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§cSwitch to throw mode first! (Press V)"), true);
+            holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cSwitch to throw mode first! (Press V)"));
             return false;
         }
 
@@ -133,7 +133,7 @@ public class GrabMechanic {
 
         if (!holder.isCreative()) {
             if (holder.getFoodData().getFoodLevel() < 6) {
-                holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§cToo hungry to throw!"), true);
+                holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cToo hungry to throw!"));
                 return false;
             }
             holder.getFoodData().addExhaustion(18.0f); // Causes ~6 hunger point loss
@@ -766,7 +766,7 @@ public class GrabMechanic {
             world.sendParticles(ParticleTypes.FLAME,
                     ghastPos.x, ghastPos.y, ghastPos.z, 20, 1.0, 1.0, 1.0, 0.2);
 
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l💥 GHAST OBLITERATED! 💥"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l💥 GHAST OBLITERATED! 💥"));
         }
     }
 
@@ -863,7 +863,7 @@ public class GrabMechanic {
         Long cooldownEnd = shieldSwapCooldown.get(holderId);
         if (cooldownEnd != null && System.currentTimeMillis() < cooldownEnd) {
             long remaining = (cooldownEnd - System.currentTimeMillis()) / 100;
-            holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§cSwap cooldown! " + (remaining / 10.0) + "s"), true);
+            holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cSwap cooldown! " + (remaining / 10.0) + "s"));
             return false;
         }
 
@@ -878,8 +878,8 @@ public class GrabMechanic {
         shieldSwapCooldown.put(holderId, System.currentTimeMillis() + SHIELD_SWAP_COOLDOWN_MS);
 
         if (newMode) {
-            holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§b🛡 HUMAN SHIELD MODE"), true);
-            held.displayClientMessage(net.minecraft.network.chat.Component.literal("§c⚠ You are now a SHIELD!"), true);
+            holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§b🛡 HUMAN SHIELD MODE"));
+            held.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c⚠ You are now a SHIELD!"));
 
             held.stopRiding();
 
@@ -939,8 +939,8 @@ public class GrabMechanic {
 
             broadcastShieldMode(holder.level().getServer(), holderId, heldId, true);
         } else {
-            holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§e THROW MODE"), true);
-            held.displayClientMessage(net.minecraft.network.chat.Component.literal("§eBack to throw mode"), true);
+            holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e THROW MODE"));
+            held.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§eBack to throw mode"));
 
             held.stopRiding();
 
@@ -1014,7 +1014,7 @@ public class GrabMechanic {
                     p.connection.send(packet);
                 }
 
-                holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§c Shield dropped!"), true);
+                holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c Shield dropped!"));
                 continue;
             }
 
@@ -1041,7 +1041,7 @@ public class GrabMechanic {
                     p.connection.send(packet);
                 }
 
-                holder.displayClientMessage(net.minecraft.network.chat.Component.literal("§c Shield died!"), true);
+                holder.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c Shield died!"));
                 continue;
             }
 
@@ -1128,7 +1128,7 @@ public class GrabMechanic {
         }
 
         public static void register() {
-            PayloadTypeRegistry.playS2C().register(ID, StreamCodec.ofMember(
+            PayloadTypeRegistry.clientboundPlay().register(ID, StreamCodec.ofMember(
                     (payload, buf) -> {
                         buf.writeUUID(payload.holderId);
                         buf.writeUUID(payload.heldId);

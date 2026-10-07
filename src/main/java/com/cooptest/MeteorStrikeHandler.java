@@ -71,16 +71,16 @@ public class MeteorStrikeHandler {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(MeteorFirePayload.ID,    MeteorFirePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MeteorGrantPayload.ID,   MeteorGrantPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MeteorStatusPayload.ID,  MeteorStatusPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(MeteorExpiredPayload.ID, MeteorExpiredPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(MeteorFirePayload.ID,    MeteorFirePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MeteorGrantPayload.ID,   MeteorGrantPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MeteorStatusPayload.ID,  MeteorStatusPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MeteorExpiredPayload.ID, MeteorExpiredPayload.CODEC);
     }
     public static void registerClientPayloads() {
-        try { PayloadTypeRegistry.playC2S().register(MeteorFirePayload.ID, MeteorFirePayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playS2C().register(MeteorGrantPayload.ID, MeteorGrantPayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playS2C().register(MeteorStatusPayload.ID, MeteorStatusPayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playS2C().register(MeteorExpiredPayload.ID, MeteorExpiredPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.serverboundPlay().register(MeteorFirePayload.ID, MeteorFirePayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(MeteorGrantPayload.ID, MeteorGrantPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(MeteorStatusPayload.ID, MeteorStatusPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(MeteorExpiredPayload.ID, MeteorExpiredPayload.CODEC); } catch (Exception ignored) {}
     }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(MeteorFirePayload.ID,

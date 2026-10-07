@@ -131,14 +131,14 @@ public class QTEManager {
             return;
         }
         if (!button.equals(session.expectedButton)) {
-            player.displayClientMessage(Component.literal("§c§lWRONG BUTTON!"), true);
+            player.sendOverlayMessage(Component.literal("§c§lWRONG BUTTON!"));
             return;
         }
         if (session.phase != QTESession.QTEPhase.ACTIVE) {
             if (session.phase == QTESession.QTEPhase.WAIT) {
-                player.displayClientMessage(Component.literal("§c§lTOO EARLY!"), true);
+                player.sendOverlayMessage(Component.literal("§c§lTOO EARLY!"));
             } else {
-                player.displayClientMessage(Component.literal("§c§lTOO LATE!"), true);
+                player.sendOverlayMessage(Component.literal("§c§lTOO LATE!"));
             }
             return;
         }
@@ -195,12 +195,12 @@ public class QTEManager {
             case GRACE -> {
                 if (session.ticksInStage >= TIMEOUT_GRACE_TICKS) {
                     if (session.player1Ref != null) {
-                        session.player1Ref.displayClientMessage(Component.literal("§c§l✖ MISSED!"), true);
+                        session.player1Ref.sendOverlayMessage(Component.literal("§c§l✖ MISSED!"));
                         ServerPlayNetworking.send(session.player1Ref,
                                 new QTEClearPayload(session.player1Id));
                     }
                     if (session.player2Ref != null && !session.isSolo) {
-                        session.player2Ref.displayClientMessage(Component.literal("§c§l✖ MISSED!"), true);
+                        session.player2Ref.sendOverlayMessage(Component.literal("§c§l✖ MISSED!"));
                         ServerPlayNetworking.send(session.player2Ref,
                                 new QTEClearPayload(session.player2Id));
                     }

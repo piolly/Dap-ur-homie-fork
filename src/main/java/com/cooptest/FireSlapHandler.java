@@ -67,7 +67,7 @@ public class FireSlapHandler {
         world.playSound(null, x, y, z,
                 SoundEvents.BLAZE_HURT, SoundSource.PLAYERS, 0.5f, 1.2f);
 
-        player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c FIRE SLAP! "), true);
+        player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c FIRE SLAP! "));
 
         ChargedDapHandler.fireLevel.put(player.getUUID(), 0.5f);
     }

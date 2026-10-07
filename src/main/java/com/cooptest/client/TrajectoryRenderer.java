@@ -10,8 +10,8 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -37,10 +37,10 @@ public class TrajectoryRenderer {
 // POSITION_COLOR_SNIPPET is private so you can't build on top of it.
     private static final RenderPipeline TRAJECTORY_PIPELINE = RenderPipelines.DEBUG_FILLED_BOX;
     public static void register() {
-        WorldRenderEvents.END_MAIN.register(TrajectoryRenderer::render);
+        LevelRenderEvents.END_MAIN.register(TrajectoryRenderer::render);
     }
 
-    private static void render(WorldRenderContext context) {
+    private static void render(LevelRenderContext context) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null) return;
 
@@ -77,7 +77,7 @@ public class TrajectoryRenderer {
         renderTrajectoryDots(context, points, chargeProgress);
     }
 
-    private static void renderTrajectoryDots(WorldRenderContext context, Vec3[] points, float charge) {
+    private static void renderTrajectoryDots(LevelRenderContext context, Vec3[] points, float charge) {
         Camera camera = context.gameRenderer().getMainCamera();
         Vec3 camPos = camera.position();
 

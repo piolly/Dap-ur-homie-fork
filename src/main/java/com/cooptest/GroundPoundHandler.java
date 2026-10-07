@@ -47,8 +47,8 @@ public class GroundPoundHandler {
     private static final long               MAX_DIVE_MS    = 15_000L;
     static final Set<UUID>                  megaPound      = new HashSet<>();
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(GroundPoundStartPayload.ID, GroundPoundStartPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(GroundPoundSyncPayload.ID,  GroundPoundSyncPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(GroundPoundStartPayload.ID, GroundPoundStartPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(GroundPoundSyncPayload.ID,  GroundPoundSyncPayload.CODEC);
     }
     public static void register() {
         registerPayloads();
@@ -191,9 +191,9 @@ public class GroundPoundHandler {
         player.setDeltaMovement(0, 0, 0);
         player.hurtMarked = true;
         if (scaledPower >= 0.6) {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l GROUND POUND!"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l GROUND POUND!"));
         } else {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§e Ground Pound"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e Ground Pound"));
         }
     }
     private static boolean isCloseToGroundFalling(ServerPlayer player) {

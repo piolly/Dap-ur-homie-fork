@@ -272,8 +272,8 @@ public class DapComboChain {
         ServerPlayNetworking.send(s.p1Ref, new ChargedDapHandler.PerfectDapFreezePayload(false));
         ServerPlayNetworking.send(s.p2Ref, new ChargedDapHandler.PerfectDapFreezePayload(false));
 
-        s.p1Ref.displayClientMessage(Component.literal("§d§l★ MY HOMIE! "), true);
-        s.p2Ref.displayClientMessage(Component.literal("§d§l★ MY HOMIE! "), true);
+        s.p1Ref.sendOverlayMessage(Component.literal("§d§l★ MY HOMIE! "));
+        s.p2Ref.sendOverlayMessage(Component.literal("§d§l★ MY HOMIE! "));
 
         spawnFinishEffect(s);
     }
@@ -381,8 +381,8 @@ public class DapComboChain {
                 : s.p2Ref.getName().getString();
 
         Component msg = Component.literal("§c" + missedName + " missed the extend!");
-        s.p1Ref.displayClientMessage(msg, true);
-        s.p2Ref.displayClientMessage(msg, true);
+        s.p1Ref.sendOverlayMessage(msg);
+        s.p2Ref.sendOverlayMessage(msg);
     }
 
 

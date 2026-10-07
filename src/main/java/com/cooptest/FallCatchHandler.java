@@ -48,7 +48,7 @@ public class FallCatchHandler {
     }
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playS2C().register(CatchAnimPayload.ID, CatchAnimPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(CatchAnimPayload.ID, CatchAnimPayload.CODEC);
     }
 
     public static void register() {
@@ -68,7 +68,7 @@ public class FallCatchHandler {
 
                         ServerPlayer player = server.getPlayerList().getPlayer(playerId);
                         if (player != null) {
-                            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Catch missed! 1 sec cooldown"), true);
+                            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ Catch missed! 1 sec cooldown"));
                         }
                     }
                     it.remove();
@@ -204,8 +204,8 @@ public class FallCatchHandler {
         PoseNetworking.poseStates.put(catcher.getUUID(), PoseState.NONE);
         PoseNetworking.broadcastPoseChange(catcher.level().getServer(), catcher.getUUID(), PoseState.NONE);
 
-        caught.displayClientMessage(net.minecraft.network.chat.Component.literal("§a§l✓ " + catcher.getName().getString() + " caught you!"), true);
-        catcher.displayClientMessage(net.minecraft.network.chat.Component.literal("§a§l✓ PERFECT CATCH! " + caught.getName().getString()), true);
+        caught.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a§l✓ " + catcher.getName().getString() + " caught you!"));
+        catcher.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a§l✓ PERFECT CATCH! " + caught.getName().getString()));
     }
 
    

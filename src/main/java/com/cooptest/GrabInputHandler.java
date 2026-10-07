@@ -3,7 +3,7 @@ package com.cooptest;
 import com.cooptest.client.GrabClientState;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -35,15 +35,15 @@ public class GrabInputHandler {
 
 
     public static void register() {
-        grabKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        grabKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.grab", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, ModKeyCategories.COOPMOVES
         ));
 
-        throwKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        throwKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.throw", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_T, ModKeyCategories.COOPMOVES
         ));
 
-        shieldKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        shieldKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.shield", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, ModKeyCategories.COOPMOVES
         ));
 

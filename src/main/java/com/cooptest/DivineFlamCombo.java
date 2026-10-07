@@ -45,8 +45,8 @@ public class DivineFlamCombo {
     }
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(DivineJPressPayload.ID, DivineJPressPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(DivineStartPayload.ID, DivineStartPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(DivineJPressPayload.ID, DivineJPressPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(DivineStartPayload.ID, DivineStartPayload.CODEC);
         System.out.println("[Divine Flame] Payloads registered");
     }
 

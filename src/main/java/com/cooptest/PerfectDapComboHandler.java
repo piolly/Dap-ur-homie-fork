@@ -159,8 +159,8 @@ public class PerfectDapComboHandler {
                     s.count++;
                     closeFusionBar(p1, p2, s);
                     String msg = comboMessage(s.count);
-                    p1.displayClientMessage(net.minecraft.network.chat.Component.literal(msg), true);
-                    p2.displayClientMessage(net.minecraft.network.chat.Component.literal(msg), true);
+                    p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal(msg));
+                    p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal(msg));
                     Vec3 mid = p1.position().add(p2.position()).scale(0.5);
                     p1.level().playSound(null, mid.x, mid.y, mid.z,
                             ModSounds.DAP_HIT, SoundSource.PLAYERS,
@@ -250,14 +250,14 @@ public class PerfectDapComboHandler {
         String failMsg  = "§c✗ You missed! (Combo x" + s.count + ")";
         String otherMsg = "§c✗ Partner missed! (Combo x" + s.count + ")";
         if (misserId == null) {
-            if (p1 != null) p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
-            if (p2 != null) p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
+            if (p1 != null) p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"));
+            if (p2 != null) p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"));
         } else {
             ServerPlayer misser = server.getPlayerList().getPlayer(misserId);
             UUID otherId = misserId.equals(s.p1) ? s.p2 : s.p1;
             ServerPlayer other = server.getPlayerList().getPlayer(otherId);
-            if (misser != null) misser.displayClientMessage(net.minecraft.network.chat.Component.literal(failMsg), true);
-            if (other  != null) other.displayClientMessage(net.minecraft.network.chat.Component.literal(otherMsg), true);
+            if (misser != null) misser.sendOverlayMessage(net.minecraft.network.chat.Component.literal(failMsg));
+            if (other  != null) other.sendOverlayMessage(net.minecraft.network.chat.Component.literal(otherMsg));
         }
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override public void run() {

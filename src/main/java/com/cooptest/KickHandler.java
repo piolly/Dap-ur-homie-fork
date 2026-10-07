@@ -100,11 +100,11 @@ public class KickHandler {
     private static final Map<UUID, Long>    kickPushWindowEnd  = new HashMap<>();
     private static final Map<UUID, Vec3>   kickPushFwd        = new HashMap<>();
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(KickStartPayload.ID,      KickStartPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(KickReleasePayload.ID,    KickReleasePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(KickChargeSyncPayload.ID, KickChargeSyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(KickCooldownPayload.ID,   KickCooldownPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(KickResultPayload.ID,     KickResultPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(KickStartPayload.ID,      KickStartPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(KickReleasePayload.ID,    KickReleasePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(KickChargeSyncPayload.ID, KickChargeSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(KickCooldownPayload.ID,   KickCooldownPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(KickResultPayload.ID,     KickResultPayload.CODEC);
     }
     public static void register() {
         registerPayloads();

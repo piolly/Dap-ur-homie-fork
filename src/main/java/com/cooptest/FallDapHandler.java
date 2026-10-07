@@ -77,8 +77,8 @@ public class FallDapHandler {
     }
 
     public static void register() {
-        PayloadTypeRegistry.playS2C().register(FallDapAnimPayload.ID, FallDapAnimPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SquashAnimPayload.ID, SquashAnimPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FallDapAnimPayload.ID, FallDapAnimPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(SquashAnimPayload.ID, SquashAnimPayload.CODEC);
 
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -153,7 +153,7 @@ public class FallDapHandler {
                 if (chargeStart != null && now - chargeStart >= FALL_CHARGE_DURATION_MS) {
                     fallDapPlayers.put(playerId, FallDapState.FALLING);
                     broadcastFallDapAnim(player, 2); // FALLING state
-                    player.displayClientMessage(Component.literal("§c§l FALL DAP READY! "), true);
+                    player.sendOverlayMessage(Component.literal("§c§l FALL DAP READY! "));
                 }
 
                 if (isOnGround) {
@@ -197,7 +197,7 @@ public class FallDapHandler {
         // Broadcast animation
         broadcastFallDapAnim(player, 1); // CHARGING state
 
-        player.displayClientMessage(Component.literal("§e§l FALL DAP CHARGING! "), true);
+        player.sendOverlayMessage(Component.literal("§e§l FALL DAP CHARGING! "));
     }
 
   
@@ -212,7 +212,7 @@ public class FallDapHandler {
         PoseNetworking.broadcastAnimState(player,
                 com.cooptest.client.CoopAnimationHandler.AnimState.DAP_CHARGE_IDLE.ordinal());
 
-        player.displayClientMessage(Component.literal("§7Fall dap reset - touched ground"), true);
+        player.sendOverlayMessage(Component.literal("§7Fall dap reset - touched ground"));
     }
 
     
@@ -269,8 +269,8 @@ public class FallDapHandler {
         }
 
         // Messages
-        attacker.displayClientMessage(Component.literal("§c§l💀 SQUASHED! 💀"), true);
-        victim.displayClientMessage(Component.literal("§c§lYOU GOT SQUASHED FOR 25 SECONDS!"), true);
+        attacker.sendOverlayMessage(Component.literal("§c§l💀 SQUASHED! 💀"));
+        victim.sendOverlayMessage(Component.literal("§c§lYOU GOT SQUASHED FOR 25 SECONDS!"));
     }
 
   

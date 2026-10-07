@@ -166,20 +166,20 @@ public class DapFusionHandler {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playS2C().register(FusionPhasePayload.ID, FusionPhasePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FusionQTEPayload.ID, FusionQTEPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FusionBlackScreenPayload.ID, FusionBlackScreenPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FusionFusedPayload.ID, FusionFusedPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(FusionGPressPayload.ID, FusionGPressPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(FusionUnfusePayload.ID, FusionUnfusePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FusionPhasePayload.ID, FusionPhasePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FusionQTEPayload.ID, FusionQTEPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FusionBlackScreenPayload.ID, FusionBlackScreenPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FusionFusedPayload.ID, FusionFusedPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(FusionGPressPayload.ID, FusionGPressPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(FusionUnfusePayload.ID, FusionUnfusePayload.CODEC);
     }
     public static void registerClientPayloads() {
-        try { PayloadTypeRegistry.playS2C().register(FusionPhasePayload.ID, FusionPhasePayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playS2C().register(FusionQTEPayload.ID, FusionQTEPayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playS2C().register(FusionBlackScreenPayload.ID, FusionBlackScreenPayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playS2C().register(FusionFusedPayload.ID, FusionFusedPayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playC2S().register(FusionGPressPayload.ID, FusionGPressPayload.CODEC); } catch (Exception ignored) {}
-        try { PayloadTypeRegistry.playC2S().register(FusionUnfusePayload.ID, FusionUnfusePayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(FusionPhasePayload.ID, FusionPhasePayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(FusionQTEPayload.ID, FusionQTEPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(FusionBlackScreenPayload.ID, FusionBlackScreenPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.clientboundPlay().register(FusionFusedPayload.ID, FusionFusedPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.serverboundPlay().register(FusionGPressPayload.ID, FusionGPressPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.serverboundPlay().register(FusionUnfusePayload.ID, FusionUnfusePayload.CODEC); } catch (Exception ignored) {}
     }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(FusionGPressPayload.ID, (payload, context) -> {
@@ -234,7 +234,7 @@ public class DapFusionHandler {
         long now = System.currentTimeMillis();
         long elapsed = now - s.gWindowOpenTime;
         if (elapsed < FUSION_G_WINDOW_START || elapsed > FUSION_G_WINDOW_END) {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§cToo early/late for fusion!"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cToo early/late for fusion!"));
             return;
         }
         if (player.getUUID().equals(s.p1Id)) {
@@ -413,8 +413,8 @@ public class DapFusionHandler {
         s.p1Ref.hurtMarked = true;
         s.p2Ref.hurtMarked = true;
         broadcast(s, new FusionPhasePayload(s.p1Id, s.p2Id, 99));
-        s.p1Ref.displayClientMessage(net.minecraft.network.chat.Component.literal(reason), true);
-        s.p2Ref.displayClientMessage(net.minecraft.network.chat.Component.literal(reason), true);
+        s.p1Ref.sendOverlayMessage(net.minecraft.network.chat.Component.literal(reason));
+        s.p2Ref.sendOverlayMessage(net.minecraft.network.chat.Component.literal(reason));
         cleanupSession(s);
     }
     private static void triggerMeetupExplosion(FusionSession s) {
@@ -533,8 +533,8 @@ public class DapFusionHandler {
             String progress = s.fusionStage >= 10
                     ? "§6§l★ 10/10 ★"
                     : "§a" + s.fusionStage + "/10 §7— §6Keep going!";
-            s.p1Ref.displayClientMessage(net.minecraft.network.chat.Component.literal(progress), true);
-            if (!s.isSolo()) s.p2Ref.displayClientMessage(net.minecraft.network.chat.Component.literal(progress), true);
+            s.p1Ref.sendOverlayMessage(net.minecraft.network.chat.Component.literal(progress));
+            if (!s.isSolo()) s.p2Ref.sendOverlayMessage(net.minecraft.network.chat.Component.literal(progress));
             if (s.fusionStage >= 10) {
                 triggerFusion(s);
             } else {
@@ -563,8 +563,8 @@ public class DapFusionHandler {
         s.p1Ref.hurtMarked = true;
         s.p2Ref.hurtMarked = true;
         broadcast(s, new FusionPhasePayload(s.p1Id, s.p2Id, 99));
-        s.p1Ref.displayClientMessage(net.minecraft.network.chat.Component.literal(reason), false);
-        s.p2Ref.displayClientMessage(net.minecraft.network.chat.Component.literal(reason), false);
+        s.p1Ref.sendSystemMessage(net.minecraft.network.chat.Component.literal(reason));
+        s.p2Ref.sendSystemMessage(net.minecraft.network.chat.Component.literal(reason));
         for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
             p.displayClientMessage(net.minecraft.network.chat.Component.literal(
                     "§c✗ " + s.p1Ref.getName().getString() + " §7and §c" +
@@ -845,12 +845,12 @@ public class DapFusionHandler {
     }
     private static void broadcastServer(FusionSession s, String msg) {
         for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
-            p.displayClientMessage(net.minecraft.network.chat.Component.literal(msg), false);
+            p.sendSystemMessage(net.minecraft.network.chat.Component.literal(msg));
         }
     }
     public static void autoPressBothCorrect(ServerPlayer player) {
         FusionSession s = sessions.get(player.getUUID());
-        if (s == null) { player.displayClientMessage(net.minecraft.network.chat.Component.literal("§cNo active fusion session."), true); return; }
+        if (s == null) { player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cNo active fusion session.")); return; }
         if (s.phase == FusionPhase.WALK_QTE && s.walkQteOpen) {
             handleWalkQTEPress(s, s.p1Id, s.walkExpectedButton);
             if (s.walkQteOpen) handleWalkQTEPress(s, s.p2Id, s.walkExpectedButton);
@@ -861,7 +861,7 @@ public class DapFusionHandler {
             handleGPressFromClient(player);
             handleGPressFromClient(player);
         } else {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§cNo QTE window currently open. Phase: " + s.phase), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cNo QTE window currently open. Phase: " + s.phase));
         }
     }
     public static void debugSkipToFusionQTE(ServerPlayer player) {
@@ -930,8 +930,8 @@ public class DapFusionHandler {
         if (p2 != null) {
             try { ServerPlayNetworking.send(p2, new FusionFusedPayload(false)); } catch (Exception ignored) {}
         }
-        p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§7Fusion dissolved."), true);
-        if (p2 != null) p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§7Fusion dissolved."), true);
+        p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7Fusion dissolved."));
+        if (p2 != null) p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7Fusion dissolved."));
         String name1 = p1.getName().getString();
         String name2 = p2 != null ? p2.getName().getString() : name1;
         for (ServerPlayer p : p1.level().getServer().getPlayerList().getPlayers()) {

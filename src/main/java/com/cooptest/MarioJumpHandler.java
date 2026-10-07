@@ -51,7 +51,7 @@ public class MarioJumpHandler {
 
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(MarioJumpRequestPayload.ID, MarioJumpRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(MarioJumpRequestPayload.ID, MarioJumpRequestPayload.CODEC);
     }
 
     public static void register() {
@@ -191,8 +191,8 @@ public class MarioJumpHandler {
                 ModSounds.MARIO_JUMP, SoundSource.PLAYERS, 1.0f, 1.0f);
 
         // Messages
-        jumper.displayClientMessage(net.minecraft.network.chat.Component.literal("§a WAHOO!"), true);
-        target.displayClientMessage(net.minecraft.network.chat.Component.literal("§c BONK!"), true);
+        jumper.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a WAHOO!"));
+        target.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c BONK!"));
     }
 
     /**

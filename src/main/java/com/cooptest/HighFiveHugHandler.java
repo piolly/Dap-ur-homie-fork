@@ -41,10 +41,10 @@ public class HighFiveHugHandler {
         public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(HugHoldPayload.ID, HugHoldPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(HugHoldPayload.ID, HugHoldPayload.CODEC);
     }
     public static void registerClientPayloads() {
-        try { PayloadTypeRegistry.playC2S().register(HugHoldPayload.ID, HugHoldPayload.CODEC); } catch (Exception ignored) {}
+        try { PayloadTypeRegistry.serverboundPlay().register(HugHoldPayload.ID, HugHoldPayload.CODEC); } catch (Exception ignored) {}
     }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(HugHoldPayload.ID, (payload, context) -> {
@@ -88,7 +88,7 @@ public class HighFiveHugHandler {
         }
         double distance = player.position().distanceTo(partner.position());
         if (distance > HUG_DISTANCE) {
-            player.displayClientMessage(Component.literal("§c❤ Get closer to hug! ❤"), true);
+            player.sendOverlayMessage(Component.literal("§c❤ Get closer to hug! ❤"));
             return;
         }
         startHug(player, partner);
@@ -105,8 +105,8 @@ public class HighFiveHugHandler {
         hugStartTime.put(id2, now);
         PoseNetworking.broadcastAnimState(p1, 32);
         PoseNetworking.broadcastAnimState(p2, 32);
-        p1.displayClientMessage(Component.literal("§d❤ Hugging... ❤"), true);
-        p2.displayClientMessage(Component.literal("§d❤ Hugging... ❤"), true);
+        p1.sendOverlayMessage(Component.literal("§d❤ Hugging... ❤"));
+        p2.sendOverlayMessage(Component.literal("§d❤ Hugging... ❤"));
     }
     private static void tick(MinecraftServer server) {
         long now = System.currentTimeMillis();
@@ -242,8 +242,8 @@ public class HighFiveHugHandler {
         hugStartTime.put(id2, now);
         PoseNetworking.broadcastAnimState(p1, 35);
         PoseNetworking.broadcastAnimState(p2, 35);
-        p1.displayClientMessage(Component.literal("§e Hug ended "), true);
-        p2.displayClientMessage(Component.literal("§e Hug ended "), true);
+        p1.sendOverlayMessage(Component.literal("§e Hug ended "));
+        p2.sendOverlayMessage(Component.literal("§e Hug ended "));
     }
     public static boolean isInHugFreeze(UUID playerId) {
         HugState state = hugState.get(playerId);

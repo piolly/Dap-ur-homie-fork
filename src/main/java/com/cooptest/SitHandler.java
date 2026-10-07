@@ -21,7 +21,7 @@ public class SitHandler {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(SitFHoldPayload.ID, SitFHoldPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(SitFHoldPayload.ID, SitFHoldPayload.CODEC);
     }
     private static final Map<UUID, Double> sittingPlayers = new HashMap<>();
     private static final Map<UUID, UUID>   reachingSitter  = new HashMap<>();
@@ -66,7 +66,7 @@ public class SitHandler {
         ServerPlayNetworking.send(player, new ChargedDapHandler.PerfectDapFreezePayload(true));
         PoseNetworking.broadcastAnimState(player,
                 com.cooptest.client.CoopAnimationHandler.AnimState.SITTING.ordinal());
-        player.displayClientMessage(net.minecraft.network.chat.Component.literal("§7[Sitting — a friend can hold F to help you up]"), true);
+        player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7[Sitting — a friend can hold F to help you up]"));
     }
     private static void onFHold(ServerPlayer helper, boolean holding) {
         UUID hid = helper.getUUID();

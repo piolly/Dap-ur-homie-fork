@@ -56,9 +56,9 @@ public class SlapHandler {
         @Override public Type<ScreenClosePayload> type() { return ID; }
     }
     public static void register() {
-        PayloadTypeRegistry.playS2C().register(CameraFlickPayload.ID,    CameraFlickPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(CameraYawFlickPayload.ID, CameraYawFlickPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ScreenClosePayload.ID,    ScreenClosePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(CameraFlickPayload.ID,    CameraFlickPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(CameraYawFlickPayload.ID, CameraYawFlickPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ScreenClosePayload.ID,    ScreenClosePayload.CODEC);
     }
     public static boolean checkSlapOnRelease(ServerPlayer attacker) {
         Vec3 aEye  = attacker.position().add(0, attacker.getEyeHeight(attacker.asLivingEntity().asLivingEntity().getPose()), 0);
@@ -133,8 +133,8 @@ public class SlapHandler {
                     ServerPlayNetworking.send(p, flick);
                 }
                 ServerPlayNetworking.send(v, new ScreenClosePayload(victimId));
-                v.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l I like ya cut G"), true);
-                attacker.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l SLAP!"), true);
+                v.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l I like ya cut G"));
+                attacker.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l SLAP!"));
                 world.sendParticles(ParticleTypes.CRIT,
                         hitPos.x, hitPos.y, hitPos.z, 10, 0.15, 0.1, 0.15, 0.15);
                 world.sendParticles(ParticleTypes.SWEEP_ATTACK,

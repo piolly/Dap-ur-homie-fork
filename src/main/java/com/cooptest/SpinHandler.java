@@ -59,10 +59,10 @@ public class SpinHandler {
     private static final Map<UUID, UUID>     helicopterRider    = new HashMap<>();
     private static final Map<UUID, UUID>     helicopterSpinner  = new HashMap<>();
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(SpinStartPayload.ID,       SpinStartPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(SpinStopPayload.ID,        SpinStopPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SpinSyncPayload.ID,        SpinSyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(HelicopterLaunchPayload.ID, HelicopterLaunchPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(SpinStartPayload.ID,       SpinStartPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(SpinStopPayload.ID,        SpinStopPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(SpinSyncPayload.ID,        SpinSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HelicopterLaunchPayload.ID, HelicopterLaunchPayload.CODEC);
     }
     public static void register() {
         registerPayloads();
@@ -196,8 +196,8 @@ public class SpinHandler {
                     ModSounds.HELI, SoundSource.PLAYERS, 1.0f, 1.0f);
             world.playSound(null, sPos.x, sPos.y, sPos.z,
                     ModSounds.EXPLOSION_IMPACT, SoundSource.PLAYERS, 0.8f, 0.5f);
-            spinner.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 HELICOPTER! Press SHIFT for MEGA GROUND POUND!"), true);
-            target.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 You're riding the helicopter!"), true);
+            spinner.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 HELICOPTER! Press SHIFT for MEGA GROUND POUND!"));
+            target.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 You're riding the helicopter!"));
             break;
         }
     }
@@ -237,8 +237,8 @@ public class SpinHandler {
                 SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.PLAYERS, 1.2f, 0.7f);
         world.playSound(null, pos.x, pos.y, pos.z,
                 ModSounds.EXPLOSION_IMPACT, SoundSource.PLAYERS, 0.8f, 0.5f);
-        spinner.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 HELICOPTER LAUNCH!"), true);
-        if (rider != null) rider.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 Helicopter launched!"), true);
+        spinner.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 HELICOPTER LAUNCH!"));
+        if (rider != null) rider.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🚀 Helicopter launched!"));
     }
     private static void detachHelicopterRider(MinecraftServer server, UUID spinnerId) {
         UUID riderId = helicopterRider.remove(spinnerId);

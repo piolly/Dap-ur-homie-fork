@@ -518,27 +518,27 @@ public class ChargedDapHandler {
     }
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(ChargeStartPayload.ID, ChargeStartPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(ChargeReleasePayload.ID, ChargeReleasePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(HeavenReadyPayload.ID, HeavenReadyPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ChargeSyncPayload.ID, ChargeSyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(DapResultPayload.ID, DapResultPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(WhiffCooldownPayload.ID, WhiffCooldownPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ImpactFramePayload.ID, ImpactFramePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(PerfectDapFreezePayload.ID, PerfectDapFreezePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(PerfectDapImpactFramePayload.ID, PerfectDapImpactFramePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FacingDapImpactPayload.ID, FacingDapImpactPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ChargeStartPayload.ID, ChargeStartPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ChargeReleasePayload.ID, ChargeReleasePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HeavenReadyPayload.ID, HeavenReadyPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ChargeSyncPayload.ID, ChargeSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(DapResultPayload.ID, DapResultPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(WhiffCooldownPayload.ID, WhiffCooldownPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ImpactFramePayload.ID, ImpactFramePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PerfectDapFreezePayload.ID, PerfectDapFreezePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PerfectDapImpactFramePayload.ID, PerfectDapImpactFramePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FacingDapImpactPayload.ID, FacingDapImpactPayload.CODEC);
 
 
-        PayloadTypeRegistry.playC2S().register(FireDapJPressPayload.ID, FireDapJPressPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FireDapWindowPayload.ID, FireDapWindowPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FireDapFreezePayload.ID, FireDapFreezePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FireDapFirstPersonPayload.ID, FireDapFirstPersonPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(FireDapJPressPayload.ID, FireDapJPressPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FireDapWindowPayload.ID, FireDapWindowPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FireDapFreezePayload.ID, FireDapFreezePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FireDapFirstPersonPayload.ID, FireDapFirstPersonPayload.CODEC);
 
 
-        PayloadTypeRegistry.playC2S().register(QTEButtonPressPayload.ID, QTEButtonPressPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(QTEWindowPayload.ID, QTEWindowPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(QTEClearPayload.ID, QTEClearPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(QTEButtonPressPayload.ID, QTEButtonPressPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(QTEWindowPayload.ID, QTEWindowPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(QTEClearPayload.ID, QTEClearPayload.CODEC);
     }
 
     public static void register() {
@@ -1125,9 +1125,9 @@ public class ChargedDapHandler {
                                 ServerPlayer partner = server.getPlayerList().getPlayer(partnerId);
                                 if (partner != null) {
 
-                                    partner.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed J!"), true);
+                                    partner.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed J!"));
 
-                                    player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"), true);
+                                    player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"));
                                 }
                             }
 
@@ -1476,7 +1476,7 @@ public class ChargedDapHandler {
                                                     net.minecraft.sounds.SoundEvents.GLASS_BREAK, net.minecraft.sounds.SoundSource.PLAYERS,
                                                     1.0f, 0.8f);
 
-                                            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§d§l✨ HEAVEN READY! ✨ §7(Fire UI broken!)"), true);
+                                            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§d§l✨ HEAVEN READY! ✨ §7(Fire UI broken!)"));
 
 
                                             HeavenReadyPayload payload = new HeavenReadyPayload(id, true);
@@ -1624,7 +1624,7 @@ public class ChargedDapHandler {
 
 
         if (isInComboCooldown(uuid)) {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§cWait 1 second after combo!"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cWait 1 second after combo!"));
             broadcastChargeCancel(player);
             return;
         }
@@ -1730,7 +1730,7 @@ public class ChargedDapHandler {
 
             broadcastWhiffCooldown(player, cooldownEnd);
 
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Whiff! 0.8s cooldown"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ Whiff! 0.8s cooldown"));
             return;
         }
 
@@ -1906,7 +1906,7 @@ public class ChargedDapHandler {
                 ModSounds.EPIC_DAP, net.minecraft.sounds.SoundSource.PLAYERS, 1.3f, 1.1f);
 
         net.minecraft.network.chat.Component msg = net.minecraft.network.chat.Component.literal("§6§l⚡ TRIPLE DAP!");
-        for (ServerPlayer p : trio) p.displayClientMessage(msg, true);
+        for (ServerPlayer p : trio) p.sendOverlayMessage(msg);
     }
 
     private static void executeDap(ServerPlayer p1, ServerPlayer p2,
@@ -1957,8 +1957,8 @@ public class ChargedDapHandler {
         boolean isHighTierDap = (tier >= 4);
         if (!isPerfectDap && !isHighTierDap) {
             if (!arePlayersFacingEachOther(p1, p2)) {
-                p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§lKeep eye contact!"), true);
-                p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§lKeep eye contact!"), true);
+                p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§lKeep eye contact!"));
+                p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§lKeep eye contact!"));
                 cooldowns.put(p1.getUUID(), now + 300);
                 cooldowns.put(p2.getUUID(), now + 300);
 
@@ -2094,8 +2094,8 @@ public class ChargedDapHandler {
         world.sendParticles(ParticleTypes.POOF, pos.x, pos.y, pos.z, 12, 0.4, 0.3, 0.4, 0.03);
         world.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 8, 0.3, 0.3, 0.3, 0.02);
 
-        p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§7*missed!* timing off..."), true);
-        p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§7*missed!* timing off..."), true);
+        p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7*missed!* timing off..."));
+        p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7*missed!* timing off..."));
 
         chargeStartTime.remove(p1.getUUID());
         chargeStartTime.remove(p2.getUUID());
@@ -2167,7 +2167,7 @@ public class ChargedDapHandler {
         }
 
 
-        player.displayClientMessage(net.minecraft.network.chat.Component.literal("§7*whoosh*"), true);
+        player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7*whoosh*"));
     }
 
 
@@ -2187,8 +2187,8 @@ public class ChargedDapHandler {
             world.playSound(null, pos.x, pos.y, pos.z,
                     ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0f, 1.0f);
             spawnPrecisionDapParticles(world, pos, 0);
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§7Weak dap..."), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§7Weak dap..."), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7Weak dap..."));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§7Weak dap..."));
             return;
         }
 
@@ -2233,8 +2233,8 @@ public class ChargedDapHandler {
             world.playSound(null, pos.x, pos.y, pos.z,
                     ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0f, 1.0f);
             spawnPrecisionDapParticles(world, pos, 1);
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§e✋ Decent Dap!"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§e✋ Decent Dap!"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e✋ Decent Dap!"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e✋ Decent Dap!"));
             return;
         }
 
@@ -2278,8 +2278,8 @@ public class ChargedDapHandler {
             world.playSound(null, pos.x, pos.y, pos.z,
                     ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0f, 1.0f);
             spawnPrecisionDapParticles(world, pos, 2);
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§a✋ Good Dap! ✋"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§a✋ Good Dap! ✋"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a✋ Good Dap! ✋"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a✋ Good Dap! ✋"));
             return;
         }
 
@@ -2404,8 +2404,8 @@ public class ChargedDapHandler {
                 world, pos, p1, p2, effectTime
         ));
 
-        p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"), true);
-        p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"), true);
+        p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"));
+        p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"));
 
 
         DapSessionManager.removeSession(id1);
@@ -2431,8 +2431,8 @@ public class ChargedDapHandler {
             world.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
             createExplosion(world, pos, p1, p2, 3.5, 6.0f);
             applyKnockback(p1, p2, pos, 1.0);
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"));
             return;
         }
 
@@ -2445,8 +2445,8 @@ public class ChargedDapHandler {
             world.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
             createExplosion(world, pos, p1, p2, 3.5, 6.0f);
             applyKnockback(p1, p2, pos, 1.0);
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6§l✋ GREAT DAP! ✋"));
 
 
             if (CoopMovesConfig.get().enableDapCombo) DapComboChain.startCombo(p1, p2, pos);
@@ -2481,8 +2481,8 @@ public class ChargedDapHandler {
         PoseNetworking.broadcastAnimState(p2,
                 com.cooptest.client.CoopAnimationHandler.AnimState.PERFECT_DAP_EXTEND1_P2.ordinal());
 
-        p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§d§l★ EXTENDER DAP! ★"), true);
-        p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§d§l★ EXTENDER DAP! ★"), true);
+        p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§d§l★ EXTENDER DAP! ★"));
+        p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§d§l★ EXTENDER DAP! ★"));
 
 
 
@@ -2672,8 +2672,8 @@ public class ChargedDapHandler {
             p1.die(world.damageSources().magic());
             p2.die(world.damageSources().magic());
 
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"));
 
 
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -2702,8 +2702,8 @@ public class ChargedDapHandler {
 
             applyKnockback(p1, p2, pos, 2.0);
 
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"));
         }
     }
 
@@ -2732,7 +2732,7 @@ public class ChargedDapHandler {
 
 
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                player.displayClientMessage(net.minecraft.network.chat.Component.literal("§7Time returns to normal..."), false);
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7Time returns to normal..."));
             }
         }
 
@@ -3258,12 +3258,12 @@ public class ChargedDapHandler {
             world.sendParticles((ColorParticleOption.create(ParticleTypes.FLASH, 1f, 1f, 1f)), pos.x, pos.y, pos.z, 40, 0.8, 0.8, 0.8, 0.15);
             world.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 50, 0.6, 0.6, 0.6, 0.3);
 
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 PERFECT FIRE DAP! 🔥"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 PERFECT FIRE DAP! 🔥"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 PERFECT FIRE DAP! 🔥"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 PERFECT FIRE DAP! 🔥"));
         } else {
 
-            p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 FIRE DAP! 🔥"), true);
-            p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 FIRE DAP! 🔥"), true);
+            p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 FIRE DAP! 🔥"));
+            p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 FIRE DAP! 🔥"));
         }
 
 
@@ -3276,8 +3276,8 @@ public class ChargedDapHandler {
             try { Thread.sleep(FUSION_G_WINDOW_START_MS); } catch (InterruptedException ignored) {}
             p1.level().getServer().execute(() -> {
                 if (inFireDapHit.getOrDefault(p1.getUUID(), false)) {
-                    p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"), true);
-                    p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"), true);
+                    p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"));
+                    p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"));
                 }
             });
         }).start();
@@ -3978,7 +3978,7 @@ public class ChargedDapHandler {
 
 
         if (elapsed < FIRE_J_WINDOW_START || elapsed > FIRE_J_WINDOW_END) {
-            player.displayClientMessage(net.minecraft.network.chat.Component.literal("§cToo early/late for combo!"), true);
+            player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cToo early/late for combo!"));
             return;
         }
 
@@ -4074,8 +4074,8 @@ public class ChargedDapHandler {
         }
 
 
-        p1.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 DIVINE FLAME COMBO! 🔥"), true);
-        p2.displayClientMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 DIVINE FLAME COMBO! 🔥"), true);
+        p1.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 DIVINE FLAME COMBO! 🔥"));
+        p2.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l🔥 DIVINE FLAME COMBO! 🔥"));
 
 
         p1.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 100, 255, false, false));

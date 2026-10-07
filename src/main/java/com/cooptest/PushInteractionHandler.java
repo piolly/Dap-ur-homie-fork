@@ -59,7 +59,7 @@ public class PushInteractionHandler {
     }
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playS2C().register(PushAnimPayload.ID, PushAnimPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PushAnimPayload.ID, PushAnimPayload.CODEC);
     }
 
     public static void register() {
@@ -76,19 +76,19 @@ public class PushInteractionHandler {
 
                 if (now - request.timestamp > REQUEST_TIMEOUT_MS) {
                     pendingJumpPush.remove(player.getUUID());
-                    serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§cRequest expired!"), true);
+                    serverPlayer.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cRequest expired!"));
                     return InteractionResult.FAIL;
                 }
 
                 if (player.distanceTo(target) > 2.5f) {
                     pendingJumpPush.remove(player.getUUID());
-                    serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§cToo far away!"), true);
+                    serverPlayer.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cToo far away!"));
                     return InteractionResult.FAIL;
                 }
 
                 pendingJumpPush.remove(player.getUUID());
-                serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§a✓ JUMP PUSH accepted!"), true);
-                serverTarget.displayClientMessage(net.minecraft.network.chat.Component.literal("§a✓ " + serverPlayer.getName().getString() + " accepted!"), true);
+                serverPlayer.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a✓ JUMP PUSH accepted!"));
+                serverTarget.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a✓ " + serverPlayer.getName().getString() + " accepted!"));
 
                 executePush(serverTarget, serverPlayer, request.velocity, "§6§lJUMP PUSH!", now);
                 return InteractionResult.SUCCESS;
@@ -136,8 +136,8 @@ public class PushInteractionHandler {
             double velocity = calculateVelocity(serverTarget, baseLaunchVelocity);
             pendingJumpPush.put(target.getUUID(), new PushRequest(player.getUUID(), velocity));
 
-            serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ Request sent to " + serverTarget.getName().getString() + "!"), false);
-            serverTarget.displayClientMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + serverPlayer.getName().getString() + " wants to push you! §aRight-click them to accept!"), true);
+            serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.literal("§e⚡ Request sent to " + serverTarget.getName().getString() + "!"));
+            serverTarget.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + serverPlayer.getName().getString() + " wants to push you! §aRight-click them to accept!"));
 
             return InteractionResult.SUCCESS;
         });
@@ -187,7 +187,7 @@ public class PushInteractionHandler {
                 PoseState.PUSH_ACTION
         );
 
-        pusher.displayClientMessage(net.minecraft.network.chat.Component.literal(type), true);
+        pusher.sendOverlayMessage(net.minecraft.network.chat.Component.literal(type));
     }
 
     public static boolean hasPushImmunity(UUID uuid) {
@@ -229,7 +229,7 @@ public class PushInteractionHandler {
         pendingJumpPush.entrySet().removeIf(e -> {
             if (now - e.getValue().timestamp > REQUEST_TIMEOUT_MS) {
                 ServerPlayer t = server.getPlayerList().getPlayer(e.getKey());
-                if (t != null) t.displayClientMessage(net.minecraft.network.chat.Component.literal("§cRequest expired!"), true);
+                if (t != null) t.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cRequest expired!"));
                 return true;
             }
             return false;

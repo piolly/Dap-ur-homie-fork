@@ -23,24 +23,24 @@ public class DebugQTECommand {
             return 0;
         }
         if (QTEManager.isInQTE(player.getUUID())) {
-            player.displayClientMessage(Component.literal("§c§lAlready in a QTE!"), false);
+            player.sendSystemMessage(Component.literal("§c§lAlready in a QTE!"));
             return 0;
         }
-        player.displayClientMessage(Component.literal("§a§l[DEBUG] Starting " + stages + "-stage QTE in SOLO MODE!"), false);
-        player.displayClientMessage(Component.literal("§e§lPress the button that appears!"), false);
+        player.sendSystemMessage(Component.literal("§a§l[DEBUG] Starting " + stages + "-stage QTE in SOLO MODE!"));
+        player.sendSystemMessage(Component.literal("§e§lPress the button that appears!"));
         QTEManager.triggerQTESolo(
                 player,
                 stages,
                 (p1, p2) -> {
-                    p1.displayClientMessage(Component.literal("§d§l★ ALL STAGES COMPLETE! ★"), true);
-                    p1.displayClientMessage(Component.literal("§a§lExtender animation would play here!"), false);// PLS WORKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+                    p1.sendOverlayMessage(Component.literal("§d§l★ ALL STAGES COMPLETE! ★"));
+                    p1.sendSystemMessage(Component.literal("§a§lExtender animation would play here!"));// PLS WORKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
                 },
                 (p1, p2) -> {
-                    p1.displayClientMessage(Component.literal("§c§l✖ QTE FAILED! ✖"), true);
-                    p1.displayClientMessage(Component.literal("§7Better luck next time!"), false);
+                    p1.sendOverlayMessage(Component.literal("§c§l✖ QTE FAILED! ✖"));
+                    p1.sendSystemMessage(Component.literal("§7Better luck next time!"));
                 },
                 (p1, p2, completedStage) -> {
-                    p1.displayClientMessage(Component.literal("§a§l✓ Stage " + completedStage + " clear!"), false);
+                    p1.sendSystemMessage(Component.literal("§a§l✓ Stage " + completedStage + " clear!"));
                 }
         );
         return 1;

@@ -105,8 +105,8 @@ public class HuddleHandler {
         @Override public Type<HuddleEndPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(HuddleFHoldPayload.ID, HuddleFHoldPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(HuddleEndPayload.ID,   HuddleEndPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(HuddleFHoldPayload.ID, HuddleFHoldPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HuddleEndPayload.ID,   HuddleEndPayload.CODEC);
     }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(HuddleFHoldPayload.ID,
@@ -285,7 +285,7 @@ public class HuddleHandler {
                 Vec3 sPos = stand.position();
                 pj.level().playSound(null, sPos.x, sPos.y, sPos.z,
                         SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0f, 1.7f);
-                pj.displayClientMessage(net.minecraft.network.chat.Component.literal("§aYou joined the huddle!"), true);
+                pj.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§aYou joined the huddle!"));
                 for (UUID pid : s.players) {
                     if (pid.equals(joiner)) continue;
                     ServerPlayer pp = server.getPlayerList().getPlayer(pid);
@@ -658,7 +658,7 @@ public class HuddleHandler {
             PoseNetworking.broadcastAnimState(lp, ANIM_NONE);
             lp.removeEffect(MobEffects.SPEED);
             lp.removeEffect(MobEffects.STRENGTH);
-            lp.displayClientMessage(net.minecraft.network.chat.Component.literal("§c✗ Huddle failed!"), true);
+            lp.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c✗ Huddle failed!"));
             ServerPlayNetworking.send(lp, new HuddleEndPayload(s.p1, s.p2, false));
         }
         if (live.size() >= 2) {

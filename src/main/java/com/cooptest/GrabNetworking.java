@@ -82,13 +82,13 @@ public class GrabNetworking {
     // ===== REGISTRATION =====
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(ThrowRequestPayload.ID, ThrowRequestPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(DropRequestPayload.ID, DropRequestPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(EscapeRequestPayload.ID, EscapeRequestPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(ElytraBoostRequestPayload.ID, ElytraBoostRequestPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(AirMovementPayload.ID, AirMovementPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(ShieldTogglePayload.ID, ShieldTogglePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(GrabStatePayload.ID, GrabStatePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ThrowRequestPayload.ID, ThrowRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(DropRequestPayload.ID, DropRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(EscapeRequestPayload.ID, EscapeRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ElytraBoostRequestPayload.ID, ElytraBoostRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(AirMovementPayload.ID, AirMovementPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ShieldTogglePayload.ID, ShieldTogglePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(GrabStatePayload.ID, GrabStatePayload.CODEC);
     }
 
     public static void registerServerReceivers() {

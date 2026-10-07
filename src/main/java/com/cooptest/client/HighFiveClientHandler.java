@@ -5,7 +5,7 @@ import com.cooptest.HighFiveHugHandler;
 import com.cooptest.ModKeyCategories;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
@@ -34,7 +34,7 @@ public class HighFiveClientHandler {
     private static boolean hugCameraLocked = false;
     private static final Map<UUID, Boolean> frozenPlayers = new HashMap<>();
     public static void register() {
-        highFiveKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        highFiveKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.highfive", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, ModKeyCategories.COOPMOVES
         ));
         ClientPlayNetworking.registerGlobalReceiver(HighFiveHandler.HandRaisedSyncPayload.ID,
@@ -189,9 +189,9 @@ public class HighFiveClientHandler {
             }
             if (!inComboWindow && isKeyPressed && !wasKeyPressed) {
                 if (ChargedDapClientHandler.isLocalPlayerCharging()) {
-                    client.player.displayClientMessage(Component.literal("§cCan't high five while charging dap!"), true);
+                    client.player.sendOverlayMessage(Component.literal("§cCan't high five while charging dap!"));
                 } else if (!client.player.getMainHandItem().isEmpty()) {
-                    client.player.displayClientMessage(Component.literal("§cHands must be empty for high five!"), true);
+                    client.player.sendOverlayMessage(Component.literal("§cHands must be empty for high five!"));
                 } else {
                     raisedHands.put(client.player.getUUID(), true);
                     boolean rightClickHeld = client.options.keyUse.isDown();
@@ -232,7 +232,7 @@ public class HighFiveClientHandler {
                 case 3 -> "§c§l⚡ EXPLOSIVE HIGH FIVE! ⚡";
                 default -> "§6 High Five!";
             };
-            client.player.displayClientMessage(Component.literal(message), true);
+            client.player.sendOverlayMessage(Component.literal(message));
         }
     }
     private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {

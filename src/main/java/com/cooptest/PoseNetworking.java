@@ -80,17 +80,17 @@ public class PoseNetworking {
     }
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(PoseSyncPayload.ID, PoseSyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(PoseSyncPayload.ID, PoseSyncPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(PoseSyncPayload.ID, PoseSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PoseSyncPayload.ID, PoseSyncPayload.CODEC);
 
-        PayloadTypeRegistry.playC2S().register(ChargeSyncPayload.ID, ChargeSyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ChargeSyncPayload.ID, ChargeSyncPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ChargeSyncPayload.ID, ChargeSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ChargeSyncPayload.ID, ChargeSyncPayload.CODEC);
 
-        PayloadTypeRegistry.playC2S().register(ThrowAnimPayload.ID, ThrowAnimPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ThrowAnimPayload.ID, ThrowAnimPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ThrowAnimPayload.ID, ThrowAnimPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ThrowAnimPayload.ID, ThrowAnimPayload.CODEC);
 
-        PayloadTypeRegistry.playC2S().register(AnimStateSyncPayload.ID, AnimStateSyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(AnimStateSyncPayload.ID, AnimStateSyncPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(AnimStateSyncPayload.ID, AnimStateSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(AnimStateSyncPayload.ID, AnimStateSyncPayload.CODEC);
     }
 
     public static void registerServerReceiver() {

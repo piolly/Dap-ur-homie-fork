@@ -52,9 +52,9 @@ public class HeavenDapPayloads {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
     public static void registerPayloads() {
-        PayloadTypeRegistry.playS2C().register(HeavenDapStartPayload.ID, HeavenDapStartPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(HeavenDapEndPayload.ID, HeavenDapEndPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(RestoreVolumePayload.ID, RestoreVolumePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(HeavenImpactPayload.ID, HeavenImpactPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HeavenDapStartPayload.ID, HeavenDapStartPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HeavenDapEndPayload.ID, HeavenDapEndPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RestoreVolumePayload.ID, RestoreVolumePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HeavenImpactPayload.ID, HeavenImpactPayload.CODEC);
     }
 }
