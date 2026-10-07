@@ -1757,10 +1757,8 @@ public class CoopAnimationHandler {
                String name = player.getName().getString();
                if (mc0.player != null) {
                   mc0.player
-                     .displayClientMessage(
-                        Component.literal("§8[anim] §7" + name + (self ? " §8(you)" : "") + " §f" + stateOrdinal + " §7ctl=" + (hasCtl ? "§aok" : "§cNULL")),
-                        false
-                     );
+                     .sendSystemMessage(
+                        Component.literal("§8[anim] §7" + name + (self ? " §8(you)" : "") + " §f" + stateOrdinal + " §7ctl=" + (hasCtl ? "§aok" : "§cNULL")));
                }
             }
 

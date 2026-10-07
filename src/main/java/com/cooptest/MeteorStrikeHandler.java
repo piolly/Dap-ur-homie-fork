@@ -88,12 +88,10 @@ public class MeteorStrikeHandler {
       }
 
       for (ServerPlayer p : p1.level().getServer().getPlayerList().getPlayers()) {
-         p.displayClientMessage(
+         p.sendSystemMessage(
             Component.literal(
                "§c☄ " + p1.getName().getString() + " §7and §c" + p2.getName().getString() + " §7have unlocked §c§lMETEOR STRIKE§7! Press §lG§7 to fire!"
-            ),
-            false
-         );
+            ));
       }
    }
 
@@ -278,7 +276,7 @@ public class MeteorStrikeHandler {
                }
 
                living.push(dir.x * 3.0, 2.0, dir.z * 3.0);
-               living.hurtMarked = true;
+               living.syncVelocity = true;
             }
          }
       }

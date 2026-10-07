@@ -110,7 +110,7 @@ public class CoopClientSettings {
 
    private static int open(FabricClientCommandSource src) {
       Minecraft client = src.getClient();
-      client.execute(() -> client.setScreen(new CoopClientSettings.SettingsScreen(null)));
+      client.execute(() -> client.setScreenAndShow(new CoopClientSettings.SettingsScreen(null)));
       return 1;
    }
 
@@ -181,7 +181,7 @@ public class CoopClientSettings {
 
       public void onClose() {
          CoopClientSettings.save();
-         this.minecraft.setScreen(this.parent);
+         this.minecraft.setScreenAndShow(this.parent);
       }
    }
 }

@@ -206,16 +206,16 @@ public class PerfectDapComboHandler {
                      );
                   float upY = Math.min(0.6F, 0.2F + s.count * 0.025F);
                   p1.push(0.0, upY, 0.0);
-                  p1.hurtMarked = true;
+                  p1.syncVelocity = true;
                   p2.push(0.0, upY, 0.0);
-                  p2.hurtMarked = true;
+                  p2.syncVelocity = true;
                   if (s.count >= 3) {
                      Vec3 dir = p2.position().subtract(p1.position()).normalize();
                      double pull = Math.min(0.5, 0.1 + (s.count - 3) * 0.05);
                      p1.push(dir.x * pull, 0.0, dir.z * pull);
                      p2.push(-dir.x * pull, 0.0, -dir.z * pull);
-                     p1.hurtMarked = true;
-                     p2.hurtMarked = true;
+                     p1.syncVelocity = true;
+                     p2.syncVelocity = true;
                   }
 
                   startComboCycle(s, p1, p2);
@@ -225,8 +225,8 @@ public class PerfectDapComboHandler {
                      Vec3 dir = p2.position().subtract(p1.position()).normalize();
                      p1.push(-dir.x * 1.2, -0.5, -dir.z * 1.2);
                      p2.push(dir.x * 1.2, -0.5, dir.z * 1.2);
-                     p1.hurtMarked = true;
-                     p2.hurtMarked = true;
+                     p1.syncVelocity = true;
+                     p2.syncVelocity = true;
                      Vec3 mid2 = p1.position().add(p2.position()).scale(0.5).add(0.0, 1.0, 0.0);
                      p1.level().sendParticles(ParticleTypes.ANGRY_VILLAGER, mid2.x, mid2.y, mid2.z, 6, 0.3, 0.3, 0.3, 0.05);
                   }
@@ -357,7 +357,7 @@ public class PerfectDapComboHandler {
 
          for (ServerPlayer tp : new ServerPlayer[]{p1, p2}) {
             tp.push(dx, 0.0, dz);
-            tp.hurtMarked = true;
+            tp.syncVelocity = true;
          }
       }
 

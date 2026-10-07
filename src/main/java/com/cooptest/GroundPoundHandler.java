@@ -72,7 +72,7 @@ public class GroundPoundHandler {
                                  diveStartY.put(id, player.getY());
                                  diveStartTime.put(id, System.currentTimeMillis());
                                  player.setDeltaMovement(0.0, -3.5, 0.0);
-                                 player.hurtMarked = true;
+                                 player.syncVelocity = true;
                                  PoseNetworking.broadcastAnimState(player, 65);
                                  broadcastDiveSync(player.level().getServer(), id, true);
                                  player.level()
@@ -135,7 +135,7 @@ public class GroundPoundHandler {
                } else {
                   Vec3 vel = player.getDeltaMovement();
                   player.setDeltaMovement(vel.x * 0.1, -3.5, vel.z * 0.1);
-                  player.hurtMarked = true;
+                  player.syncVelocity = true;
                   player.setYRot(player.getYRot());
                }
             }
@@ -170,7 +170,7 @@ public class GroundPoundHandler {
                double nx = dist > 0.01 ? dx / dist : 0.0;
                double nz = dist > 0.01 ? dz / dist : 0.0;
                living.setDeltaMovement(nx * 2.2 * falloff * kbMult, upwardPop * falloff, nz * 2.2 * falloff * kbMult);
-               living.hurtMarked = true;
+               living.syncVelocity = true;
                double dmg = scaledPower * (isMega ? 8.0 : 4.0) * falloff;
                if (dmg > 0.5) {
                   living.hurtServer(world, world.damageSources().playerAttack(player), (float)dmg);
@@ -226,7 +226,7 @@ public class GroundPoundHandler {
       PoseNetworking.broadcastAnimState(player, 66);
       landStunEnd.put(player.getUUID(), System.currentTimeMillis() + 500L);
       player.setDeltaMovement(0.0, 0.0, 0.0);
-      player.hurtMarked = true;
+      player.syncVelocity = true;
       if (scaledPower >= 0.6) {
          player.sendOverlayMessage(Component.literal("§c§l\ud83d\udca5 GROUND POUND!"));
       } else {

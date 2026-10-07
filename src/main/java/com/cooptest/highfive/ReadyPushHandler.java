@@ -240,7 +240,7 @@ public class ReadyPushHandler {
       ServerPlayNetworking.send(pusher, pkt);
       launchee.setDeltaMovement(launchee.getDeltaMovement().x, 0.0, launchee.getDeltaMovement().z);
       launchee.push(0.0, vel, 0.0);
-      launchee.hurtMarked = true;
+      launchee.syncVelocity = true;
       PushInteractionHandler.pushImmunity.put(launchee.getUUID(), now);
       LaunchedPlayerTracker.markPlayerAsLaunched(launchee.getUUID());
       UUID carried = GrabMechanic.holding.get(launchee.getUUID());
@@ -248,7 +248,7 @@ public class ReadyPushHandler {
          ServerPlayer c = launchee.level().getServer().getPlayerList().getPlayer(carried);
          if (c != null) {
             c.push(0.0, vel * 0.85, 0.0);
-            c.hurtMarked = true;
+            c.syncVelocity = true;
             LaunchedPlayerTracker.markPlayerAsLaunched(c.getUUID());
             PushInteractionHandler.pushImmunity.put(c.getUUID(), now);
          }

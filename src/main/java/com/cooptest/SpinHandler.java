@@ -134,7 +134,7 @@ public class SpinHandler {
                   Vec3 vel = player.getDeltaMovement();
                   if (vel.y < -0.15) {
                      player.setDeltaMovement(vel.x, -0.15, vel.z);
-                     player.hurtMarked = true;
+                     player.syncVelocity = true;
                   }
 
                   Vec3 pos = player.position().add(0.0, 0.9, 0.0);
@@ -185,7 +185,7 @@ public class SpinHandler {
                }
 
                spinner.setDeltaMovement(0.0, 4.0, 0.0);
-               spinner.hurtMarked = true;
+               spinner.syncVelocity = true;
                GroundPoundHandler.markMegaPound(spinnerId);
                SpinHandler.HelicopterLaunchPayload launchPkt = new SpinHandler.HelicopterLaunchPayload(spinnerId, targetId);
 
@@ -230,10 +230,10 @@ public class SpinHandler {
          PoseNetworking.broadcastAnimState(spinner, 0);
          Vec3 upVel = new Vec3(0.0, 3.0, 0.0);
          spinner.setDeltaMovement(upVel);
-         spinner.hurtMarked = true;
+         spinner.syncVelocity = true;
          if (rider != null) {
             rider.setDeltaMovement(upVel.add(0.0, 0.15, 0.0));
-            rider.hurtMarked = true;
+            rider.syncVelocity = true;
             GroundPoundHandler.markMegaPound(spinnerId);
          }
 

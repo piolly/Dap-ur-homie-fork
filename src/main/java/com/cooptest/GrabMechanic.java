@@ -229,7 +229,7 @@ public class GrabMechanic {
             ServerPlayer held = pending.held;
             if (held != null && held.isAlive()) {
                held.setDeltaMovement(pending.velocity);
-               held.hurtMarked = true;
+               held.syncVelocity = true;
                held.connection.send(new ClientboundSetEntityMotionPacket(held));
                boolean wasOnFire = held.isOnFire();
                thrownPlayers.put(held.getUUID(), new GrabMechanic.ThrownPlayerData(held.getY(), wasOnFire, pending.velocity));
@@ -266,7 +266,7 @@ public class GrabMechanic {
                double driftZ = (-strafe * Math.sin(yawRad) + forward * Math.cos(yawRad)) * 0.025;
                Vec3 currentVel = player.getDeltaMovement();
                player.setDeltaMovement(currentVel.add(driftX, 0.0, driftZ));
-               player.hurtMarked = true;
+               player.syncVelocity = true;
             }
 
             long timeSinceThrow = System.currentTimeMillis() - data.throwTimeMs;
@@ -277,7 +277,7 @@ public class GrabMechanic {
                Vec3 look = player.getViewVector(1.0F);
                double boostStrength = 1.5;
                player.setDeltaMovement(player.getDeltaMovement().add(look.x * boostStrength, look.y * boostStrength + 0.5, look.z * boostStrength));
-               player.hurtMarked = true;
+               player.syncVelocity = true;
                player.startFallFlying();
                player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 1.0F, 1.2F);
                player.level().sendParticles(ParticleTypes.FIREWORK, player.getX(), player.getY(), player.getZ(), 10, 0.2, 0.2, 0.2, 0.1);
@@ -368,7 +368,7 @@ public class GrabMechanic {
                   }
 
                   player.setDeltaMovement(velocity.scale(0.7));
-                  player.hurtMarked = true;
+                  player.syncVelocity = true;
                   player.connection.send(new ClientboundSetEntityMotionPacket(player));
                   world.sendParticles(ParticleTypes.CRIT, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0.3, 0.3, 0.3, 0.1);
                }

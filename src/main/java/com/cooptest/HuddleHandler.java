@@ -1071,7 +1071,7 @@ public class HuddleHandler {
          lp.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 900, strAmp, false, true));
          lp.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 600, resAmp, false, true));
          lp.experienceLevel += 2;
-         lp.displayClientMessage(
+         lp.sendSystemMessage(
             Component.literal(
                "§d§l✦ HUDDLE! ✦ §7Regen "
                   + roman(regenAmp)
@@ -1082,9 +1082,7 @@ public class HuddleHandler {
                   + ", Resistance "
                   + roman(resAmp)
                   + " §8(60s)"
-            ),
-            false
-         );
+            ));
       }
 
       ServerPlayer p1 = live.get(0);
@@ -1209,7 +1207,7 @@ public class HuddleHandler {
             for (ServerPlayer lp : live) {
                Vec3 dir = lp.position().subtract(center).normalize();
                lp.push(dir.x * 0.6, 0.4, dir.z * 0.6);
-               lp.hurtMarked = true;
+               lp.syncVelocity = true;
             }
 
             live.get(0).level().sendParticles(ParticleTypes.ANGRY_VILLAGER, center.x, center.y + 1.0, center.z, 8, 0.3, 0.3, 0.3, 0.05);

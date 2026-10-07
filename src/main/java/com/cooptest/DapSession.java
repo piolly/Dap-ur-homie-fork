@@ -71,8 +71,8 @@ public class DapSession {
    private void freezePlayers(ServerPlayer playerA, ServerPlayer playerB) {
       playerA.setDeltaMovement(Vec3.ZERO);
       playerB.setDeltaMovement(Vec3.ZERO);
-      playerA.hurtMarked = true;
-      playerB.hurtMarked = true;
+      playerA.syncVelocity = true;
+      playerB.syncVelocity = true;
       playerA.fallDistance = 0.0;
       playerB.fallDistance = 0.0;
    }

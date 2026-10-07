@@ -103,7 +103,7 @@ public class BullyDapHandler {
                   Vec3 fwd = player.getViewVector(1.0F);
                   Vec3 vel = player.getDeltaMovement();
                   player.setDeltaMovement(vel.x + fwd.x * 0.5, vel.y, vel.z + fwd.z * 0.5);
-                  player.hurtMarked = true;
+                  player.syncVelocity = true;
                   PoseNetworking.broadcastAnimState(player, CoopAnimationHandler.AnimState.BULLY_DAP_P1.ordinal());
                   UUID fid = id;
                   ServerPlayer fp = player;
@@ -170,7 +170,7 @@ public class BullyDapHandler {
                   double distSq = player.distanceToSqr(other);
                   boolean inRange = distSq <= 64.0;
                   boolean facing = areFacingEachOtherHorizontal(player, other);
-                  player.displayClientMessage(
+                  player.sendOverlayMessage(
                      Component.literal(
                         "§7[Bully] candidate dist="
                            + String.format("%.1f", Math.sqrt(distSq))
@@ -181,9 +181,7 @@ public class BullyDapHandler {
                            + " age="
                            + age
                            + "ms"
-                     ),
-                     true
-                  );
+                     ));
                   if (inRange && facing) {
                      it.remove();
                      float h1 = (float)height;
@@ -262,7 +260,7 @@ public class BullyDapHandler {
             p2.setYBodyRot(p2Yaw);
             p2.setYHeadRot(p2Yaw);
             p2.setDeltaMovement(Vec3.ZERO);
-            p2.hurtMarked = true;
+            p2.syncVelocity = true;
             p2.fallDistance = 0.0;
             showBothHands(p1, p2);
          }
@@ -285,7 +283,7 @@ public class BullyDapHandler {
             p1.setYBodyRot(newYaw);
             p1.setYHeadRot(newYaw);
             p1.setDeltaMovement(Vec3.ZERO);
-            p1.hurtMarked = true;
+            p1.syncVelocity = true;
             p1.fallDistance = 0.0;
             if (f.tick % 2 == 0) {
                p1.swing(InteractionHand.MAIN_HAND);
@@ -293,7 +291,7 @@ public class BullyDapHandler {
 
             p2.teleportTo(world, f.p2FrozenPos.x, f.p2FrozenPos.y, f.p2FrozenPos.z, Set.of(), p2.getYRot(), 0.0F, false);
             p2.setDeltaMovement(Vec3.ZERO);
-            p2.hurtMarked = true;
+            p2.syncVelocity = true;
             p2.fallDistance = 0.0;
             if (f.tick >= 6) {
                fallSessions.remove(f.p1id);
@@ -418,7 +416,7 @@ public class BullyDapHandler {
                Vec3 dr = e.position().subtract(pos).normalize();
                double s = (1.0 - d / kbR) * kbS;
                e.push(dr.x * s, s * 0.4, dr.z * s);
-               e.hurtMarked = true;
+               e.syncVelocity = true;
             }
          }
       }

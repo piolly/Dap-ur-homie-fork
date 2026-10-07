@@ -44,7 +44,7 @@ public class SlapClientHandler {
          if (client.player != null) {
             if (client.player.getUUID().equals(payload.playerId())) {
                if (client.screen != null) {
-                  client.setScreen(null);
+                  client.setScreenAndShow(null);
                }
             }
          }

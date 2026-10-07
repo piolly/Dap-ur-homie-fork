@@ -389,8 +389,8 @@ public class DapFusionHandler {
       Vec3 away2 = s.p2Ref.position().subtract(mid).normalize().scale(4.0).add(0.0, 0.8, 0.0);
       s.p1Ref.push(away1.x, away1.y, away1.z);
       s.p2Ref.push(away2.x, away2.y, away2.z);
-      s.p1Ref.hurtMarked = true;
-      s.p2Ref.hurtMarked = true;
+      s.p1Ref.syncVelocity = true;
+      s.p2Ref.syncVelocity = true;
       broadcast(s, new DapFusionHandler.FusionPhasePayload(s.p1Id, s.p2Id, 99));
       s.p1Ref.sendOverlayMessage(Component.literal(reason));
       s.p2Ref.sendOverlayMessage(Component.literal(reason));
@@ -561,16 +561,15 @@ public class DapFusionHandler {
       Vec3 away2 = s.p2Ref.position().subtract(mid).normalize().scale(4.0).add(0.0, 1.0, 0.0);
       s.p1Ref.push(away1.x, away1.y, away1.z);
       s.p2Ref.push(away2.x, away2.y, away2.z);
-      s.p1Ref.hurtMarked = true;
-      s.p2Ref.hurtMarked = true;
+      s.p1Ref.syncVelocity = true;
+      s.p2Ref.syncVelocity = true;
       broadcast(s, new DapFusionHandler.FusionPhasePayload(s.p1Id, s.p2Id, 99));
       s.p1Ref.sendSystemMessage(Component.literal(reason));
       s.p2Ref.sendSystemMessage(Component.literal(reason));
 
       for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
-         p.displayClientMessage(
-            Component.literal("§c✗ " + s.p1Ref.getName().getString() + " §7and §c" + s.p2Ref.getName().getString() + " §7failed the fusion!"), false
-         );
+         p.sendSystemMessage(
+            Component.literal("§c✗ " + s.p1Ref.getName().getString() + " §7and §c" + s.p2Ref.getName().getString() + " §7failed the fusion!"));
       }
 
       cleanupSession(s);
@@ -630,8 +629,8 @@ public class DapFusionHandler {
 
                      s.p1Ref.setDeltaMovement(Vec3.ZERO);
                      s.p2Ref.setDeltaMovement(Vec3.ZERO);
-                     s.p1Ref.hurtMarked = true;
-                     s.p2Ref.hurtMarked = true;
+                     s.p1Ref.syncVelocity = true;
+                     s.p2Ref.syncVelocity = true;
                   });
 
                   for (int i = 0; i < 10; i++) {
@@ -724,16 +723,14 @@ public class DapFusionHandler {
                            }
 
                            for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
-                              p.displayClientMessage(
+                              p.sendSystemMessage(
                                  Component.literal(
                                     "§c§l☄ "
                                        + s.p1Ref.getName().getString()
                                        + " §eand §c"
                                        + s.p2Ref.getName().getString()
                                        + " §c§lUNLOCKED METEOR STRIKE! §7Press G to fire!"
-                                 ),
-                                 false
-                              );
+                                 ));
                            }
 
                            ServerPlayer freshP1 = s.p1Ref.level().getServer().getPlayerList().getPlayer(s.p1Id);
@@ -832,7 +829,7 @@ public class DapFusionHandler {
             double z = start.z + (end.z - start.z) * t;
             player.teleportTo(player.level(), x, y, z, Set.of(), player.getYRot(), player.getXRot(), false);
             player.setDeltaMovement(Vec3.ZERO);
-            player.hurtMarked = true;
+            player.syncVelocity = true;
             if (tick >= 5) {
                smoothTpTargets.remove(id);
                smoothTpProgress.remove(id);
@@ -1038,7 +1035,7 @@ public class DapFusionHandler {
 
          away1 = away1.scale(2.5).add(0.0, 0.6, 0.0);
          p1.push(away1.x, away1.y, away1.z);
-         p1.hurtMarked = true;
+         p1.syncVelocity = true;
          if (p2 != null) {
             Vec3 away2 = p2.position().subtract(mid).normalize();
             if (away2.lengthSqr() < 0.001) {
@@ -1047,7 +1044,7 @@ public class DapFusionHandler {
 
             away2 = away2.scale(2.5).add(0.0, 0.6, 0.0);
             p2.push(away2.x, away2.y, away2.z);
-            p2.hurtMarked = true;
+            p2.syncVelocity = true;
          }
 
          p1.level().playSound(null, mid.x, mid.y, mid.z, (SoundEvent)SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.5F, 1.5F);

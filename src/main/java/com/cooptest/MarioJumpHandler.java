@@ -119,7 +119,7 @@ public class MarioJumpHandler {
       System.out.println("[MARIO JUMP] Broadcasting POP (ordinal 31) to target");
       Vec3 velocity = jumper.getDeltaMovement();
       jumper.setDeltaMovement(velocity.x, 0.68, velocity.z);
-      jumper.hurtMarked = true;
+      jumper.syncVelocity = true;
       PoseNetworking.broadcastAnimState(jumper, 30);
       PoseNetworking.broadcastAnimState(target, 31);
       System.out.println("[MARIO JUMP] Animations broadcast complete IT WORKING FINALLY!");

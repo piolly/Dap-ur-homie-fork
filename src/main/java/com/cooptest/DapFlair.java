@@ -299,7 +299,7 @@ public class DapFlair {
             double kbScale = 0.45 + 0.55 * (1.0 - dist / 8.0);
             Vec3 dir = dist < 0.001 ? new Vec3(1.0, 0.0, 0.0) : away.normalize();
             victim.setDeltaMovement(dir.x * 2.1 * kbScale, 0.7 * kbScale, dir.z * 2.1 * kbScale);
-            victim.hurtMarked = true;
+            victim.syncVelocity = true;
             if (dmg > 0.5F) {
                victim.hurtServer(world, world.damageSources().generic(), dmg);
             }

@@ -702,10 +702,10 @@ public class HighFiveShakeHandler {
          Vec3 dir = new Vec3(to.x / d, 0.0, to.z / d);
          Vec3 v1 = p1.getDeltaMovement();
          p1.setDeltaMovement(v1.x - dir.x * 0.35, v1.y, v1.z - dir.z * 0.35);
-         p1.hurtMarked = true;
+         p1.syncVelocity = true;
          Vec3 v2 = p2.getDeltaMovement();
          p2.setDeltaMovement(v2.x + dir.x * 0.35, v2.y, v2.z + dir.z * 0.35);
-         p2.hurtMarked = true;
+         p2.syncVelocity = true;
       }
    }
 

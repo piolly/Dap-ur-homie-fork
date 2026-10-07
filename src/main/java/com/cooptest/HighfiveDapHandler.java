@@ -365,7 +365,7 @@ public class HighfiveDapHandler {
             player.teleportTo(lockedPos.x, player.getY(), lockedPos.z);
             Vec3 vel = player.getDeltaMovement();
             player.setDeltaMovement(0.0, vel.y, 0.0);
-            player.hurtMarked = true;
+            player.syncVelocity = true;
             return ticks >= 15;
          } else {
             resistanceTicks.put(pid, 0);
@@ -513,7 +513,7 @@ public class HighfiveDapHandler {
    private static void launchSurvivor(ServerPlayer survivor) {
       double yawRad = Math.toRadians(survivor.getYRot());
       survivor.setDeltaMovement(Math.sin(yawRad) * 0.5, 0.5, -Math.cos(yawRad) * 0.5);
-      survivor.hurtMarked = true;
+      survivor.syncVelocity = true;
    }
 
    private static void pushLoserBack(ServerPlayer loser, ServerPlayer winner, double amount) {

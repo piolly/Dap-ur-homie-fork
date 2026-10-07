@@ -233,9 +233,9 @@ public class DuoPoseHandler {
       if (p1 != null && p2 != null) {
          if (s.stage == DuoPoseHandler.Stage.IDLE) {
             p1.setDeltaMovement(Vec3.ZERO);
-            p1.hurtMarked = true;
+            p1.syncVelocity = true;
             p2.setDeltaMovement(Vec3.ZERO);
-            p2.hurtMarked = true;
+            p2.syncVelocity = true;
             if (now - s.lastAuraMs >= 300L) {
                s.lastAuraMs = now;
                spawnAuraParticles(server, s);

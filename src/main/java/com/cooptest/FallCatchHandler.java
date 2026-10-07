@@ -161,7 +161,7 @@ public class FallCatchHandler {
       world.sendParticles(ParticleTypes.CRIT, x, y, z, 8, 0.3, 0.3, 0.3, 0.1);
       world.sendParticles(ParticleTypes.WAX_ON, x, y, z, 6, 0.2, 0.2, 0.2, 0.02);
       caught.setDeltaMovement(0.0, 0.0, 0.0);
-      caught.hurtMarked = true;
+      caught.syncVelocity = true;
       FallCatchHandler.CatchAnimPayload payload = new FallCatchHandler.CatchAnimPayload(catcher.getUUID(), caught.getUUID());
 
       for (ServerPlayer nearby : PlayerLookup.tracking(catcher)) {

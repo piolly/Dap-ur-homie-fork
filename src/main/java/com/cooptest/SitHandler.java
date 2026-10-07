@@ -52,7 +52,7 @@ public class SitHandler {
             if (p != null) {
                double sitY = e.getValue() - 0.5;
                p.setDeltaMovement(0.0, 0.0, 0.0);
-               p.hurtMarked = true;
+               p.syncVelocity = true;
                if (Math.abs(p.getY() - sitY) > 0.05) {
                   p.teleportTo(p.level(), p.getX(), sitY, p.getZ(), Set.of(), p.getYRot(), p.getXRot(), false);
                }

@@ -213,7 +213,7 @@ public class SpinYeetHandler {
       if (grabbed != null && grabbed.isAlive()) {
          grabbed.setSwimming(false);
          grabbed.setDeltaMovement(normX * horiz, vert, normZ * horiz);
-         grabbed.hurtMarked = true;
+         grabbed.syncVelocity = true;
          if (grabbed instanceof ServerPlayer sp) {
             sp.connection.send(new ClientboundSetEntityMotionPacket(sp));
          }

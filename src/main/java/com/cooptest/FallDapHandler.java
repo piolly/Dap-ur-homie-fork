@@ -179,7 +179,7 @@ public class FallDapHandler {
       victim.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 420, 250, false, false));
       victim.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 300, 0, false, false));
       victim.setDeltaMovement(0.0, 0.0, 0.0);
-      victim.hurtMarked = true;
+      victim.syncVelocity = true;
       squashedPlayers.put(victim.getUUID(), System.currentTimeMillis() + 25000L);
 
       for (ServerPlayer p : world.getServer().getPlayerList().getPlayers()) {

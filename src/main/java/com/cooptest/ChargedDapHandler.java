@@ -527,7 +527,7 @@ public class ChargedDapHandler {
                            player.teleportTo(data.world, returnPos.x, returnPos.y, returnPos.z, Set.of(), yawAwayFromPartner, 0.0F, false);
                            player.stopFallFlying();
                            player.setDeltaMovement(Vec3.ZERO);
-                           player.hurtMarked = true;
+                           player.syncVelocity = true;
                            ServerPlayNetworking.send(player, new ChargedDapHandler.PerfectDapFreezePayload(false));
                            PoseNetworking.broadcastAnimState(player, 0);
                            player.removeEffect(MobEffects.NAUSEA);
@@ -641,16 +641,14 @@ public class ChargedDapHandler {
                               .start();
                            if (partner != null && heavenPlayers.containsKey(partnerId)) {
                               for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-                                 p.displayClientMessage(
+                                 p.sendSystemMessage(
                                     Component.literal(
                                        "§d§l✨ "
                                           + player.getName().getString()
                                           + " §7and §d§l"
                                           + partner.getName().getString()
                                           + " §7have achieved §d§lPERFECT FRIENDSHIP! ✨"
-                                    ),
-                                    false
-                                 );
+                                    ));
                               }
 
                               server.overworld()
@@ -731,9 +729,8 @@ public class ChargedDapHandler {
                            if (partnerId != null) {
                               ServerPlayer partner = server.getPlayerList().getPlayer(partnerId);
                               if (partner != null) {
-                                 partner.displayClientMessage(
-                                    Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed J!"), true
-                                 );
+                                 partner.sendOverlayMessage(
+                                    Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed J!"));
                                  player.sendOverlayMessage(Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"));
                               }
                            }
@@ -893,7 +890,7 @@ public class ChargedDapHandler {
                            if (distanceToCenter >= tornadoRadius - 2.0 && distanceToCenter <= tornadoRadius + 2.0) {
                               Vec3 direction = new Vec3(dx, 0.0, dz).normalize();
                               entity.setDeltaMovement(direction.x * 2.0, 0.5, direction.z * 2.0);
-                              entity.hurtMarked = true;
+                              entity.syncVelocity = true;
                               if (entity instanceof LivingEntity living) {
                                  living.hurtServer((ServerLevel)living.level(), living.damageSources().magic(), 5.0F);
                               }
@@ -956,7 +953,7 @@ public class ChargedDapHandler {
                      int remaining = impactFreezeTicks.get(id);
                      if (remaining > 0) {
                         player.setDeltaMovement(0.0, Math.min(0.0, player.getDeltaMovement().y), 0.0);
-                        player.hurtMarked = true;
+                        player.syncVelocity = true;
                         impactFreezeTicks.put(id, remaining - 1);
                      } else {
                         impactFreezeTicks.remove(id);
@@ -2046,16 +2043,14 @@ public class ChargedDapHandler {
          p2.sendOverlayMessage(Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"));
 
          for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            player.displayClientMessage(
+            player.sendSystemMessage(
                Component.literal(
                   "§4§l☠ "
                      + p1.getName().getString()
                      + " §7and §4"
                      + p2.getName().getString()
                      + " §7failed to achieve Perfect Friendship... §c§lTHEY PERISHED!"
-               ),
-               false
-            );
+               ));
          }
       } else {
          world.playSound(null, pos.x, pos.y, pos.z, ModSounds.EPIC_DAP, SoundSource.PLAYERS, 2.0F, 0.9F);
@@ -2113,16 +2108,14 @@ public class ChargedDapHandler {
                processed.add(partnerId);
 
                for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-                  p.displayClientMessage(
+                  p.sendSystemMessage(
                      Component.literal(
                         "§d§l✨ "
                            + player.getName().getString()
                            + " §7and §d§l"
                            + partner.getName().getString()
                            + " §7have achieved §b§lPERFECT FRIENDSHIP§7! §d§l✨"
-                     ),
-                     false
-                  );
+                     ));
                }
             }
 
@@ -2266,8 +2259,8 @@ public class ChargedDapHandler {
                   p2.stopFallFlying();
                   p1.setDeltaMovement(Vec3.ZERO);
                   p2.setDeltaMovement(Vec3.ZERO);
-                  p1.hurtMarked = true;
-                  p2.hurtMarked = true;
+                  p1.syncVelocity = true;
+                  p2.syncVelocity = true;
                   ServerPlayNetworking.send(p1, new ChargedDapHandler.PerfectDapFreezePayload(true));
                   ServerPlayNetworking.send(p2, new ChargedDapHandler.PerfectDapFreezePayload(true));
                   PoseNetworking.broadcastAnimState(p1, CoopAnimationHandler.AnimState.HEAVEN_DAP.ordinal());
@@ -2416,7 +2409,7 @@ public class ChargedDapHandler {
                double knockbackStrength = (1.0 - dist / radius) * strength;
                Vec3 knockDir = entity.position().subtract(pos).normalize();
                entity.push(knockDir.x * knockbackStrength * 2.0, knockbackStrength * 1.5, knockDir.z * knockbackStrength * 2.0);
-               entity.hurtMarked = true;
+               entity.syncVelocity = true;
             }
          }
       }
@@ -2502,12 +2495,10 @@ public class ChargedDapHandler {
          for (ServerPlayer nearby : PlayerLookup.around(world, pos, 50.0)) {
             if (nearby != p1 && nearby != p2) {
                String prefix = perfectHit ? "§c§lPERFECT " : "§c§l";
-               nearby.displayClientMessage(
+               nearby.sendSystemMessage(
                   Component.literal(
                      prefix + "\ud83d\udd25 " + p1.getName().getString() + " §7and §c" + p2.getName().getString() + " §7unleashed a §c§lFIRE DAP§7!"
-                  ),
-                  false
-               );
+                  ));
             }
          }
       }
@@ -2609,16 +2600,16 @@ public class ChargedDapHandler {
    private static void applyKnockback(ServerPlayer p1, ServerPlayer p2, Vec3 center, double strength) {
       p1.setDeltaMovement(0.0, 0.0, 0.0);
       p2.setDeltaMovement(0.0, 0.0, 0.0);
-      p1.hurtMarked = true;
-      p2.hurtMarked = true;
+      p1.syncVelocity = true;
+      p2.syncVelocity = true;
    }
 
    public static void applyImpactFreeze(ServerPlayer p1, ServerPlayer p2, int ticks) {
       if (ticks > 0) {
          p1.setDeltaMovement(0.0, 0.0, 0.0);
          p2.setDeltaMovement(0.0, 0.0, 0.0);
-         p1.hurtMarked = true;
-         p2.hurtMarked = true;
+         p1.syncVelocity = true;
+         p2.syncVelocity = true;
          impactFreezeTicks.put(p1.getUUID(), ticks);
          impactFreezeTicks.put(p2.getUUID(), ticks);
       }
@@ -2634,7 +2625,7 @@ public class ChargedDapHandler {
                double knockbackStrength = (1.0 - dist / radius) * 2.0;
                Vec3 knockDir = entity.position().subtract(pos).normalize();
                entity.push(knockDir.x * knockbackStrength, knockbackStrength * 0.5, knockDir.z * knockbackStrength);
-               entity.hurtMarked = true;
+               entity.syncVelocity = true;
                if (entity instanceof ServerPlayer target) {
                   float damage = (float)((1.0 - dist / radius) * maxDamage);
                   target.hurtServer(world, world.damageSources().explosion(null, null), damage);
@@ -2665,7 +2656,7 @@ public class ChargedDapHandler {
                double knockbackStrength = (1.0 - dist / radius) * strength;
                Vec3 knockDir = entity.position().subtract(pos).normalize();
                entity.push(knockDir.x * knockbackStrength * 1.5, knockbackStrength * 0.6, knockDir.z * knockbackStrength * 1.5);
-               entity.hurtMarked = true;
+               entity.syncVelocity = true;
                if (entity instanceof ServerPlayer target) {
                   world.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.8F, 0.8F);
                }
@@ -2700,7 +2691,7 @@ public class ChargedDapHandler {
                double knockbackStrength = (1.0 - dist / radius) * 3.0;
                Vec3 knockDir = entity.position().subtract(pos).normalize();
                entity.push(knockDir.x * knockbackStrength, knockbackStrength * 0.7, knockDir.z * knockbackStrength);
-               entity.hurtMarked = true;
+               entity.syncVelocity = true;
                float damage;
                if (entity instanceof ServerPlayer) {
                   damage = (float)((1.0 - dist / radius) * 8.0);
@@ -2727,7 +2718,7 @@ public class ChargedDapHandler {
                double knockbackStrength = (1.0 - dist / radius) * 15.0;
                Vec3 knockDir = entity.position().subtract(pos).normalize();
                entity.push(knockDir.x * knockbackStrength, knockbackStrength * 1.5, knockDir.z * knockbackStrength);
-               entity.hurtMarked = true;
+               entity.syncVelocity = true;
                entity.igniteForSeconds(5.0F);
             }
          }
@@ -3379,7 +3370,7 @@ public class ChargedDapHandler {
                Vec3 direction = entityPos.subtract(midpoint).normalize();
                double strength = (30.0 - distance) / 30.0 * 3.0;
                entity.setDeltaMovement(direction.x * strength, 0.8 + strength * 0.5, direction.z * strength);
-               entity.hurtMarked = true;
+               entity.syncVelocity = true;
                if (entity instanceof LivingEntity living) {
                   float damage = (float)((30.0 - distance) / 30.0 * 20.0);
                   living.hurtServer((ServerLevel)living.level(), living.damageSources().explosion(null, null), damage);

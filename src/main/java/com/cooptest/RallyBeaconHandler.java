@@ -128,7 +128,7 @@ public class RallyBeaconHandler {
       player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 100, 2, false, true));
       player.clearFire();
       player.setDeltaMovement(Vec3.ZERO);
-      player.hurtMarked = true;
+      player.syncVelocity = true;
       player.teleportTo(world, b.pos.x, b.pos.y, b.pos.z, Set.of(), player.getYRot(), player.getXRot(), false);
       String line = REVIVE_LINES[(int)(Math.random() * REVIVE_LINES.length)];
       player.sendSystemMessage(Component.literal(line));
@@ -263,9 +263,8 @@ public class RallyBeaconHandler {
                         Set<UUID> solo = new HashSet<>();
                         solo.add(p.getUUID());
                         light(p.level(), p.position(), solo);
-                        p.displayClientMessage(
-                           Component.literal("§6/testbeacon §7lit on you — take lethal damage to test the save. §8/kill bypasses it by design."), false
-                        );
+                        p.sendSystemMessage(
+                           Component.literal("§6/testbeacon §7lit on you — take lethal damage to test the save. §8/kill bypasses it by design."));
                         return 1;
                      }
                   )

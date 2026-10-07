@@ -219,9 +219,8 @@ public final class SpearStrikeHandler {
 
       Vec3 look = p.getLookAngle();
       setClientVelocity(p, new Vec3(look.x * 1.4, Math.max(0.6, look.y * 1.4 + 0.5), look.z * 1.4));
-      p.displayClientMessage(
-         Component.literal(fire ? "§c☢ Test launch (on fire) — hold right-click with a spear" : "§eTest launch — hold right-click with a spear"), true
-      );
+      p.sendOverlayMessage(
+         Component.literal(fire ? "§c☢ Test launch (on fire) — hold right-click with a spear" : "§eTest launch — hold right-click with a spear"));
       return 1;
    }
 
@@ -367,9 +366,8 @@ public final class SpearStrikeHandler {
                   w.sendParticles(ParticleTypes.CRIT, center.x, center.y, center.z, 14, 0.3, 0.4, 0.3, 0.4);
                   w.playSound(null, center.x, center.y, center.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.1F, 0.8F + s.chain * 0.1F);
                   w.playSound(null, center.x, center.y, center.z, SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 1.0F, 0.7F);
-                  p.displayClientMessage(
-                     Component.literal(String.format("§6§lSPEAR STRIKE §7%.1f❤%s", dmg / 2.0F, s.chain > 1 ? "  §e§lx" + s.chain : "")), true
-                  );
+                  p.sendOverlayMessage(
+                     Component.literal(String.format("§6§lSPEAR STRIKE §7%.1f❤%s", dmg / 2.0F, s.chain > 1 ? "  §e§lx" + s.chain : "")));
                }
             } else {
                sendLock(p, s, target.getId(), (float)c.spearHomingMinSpeed, (float)c.spearHomingTurn, false);

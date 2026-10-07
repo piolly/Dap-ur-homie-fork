@@ -560,8 +560,8 @@ public class HandSpinHandler {
       Vec3 dir2 = new Vec3(outward2.x / len2, 0.0, outward2.z / len2);
       p1.setDeltaMovement(p1.getDeltaMovement().add(dir1.scale(0.75)).add(0.0, 0.15, 0.0));
       p2.setDeltaMovement(p2.getDeltaMovement().add(dir2.scale(0.75)).add(0.0, 0.15, 0.0));
-      p1.hurtMarked = true;
-      p2.hurtMarked = true;
+      p1.syncVelocity = true;
+      p2.syncVelocity = true;
       PoseNetworking.broadcastAnimState(p1, 0);
       PoseNetworking.broadcastAnimState(p2, 0);
       ServerLevel world = p1.level();
@@ -578,8 +578,8 @@ public class HandSpinHandler {
       double strength = 0.45 + 0.7 * t;
       p1.setDeltaMovement(tan1.scale(strength).add(0.0, 0.32, 0.0));
       p2.setDeltaMovement(tan2.scale(strength).add(0.0, 0.32, 0.0));
-      p1.hurtMarked = true;
-      p2.hurtMarked = true;
+      p1.syncVelocity = true;
+      p2.syncVelocity = true;
       s.p1RemainingDelta = tan1.scale(1.0 * t);
       s.p2RemainingDelta = tan2.scale(1.0 * t);
       s.pushTicksRemaining = 5;
@@ -603,7 +603,7 @@ public class HandSpinHandler {
       double cos = Math.cos(s.angle);
       Vec3 tanWeak = weakIsP1 ? new Vec3(-sin, 0.0, cos) : new Vec3(sin, 0.0, -cos);
       weak.setDeltaMovement(tanWeak.scale(2.6).add(0.0, 0.7, 0.0));
-      weak.hurtMarked = true;
+      weak.syncVelocity = true;
       ServerPlayNetworking.send(weak, new HandSpinHandler.HandSpinStopPayload(weak.getUUID()));
       ServerPlayNetworking.send(weak, new HandSpinHandler.HandSpinMonkeFlyPayload(weak.getUUID(), true));
       PoseNetworking.poseStates.put(strong.getUUID(), PoseState.NONE);
@@ -674,8 +674,8 @@ public class HandSpinHandler {
       Vec3 dir2 = new Vec3(outward2.x / len2, 0.0, outward2.z / len2);
       p1.setDeltaMovement(p1.getDeltaMovement().add(dir1.scale(0.35)));
       p2.setDeltaMovement(p2.getDeltaMovement().add(dir2.scale(0.35)));
-      p1.hurtMarked = true;
-      p2.hurtMarked = true;
+      p1.syncVelocity = true;
+      p2.syncVelocity = true;
       s.p1RemainingDelta = dir1.scale(0.6);
       s.p2RemainingDelta = dir2.scale(0.6);
       s.pushTicksRemaining = 6;

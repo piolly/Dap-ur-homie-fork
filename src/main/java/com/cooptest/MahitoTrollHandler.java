@@ -56,7 +56,7 @@ public class MahitoTrollHandler {
 
                if (data.trollStarted) {
                   victim.setDeltaMovement(0.0, victim.getDeltaMovement().y, 0.0);
-                  victim.hurtMarked = true;
+                  victim.syncVelocity = true;
                }
             } else {
                iter.remove();

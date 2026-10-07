@@ -204,7 +204,7 @@ public class PushInteractionHandler {
       ServerPlayNetworking.send(pusher, pkt);
       target.setDeltaMovement(target.getDeltaMovement().x, 0.0, target.getDeltaMovement().z);
       target.push(0.0, velocity, 0.0);
-      target.hurtMarked = true;
+      target.syncVelocity = true;
       pushImmunity.put(target.getUUID(), now);
       LaunchedPlayerTracker.markPlayerAsLaunched(target.getUUID());
       UUID carried = GrabMechanic.holding.get(target.getUUID());
@@ -212,7 +212,7 @@ public class PushInteractionHandler {
          ServerPlayer c = target.level().getServer().getPlayerList().getPlayer(carried);
          if (c != null) {
             c.push(0.0, velocity * 0.85, 0.0);
-            c.hurtMarked = true;
+            c.syncVelocity = true;
             LaunchedPlayerTracker.markPlayerAsLaunched(c.getUUID());
             pushImmunity.put(c.getUUID(), now);
          }

@@ -126,9 +126,9 @@ public class SikeFollowUpHandler {
             ServerPlayer victim = server.getPlayerList().getPlayer(s.victimId);
             if (siker != null && victim != null) {
                siker.setDeltaMovement(Vec3.ZERO);
-               siker.hurtMarked = true;
+               siker.syncVelocity = true;
                victim.setDeltaMovement(Vec3.ZERO);
-               victim.hurtMarked = true;
+               victim.syncVelocity = true;
                double dist = siker.position().distanceTo(victim.position());
                if (s.tpTick <= 60 && !(dist <= 0.9)) {
                   Vec3 cur = siker.position();
@@ -280,7 +280,7 @@ public class SikeFollowUpHandler {
                      }
 
                      victim.setDeltaMovement(launchDir.x * 1.1F, 0.6, launchDir.z * 1.1F);
-                     victim.hurtMarked = true;
+                     victim.syncVelocity = true;
                      victim.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 100, 1, false, true));
                      victim.hurtServer(world, world.damageSources().generic(), 4.0F);
                   }

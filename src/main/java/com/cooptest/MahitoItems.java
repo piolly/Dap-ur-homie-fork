@@ -27,12 +27,12 @@ public class MahitoItems {
    );
 
    public static void register() {
-      CreativeModeTabEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((ModifyEntries)entries -> entries.accept(BLACK_HOOD));
+      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register((ModifyEntries)entries -> entries.accept(BLACK_HOOD));
       Potion mahitoPotion = new Potion("mahito_stuff", new MobEffectInstance[]{new MobEffectInstance(ModEffects.MAHITO, 1200, 0)});
       MAHITO_POTION = Registry.registerForHolder(BuiltInRegistries.POTION, Identifier.fromNamespaceAndPath("testcoop", "mahito_stuff"), mahitoPotion);
       Potion todoPotion = new Potion("todo_potion", new MobEffectInstance[]{new MobEffectInstance(ModEffects.TODO, 2400, 0)});
       TODO_POTION = Registry.registerForHolder(BuiltInRegistries.POTION, Identifier.fromNamespaceAndPath("testcoop", "todo_potion"), todoPotion);
-      CreativeModeTabEvents.modifyEntriesEvent(CreativeModeTabs.FOOD_AND_DRINKS).register((ModifyEntries)content -> {
+      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register((ModifyEntries)content -> {
          ItemStack mahitoStack = new ItemStack(Items.POTION);
          mahitoStack.set(DataComponents.POTION_CONTENTS, new PotionContents(MAHITO_POTION));
          content.accept(mahitoStack);

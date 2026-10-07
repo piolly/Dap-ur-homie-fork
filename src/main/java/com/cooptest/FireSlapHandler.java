@@ -51,7 +51,7 @@ public class FireSlapHandler {
       Vec3 targetPos = target.position();
       Vec3 direction = targetPos.subtract(playerPos).normalize();
       target.setDeltaMovement(direction.x * 2.5, 0.5, direction.z * 2.5);
-      target.hurtMarked = true;
+      target.syncVelocity = true;
       target.igniteForSeconds(2.0F);
       double x = target.getX();
       double y = target.getY() + target.getBbHeight() / 2.0F;

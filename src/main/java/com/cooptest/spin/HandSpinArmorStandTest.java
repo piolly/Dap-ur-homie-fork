@@ -75,9 +75,8 @@ public class HandSpinArmorStandTest {
          return 0;
       } else {
          s.stage = slow ? HandSpinArmorStandTest.Stage.ENDING_SLOW : HandSpinArmorStandTest.Stage.ENDING_FAST;
-         player.displayClientMessage(
-            Component.literal(slow ? "§7Branch B: slow decel to a full stop, then separate." : "§7Branch A: fast decel then push-apart."), false
-         );
+         player.sendSystemMessage(
+            Component.literal(slow ? "§7Branch B: slow decel to a full stop, then separate." : "§7Branch A: fast decel then push-apart."));
          return 1;
       }
    }
@@ -236,7 +235,7 @@ public class HandSpinArmorStandTest {
       Vec3 dir1 = new Vec3(out1.x / len1, 0.0, out1.z / len1);
       Vec3 dir2 = new Vec3(out2.x / len2, 0.0, out2.z / len2);
       player.setDeltaMovement(player.getDeltaMovement().add(dir1.scale(0.75)).add(0.0, 0.15, 0.0));
-      player.hurtMarked = true;
+      player.syncVelocity = true;
       Vec3 standTarget = pos2.add(dir2.scale(1.5));
       s.stand.teleportTo(standTarget.x, standTarget.y, standTarget.z);
       PoseNetworking.broadcastAnimState(player, 0);
@@ -282,7 +281,7 @@ public class HandSpinArmorStandTest {
       Vec3 dir1 = new Vec3(out1.x / len1, 0.0, out1.z / len1);
       Vec3 dir2 = new Vec3(out2.x / len2, 0.0, out2.z / len2);
       player.setDeltaMovement(player.getDeltaMovement().add(dir1.scale(0.35)));
-      player.hurtMarked = true;
+      player.syncVelocity = true;
       s.playerRemainingDelta = dir1.scale(0.6);
       s.standRemainingDelta = dir2.scale(0.6);
       s.pushTicksRemaining = 6;

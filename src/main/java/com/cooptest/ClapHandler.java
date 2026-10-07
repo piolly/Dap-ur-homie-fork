@@ -95,7 +95,7 @@ public class ClapHandler {
 
                   away = away.normalize();
                   animal.setDeltaMovement(away.x * 0.55, 0.35, away.z * 0.55);
-                  animal.hurtMarked = true;
+                  animal.syncVelocity = true;
                   if (animal instanceof Mob mob) {
                      mob.setTarget(null);
                      Vec3 fleeTarget = animal.position().add(away.scale(8.0));

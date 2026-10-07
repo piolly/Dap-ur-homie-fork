@@ -147,7 +147,7 @@ public class BonkHandler {
          PoseNetworking.broadcastAnimState(bonker, 0);
          ServerPlayNetworking.send(bonker, new BonkHandler.BonkMoveLockPayload(false));
          bonker.push(0.0, 0.3, 0.0);
-         bonker.hurtMarked = true;
+         bonker.syncVelocity = true;
       }
 
       if (victimId != null) {
@@ -171,7 +171,7 @@ public class BonkHandler {
                stopLaying(id, server);
             } else {
                p.setDeltaMovement(0.0, 0.0, 0.0);
-               p.hurtMarked = true;
+               p.syncVelocity = true;
             }
          }
       }
@@ -192,7 +192,7 @@ public class BonkHandler {
             bonker.teleportTo(bonker.level(), bx, vPos.y + 0.6, bz, Set.of(), bonkerYaw, bonkerPitch, false);
             bonker.setPermanentlyInvulnerable(true);
             victim.setDeltaMovement(0.0, 0.0, 0.0);
-            victim.hurtMarked = true;
+            victim.syncVelocity = true;
             Long startMs = sessionStartMs.get(bonkerId);
             if (startMs != null) {
                long loopElapsed = (now - startMs) % 3125L;

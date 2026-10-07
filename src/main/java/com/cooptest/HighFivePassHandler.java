@@ -156,7 +156,7 @@ public class HighFivePassHandler {
       Vec3 forward = new Vec3(-Math.sin(yawRad), 0.0, Math.cos(yawRad));
       Vec3 current = player.getDeltaMovement();
       player.setDeltaMovement(current.x - forward.x * 0.06F, current.y, current.z - forward.z * 0.06F);
-      player.hurtMarked = true;
+      player.syncVelocity = true;
    }
 
    private static void applySlow(ServerPlayer player) {

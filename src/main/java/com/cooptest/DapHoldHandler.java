@@ -456,7 +456,7 @@ public class DapHoldHandler {
                         for (ServerPlayer p : allFinal) {
                            if (p.isAlive()) {
                               p.push(0.0, 0.4 + mc * 0.1, 0.0);
-                              p.hurtMarked = true;
+                              p.syncVelocity = true;
                               p.addEffect(new MobEffectInstance(MobEffects.SPEED, 120, Math.min(2, mc - 1)));
                               p.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 120, 0));
                               p.sendOverlayMessage(Component.literal("§6§l✨ PERFECT GROUP DAP! §e" + mc + " players!"));
@@ -492,7 +492,7 @@ public class DapHoldHandler {
             }
 
             p.push(dir.x * 0.9, 0.3, dir.z * 0.9);
-            p.hurtMarked = true;
+            p.syncVelocity = true;
             p.sendOverlayMessage(Component.literal("§c❌ Release not synced!"));
          }
 

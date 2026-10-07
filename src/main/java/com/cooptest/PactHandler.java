@@ -187,23 +187,19 @@ public class PactHandler {
       }
 
       me.sendSystemMessage(Component.literal("§6" + them.getName().getString() + "§7's record"));
-      me.displayClientMessage(
+      me.sendSystemMessage(
          Component.literal(
             "§7Pacts §f" + totalSealed + " §8| §aKept §f" + totalKept + " §8| §cBetrayed §f" + totalBroken + " §8| §7Confirmed §f" + totalDissolved
-         ),
-         false
-      );
+         ));
       if (totalBroken > 0) {
          me.sendSystemMessage(Component.literal("§c⚠ Has betrayed " + totalBroken + " pact(s)."));
       }
 
       PactHandler.Bond shared = bond(me.getUUID(), them.getUUID());
-      me.displayClientMessage(
+      me.sendSystemMessage(
          Component.literal(
             "§7With you: " + tier(shared) + " §8| §7handshakes §f" + shared.daps + " §8| §akept §f" + shared.kept + " §8| §cbetrayed §f" + shared.broken
-         ),
-         false
-      );
+         ));
    }
 
    private static void declareBroken(ServerPlayer me, ServerPlayer them) {

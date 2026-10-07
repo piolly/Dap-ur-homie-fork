@@ -436,7 +436,7 @@ public class NormalFacingDapHandler {
 
    private static void pin(ServerPlayer p, float yaw) {
       p.setDeltaMovement(0.0, 0.0, 0.0);
-      p.hurtMarked = true;
+      p.syncVelocity = true;
       applyYaw(p, yaw);
    }
 

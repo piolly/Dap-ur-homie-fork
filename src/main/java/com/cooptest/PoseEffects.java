@@ -47,7 +47,7 @@ public class PoseEffects {
       world.playSound(null, targetPos.x, targetPos.y, targetPos.z, SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.8F, 1.5F);
       world.sendParticles(ParticleTypes.POOF, targetPos.x, targetPos.y + 0.5, targetPos.z, 3, 0.2, 0.2, 0.2, 0.02);
       pusher.setDeltaMovement(pusher.getDeltaMovement().add(0.0, -0.15, 0.0));
-      pusher.hurtMarked = true;
+      pusher.syncVelocity = true;
    }
 
    public static void playLaunchTrailEffects(ServerPlayer target) {

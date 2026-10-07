@@ -167,7 +167,7 @@ public class KickHandler {
                         if (!(dot < 0.2)) {
                            Vec3 vel = target.getDeltaMovement();
                            target.setDeltaMovement(vel.add(fwd.x * 0.12, 0.06, fwd.z * 0.12));
-                           ((LivingEntity)target).hurtMarked = true;
+                           ((LivingEntity)target).syncVelocity = true;
                         }
                      }
                   }
@@ -239,7 +239,7 @@ public class KickHandler {
                      living.setDeltaMovement(vel2.x, upwardPop, vel2.z);
                   }
 
-                  living.hurtMarked = true;
+                  living.syncVelocity = true;
                }
 
                if (target instanceof ServerPlayer hitPlayer) {
@@ -295,12 +295,12 @@ public class KickHandler {
       kickPushFwd.put(id, new Vec3(fwdX, 0.0, fwdZ));
       if (!isDropKick) {
          player.push(fwdX * 0.3, 0.0, fwdZ * 0.3);
-         player.hurtMarked = true;
+         player.syncVelocity = true;
          applySlowdown(player, -0.4);
          slowRemoveAt.put(id, now + 1000L);
       } else {
          player.push(fwdX * 0.5, 0.0, fwdZ * 0.5);
-         player.hurtMarked = true;
+         player.syncVelocity = true;
          slowApplyAt.put(id, now + 830L);
          slowRemoveAt.put(id, now + 1750L);
          slowAmount.put(id, -0.9);

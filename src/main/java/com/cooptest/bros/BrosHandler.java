@@ -130,10 +130,8 @@ public final class BrosHandler {
             if (!canJoin(player)) {
                if (DEBUG) {
                   PoseState pose = PoseNetworking.poseStates.getOrDefault(id, PoseState.NONE);
-                  player.displayClientMessage(
-                     Component.literal("§c[bros] can't arm — pose=" + pose + (player.isPassenger() ? " riding" : "") + (player.isVehicle() ? " carrying" : "")),
-                     false
-                  );
+                  player.sendSystemMessage(
+                     Component.literal("§c[bros] can't arm — pose=" + pose + (player.isPassenger() ? " riding" : "") + (player.isVehicle() ? " carrying" : "")));
                }
 
                return;

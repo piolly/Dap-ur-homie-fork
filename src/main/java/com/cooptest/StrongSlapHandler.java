@@ -227,7 +227,7 @@ public class StrongSlapHandler {
             ServerPlayer vic = server.getPlayerList().getPlayer(s.victimId);
             if (atk != null && vic != null) {
                atk.setDeltaMovement(Vec3.ZERO);
-               atk.hurtMarked = true;
+               atk.syncVelocity = true;
                if (s.tpTick < 5) {
                   s.tpTick++;
                   float frac = s.tpTick / 5.0F;
