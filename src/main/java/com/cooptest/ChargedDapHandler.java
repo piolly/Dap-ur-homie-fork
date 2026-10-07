@@ -1023,7 +1023,7 @@ public class ChargedDapHandler {
                         if (partner != null && heavenPlayers.containsKey(partnerId)) {
 
                             for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-                                p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                                com.cooptest.MsgUtil.show(p, net.minecraft.network.chat.Component.literal(
                                         "§d§l✨ " + player.getName().getString() + " §7and §d§l" +
                                                 partner.getName().getString() + " §7have achieved §d§lPERFECT FRIENDSHIP! ✨"
                                 ), false);
@@ -2677,7 +2677,7 @@ public class ChargedDapHandler {
 
 
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                player.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                com.cooptest.MsgUtil.show(player, net.minecraft.network.chat.Component.literal(
                         "§4§l☠ " + p1.getName().getString() + " §7and §4" + p2.getName().getString() +
                                 " §7failed to achieve Perfect Friendship... §c§lTHEY PERISHED!"
                 ), false);
@@ -2764,7 +2764,7 @@ public class ChargedDapHandler {
 
 
                     for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-                        p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                        com.cooptest.MsgUtil.show(p, net.minecraft.network.chat.Component.literal(
                                 "§d§l✨ " + player.getName().getString() + " §7and §d§l" + partner.getName().getString() +
                                         " §7have achieved §b§lPERFECT FRIENDSHIP§7! §d§l✨"
                         ), false);
@@ -3286,7 +3286,7 @@ public class ChargedDapHandler {
         for (ServerPlayer nearby : PlayerLookup.around(world, pos, 50)) {
             if (nearby != p1 && nearby != p2) {
                 String prefix = perfectHit ? "§c§lPERFECT " : "§c§l";
-                nearby.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                com.cooptest.MsgUtil.show(nearby, net.minecraft.network.chat.Component.literal(
                         prefix + "🔥 " + p1.getName().getString() + " §7and §c" + p2.getName().getString() +
                                 " §7unleashed a §c§lFIRE DAP§7!"
                 ), false);

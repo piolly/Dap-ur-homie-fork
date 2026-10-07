@@ -7,11 +7,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import java.util.HashMap;
@@ -203,7 +202,7 @@ public class HighFiveClientHandler {
             }
             wasKeyPressed = isKeyPressed;
         });
-        HudRenderCallback.EVENT.register(HighFiveClientHandler::renderHUD);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "highfiveclienthandler_renderhud"), highfiveclienthandler::renderhud);
     }
     private static void onHighFiveSuccess(double x, double y, double z, UUID player1, UUID player2, int tier) {
         Minecraft client = Minecraft.getInstance();
@@ -234,7 +233,7 @@ public class HighFiveClientHandler {
             client.player.sendOverlayMessage(Component.literal(message));
         }
     }
-    private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
         int screenWidth = client.getWindow().getGuiScaledWidth();
@@ -278,7 +277,7 @@ public class HighFiveClientHandler {
             float pulse = (float) (Math.sin(System.currentTimeMillis() / 150.0) * 0.3 + 0.7);
             int alpha = (int) (pulse * 255);
             int color = (alpha << 24) | 0xFFFF00;
-            context.drawString(client.font, text, textX, textY, color, true);
+            context.text(client.font, text, textX, textY, color, true);
         }
         if (inComboWindow && !FusionClientHandler.isQTEOpen() && !FusionClientHandler.isGWindowOpen()) {
             long elapsed = System.currentTimeMillis() - comboWindowStart;
@@ -299,7 +298,7 @@ public class HighFiveClientHandler {
                         ? (alpha << 24) | 0xFFFF00 : (alpha << 24) | 0xFF4400;
                 String text = "[" + gKey + " + " + hKey + "] Combo  [" + gKey + "] Hug";
                 int tw = client.font.width(text);
-                context.drawString(client.font, text,
+                context.text(client.font, text,
                         (screenWidth - tw) / 2, screenHeight / 2 + 10, color, true);
             }
         }

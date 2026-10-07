@@ -228,7 +228,7 @@ public class KickHandler {
                 if (isDropKick) {
                     living.setDeltaMovement(fwdX * 4.0, 0.8, fwdZ * 4.0);
                 } else {
-                    living.knockback(kbStrength, -dx, -dz);
+                    { double kbLen = Math.sqrt(dx * dx + dz * dz); if (kbLen > 0.0001) { Vec3 kbCur = living.getDeltaMovement(); living.setDeltaMovement(kbCur.x / 2.0 + dx / kbLen * kbStrength, kbCur.y, kbCur.z / 2.0 + dz / kbLen * kbStrength); } }
                     Vec3 vel2 = living.getDeltaMovement();
                     living.setDeltaMovement(vel2.x, upwardPop, vel2.z);
                 }

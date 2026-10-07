@@ -1,10 +1,9 @@
 package com.cooptest.client;
 import com.cooptest.GroundPoundHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +31,9 @@ public class GroundPoundClientHandler {
                         }
                     }
                 }));
-        HudRenderCallback.EVENT.register(GroundPoundClientHandler::renderHUD);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "groundpoundclienthandler_renderhud"), groundpoundclienthandler::renderhud);
     }
-    private static void renderHUD(GuiGraphics context, DeltaTracker tc) {
+    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
         if (!localDiving) return;
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.options.hideGui) return;
@@ -44,7 +43,7 @@ public class GroundPoundClientHandler {
         int a = Math.min(220, (int)(elapsed / 8)) << 24;
         String label = "⬇ GROUND POUND";
         int lx = (sw - client.font.width(label)) / 2;
-        context.drawString(client.font, Component.literal("§c§l" + label), lx, sh / 2 - 30, a | 0xFFFFFF, true);
+        context.text(client.font, Component.literal("§c§l" + label), lx, sh / 2 - 30, a | 0xFFFFFF, true);
     }
     public static boolean isLocalPlayerDiving()    { return localDiving; }
     public static boolean isPlayerDiving(UUID id)  { return divingPlayers.getOrDefault(id, false); }

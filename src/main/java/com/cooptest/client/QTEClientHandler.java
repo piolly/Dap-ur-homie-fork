@@ -4,7 +4,7 @@ import com.cooptest.QTEButtonPressPayload;
 import com.cooptest.QTEWindowPayload;
 import com.cooptest.QTEClearPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 
 public class QTEClientHandler {
@@ -91,7 +91,7 @@ public class QTEClientHandler {
     // ==================== HUD RENDERING ====================
 
 
-    public static void renderHUD(GuiGraphics context, int screenWidth, int screenHeight) {
+    public static void renderHUD(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
         if (!active) return;
 
         long now = System.currentTimeMillis();
@@ -166,7 +166,7 @@ public class QTEClientHandler {
             }
             int textColor = (alpha << 24) | 0xFFFFFF;
 
-            context.drawString(client.font, keyText, textX, textY, textColor, true);
+            context.text(client.font, keyText, textX, textY, textColor, true);
         }
 
         if (maxStages > 1) {

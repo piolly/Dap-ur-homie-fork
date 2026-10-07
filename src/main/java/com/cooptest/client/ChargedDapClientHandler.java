@@ -7,11 +7,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
@@ -535,7 +534,7 @@ public class ChargedDapClientHandler {
             wasKeyPressed = isKeyPressed;
         });
 
-        HudRenderCallback.EVENT.register(ChargedDapClientHandler::renderHUD);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "chargeddapclienthandler_renderhud"), chargeddapclienthandler::renderhud);
     }
 
     private static void onDapResult(double x, double y, double z, UUID player1, UUID player2, int tier, boolean perfectHit) {
@@ -615,7 +614,7 @@ public class ChargedDapClientHandler {
         }
     }
 
-    private static void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
 
@@ -838,7 +837,7 @@ public class ChargedDapClientHandler {
                 float timeProgress = (float) elapsed / FIRE_DAP_COMBO_WINDOW_MS;
                 int color = timeProgress < 0.5f ? (alpha << 24) | 0xFF8800 : (alpha << 24) | 0xFF0000;
 
-                context.drawString(client.font, text, textX, textY, color, true);
+                context.text(client.font, text, textX, textY, color, true);
 
 
                 int barWidth = 100;

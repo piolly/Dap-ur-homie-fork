@@ -3,10 +3,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.cooptest.MeteorStrikeHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 public class MeteorStrikeClientHandler {
     private static boolean hasAbility  = false;
     private static long abilityLeftMs  = 0;
@@ -38,9 +37,9 @@ public class MeteorStrikeClientHandler {
             }
             wasGPressed = g;
         });
-        HudRenderCallback.EVENT.register(MeteorStrikeClientHandler::renderHUD);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "meteorstrikeclienthandler_renderhud"), meteorstrikeclienthandler::renderhud);
     }
-    private static void renderHUD(GuiGraphics ctx, DeltaTracker ticker) {
+    private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker ticker) {
         if (!hasAbility) return;
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
@@ -54,7 +53,7 @@ public class MeteorStrikeClientHandler {
             int tw = client.font.width(cdText);
             int alpha = (int)(180 + 75 * Math.abs(Math.sin(System.currentTimeMillis() / 300.0)));
             int col = (alpha << 24) | 0xFF2200;
-            ctx.drawString(client.font, cdText, (sw - tw) / 2, sh / 2 - 60, col, true);
+            ctx.text(client.font, cdText, (sw - tw) / 2, sh / 2 - 60, col, true);
         } else {
             int bw = 100, bh = 20, bx = sw / 2 - bw / 2, by = sh - 75;
             ctx.fill(bx - 1, by - 1, bx + bw + 1, by + bh + 1, 0xFF000000);
@@ -63,10 +62,10 @@ public class MeteorStrikeClientHandler {
             ctx.fill(bx, by, bx + bw, by + bh, bcol);
             String label = "☄ G — METEOR";
             int lw = client.font.width(label);
-            ctx.drawString(client.font, label, bx + (bw - lw) / 2, by + 6, 0xFFFFFFFF, true);
+            ctx.text(client.font, label, bx + (bw - lw) / 2, by + 6, 0xFFFFFFFF, true);
             String timer = (abilityLeftMs / 1000) + "s";
             int tiw = client.font.width(timer);
-            ctx.drawString(client.font, timer, bx + (bw - tiw) / 2, by + bh + 3, 0xFFAAAAAA, false);
+            ctx.text(client.font, timer, bx + (bw - tiw) / 2, by + bh + 3, 0xFFAAAAAA, false);
         }
         mat.popMatrix();
     }

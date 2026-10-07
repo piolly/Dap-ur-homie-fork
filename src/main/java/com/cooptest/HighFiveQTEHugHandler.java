@@ -122,8 +122,7 @@ public class HighFiveQTEHugHandler {
         PoseNetworking.broadcastAnimState(p1, ord);
         PoseNetworking.broadcastAnimState(p2, ord);
         for (ServerPlayer p : List.of(p1, p2)) {
-            var swing = new net.minecraft.network.protocol.game.ClientboundAnimatePacket(
-                    p, net.minecraft.network.protocol.game.ClientboundAnimatePacket.SWING_MAIN_HAND);
+            var swing = new net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket(p, net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             for (ServerPlayer obs : p.level().players())
                 if (!obs.getUUID().equals(p.getUUID())) obs.connection.send(swing);
         }
@@ -235,8 +234,7 @@ public class HighFiveQTEHugHandler {
         world.playSound(null, p1.getX(), p1.getY(), p1.getZ(),
                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.9f, 1.1f);
         for (ServerPlayer p : List.of(p1, p2)) {
-            var swing = new net.minecraft.network.protocol.game.ClientboundAnimatePacket(
-                    p, net.minecraft.network.protocol.game.ClientboundAnimatePacket.SWING_MAIN_HAND);
+            var swing = new net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket(p, net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             for (ServerPlayer obs : p.level().players())
                 if (!obs.getUUID().equals(p.getUUID())) obs.connection.send(swing);
         }

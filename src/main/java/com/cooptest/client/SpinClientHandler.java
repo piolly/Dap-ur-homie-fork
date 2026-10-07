@@ -1,10 +1,9 @@
 package com.cooptest.client;
 import com.cooptest.SpinHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,9 +57,9 @@ public class SpinClientHandler {
                         if (isSpinner) localHasRider = false;
                     }
                 }));
-        HudRenderCallback.EVENT.register(SpinClientHandler::renderHUD);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "spinclienthandler_renderhud"), spinclienthandler::renderhud);
     }
-    private static void renderHUD(GuiGraphics context, DeltaTracker tc) {
+    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.options.hideGui) return;
         int sw = context.guiWidth();
@@ -81,7 +80,7 @@ public class SpinClientHandler {
         int a = (int)(pulse * 200) << 24;
         String label = localHasRider ? "↻ SPINNING  [SHIFT] LAUNCH!" : "↻ SPINNING";
         int lx = (sw - client.font.width(label)) / 2;
-        context.drawString(client.font, Component.literal((localHasRider ? "§e§l" : "§b") + label),
+        context.text(client.font, Component.literal((localHasRider ? "§e§l" : "§b") + label),
                 lx, sh / 2 - 30, a | 0xFFFFFF, true);
     }
     public static void onRiderAttached()                         { localHasRider = true; }

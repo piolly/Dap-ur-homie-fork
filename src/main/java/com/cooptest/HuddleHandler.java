@@ -289,7 +289,7 @@ public class HuddleHandler {
                 for (UUID pid : s.players) {
                     if (pid.equals(joiner)) continue;
                     ServerPlayer pp = server.getPlayerList().getPlayer(pid);
-                    if (pp != null) pp.displayClientMessage(
+                    if (pp != null) com.cooptest.MsgUtil.show(pp, 
                             net.minecraft.network.chat.Component.literal("§a" + pj.getName().getString() + " joined the huddle!"), true);
                 }
                 break;
@@ -565,7 +565,7 @@ public class HuddleHandler {
             lp.addEffect(new MobEffectInstance(MobEffects.STRENGTH,     400, 1));
             lp.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,   200, 0));
             lp.experienceLevel += 2;
-            lp.displayClientMessage(net.minecraft.network.chat.Component.literal(
+            com.cooptest.MsgUtil.show(lp, net.minecraft.network.chat.Component.literal(
                     "§d§l✦ HUDDLE! ✦ §7+Regen III, Speed III, Strength II, Resistance I"), true);
         }
         ServerPlayer p1 = live.get(0), p2 = live.get(1);

@@ -2,10 +2,9 @@ package com.cooptest.client;
 
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 
 public class ThrowPowerHUD {
@@ -23,10 +22,10 @@ public class ThrowPowerHUD {
     private static final float LERP_SPEED = 0.15f;
 
     public static void register() {
-        HudRenderCallback.EVENT.register(ThrowPowerHUD::render);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "throwpowerhud_render"), throwpowerhud::render);
     }
 
-    private static void render(GuiGraphics context, DeltaTracker tickCounter) {
+    private static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
         
@@ -76,7 +75,7 @@ public class ThrowPowerHUD {
             int alpha = (int)(155 + pulse * 100);
             int textColor = (alpha << 24) | 0xFFFFFF;
             
-            context.drawString(client.font, text, textX, textY, textColor, true);
+            context.text(client.font, text, textX, textY, textColor, true);
         }
     }
     

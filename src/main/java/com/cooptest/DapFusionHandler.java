@@ -566,7 +566,7 @@ public class DapFusionHandler {
         s.p1Ref.sendSystemMessage(net.minecraft.network.chat.Component.literal(reason));
         s.p2Ref.sendSystemMessage(net.minecraft.network.chat.Component.literal(reason));
         for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
-            p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+            com.cooptest.MsgUtil.show(p, net.minecraft.network.chat.Component.literal(
                     "§c✗ " + s.p1Ref.getName().getString() + " §7and §c" +
                             s.p2Ref.getName().getString() + " §7failed the fusion!"), false);
         }
@@ -665,7 +665,7 @@ public class DapFusionHandler {
                 try { ServerPlayNetworking.send(s.p2Ref, new FusionBlackScreenPayload(false)); } catch (Exception ignored) {}
                 try { broadcast(s, new FusionPhasePayload(s.p1Id, s.p2Id, 4)); } catch (Exception ignored) {}
                 for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
-                    p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                    com.cooptest.MsgUtil.show(p, net.minecraft.network.chat.Component.literal(
                             "§c§l☄ " + s.p1Ref.getName().getString() +
                                     " §eand §c" + s.p2Ref.getName().getString() +
                                     " §c§lUNLOCKED METEOR STRIKE! §7Press G to fire!"), false);
@@ -782,8 +782,7 @@ public class DapFusionHandler {
     }
     private static void sendSwingToOthers(MinecraftServer server, ServerPlayer player) {
         net.minecraft.network.protocol.game.ClientboundAnimatePacket swingPacket =
-                new net.minecraft.network.protocol.game.ClientboundAnimatePacket(
-                        player, net.minecraft.network.protocol.game.ClientboundAnimatePacket.SWING_MAIN_HAND);
+                new net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket(player, net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         for (ServerPlayer other : server.getPlayerList().getPlayers()) {
             if (!other.getUUID().equals(player.getUUID())) {
                 other.connection.send(swingPacket);
@@ -935,7 +934,7 @@ public class DapFusionHandler {
         String name1 = p1.getName().getString();
         String name2 = p2 != null ? p2.getName().getString() : name1;
         for (ServerPlayer p : p1.level().getServer().getPlayerList().getPlayers()) {
-            p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+            com.cooptest.MsgUtil.show(p, net.minecraft.network.chat.Component.literal(
                     "§7" + name1 + " and " + name2 + " have defused."), false);
         }
     }

@@ -1,10 +1,9 @@
 package com.cooptest.client;
 import com.cooptest.DapFusionHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import java.util.UUID;
 public class FusionClientHandler {
     private static int currentPhase = -1;
@@ -38,7 +37,7 @@ public class FusionClientHandler {
                     if (payload.active()) blackScreenStartTime = System.currentTimeMillis();
                     if (!payload.active() && currentPhase == 4) resetState();
                 }));
-        HudRenderCallback.EVENT.register(FusionClientHandler::renderHUD);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "fusionclienthandler_renderhud"), fusionclienthandler::renderhud);
     }
     private static void onPhase(DapFusionHandler.FusionPhasePayload p, Minecraft client) {
         if (client.player == null) return;
@@ -191,7 +190,7 @@ public class FusionClientHandler {
     public static boolean isActive()      { return currentPhase >= 0; }
     public static boolean isQTEOpen()     { return qteActive; }
     public static boolean isGWindowOpen() { return gWindowActive; }
-    private static void renderHUD(GuiGraphics ctx, DeltaTracker ticker) {
+    private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker ticker) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
         if (blackScreenActive) {
@@ -233,7 +232,7 @@ public class FusionClientHandler {
                 if (fw > 0) ctx.fill(bx, by, bx+fw, by+bh, gPressed ? 0xFF44BB44 : 0xFFFFAA00);
                 String lbl = gPressed ? "§a✓" : "§6[G]";
                 int lw = client.font.width(lbl);
-                ctx.drawString(client.font, lbl, (sw-lw)/2, by - 9, 0xFFFFFFFF, true);
+                ctx.text(client.font, lbl, (sw-lw)/2, by - 9, 0xFFFFFFFF, true);
             }
         }
         if (qteActive) {
@@ -291,7 +290,7 @@ public class FusionClientHandler {
                 int a = (int)(alpha * 255);
                 String keyText = QTEClientHandler.getExpectedButton();
                 int kw = client.font.width(keyText);
-                ctx.drawString(client.font, keyText, (sw-kw)/2, by - 9, (a<<24)|0xFFFFFF, true);
+                ctx.text(client.font, keyText, (sw-kw)/2, by - 9, (a<<24)|0xFFFFFF, true);
             }
             if (maxStages > 1) {
                 int ds = 3, dg = 2;

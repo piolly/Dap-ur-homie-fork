@@ -29,7 +29,7 @@ public class SlapClientHandler {
                     if (client.player == null) return;
                     if (!client.player.getUUID().equals(payload.playerId())) return;
                     if (client.screen != null) {
-                        client.setScreen(null);
+                        client.setScreenAndShow(null);
                     }
                 }));
     }

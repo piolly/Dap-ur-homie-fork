@@ -94,7 +94,7 @@ public class MeteorStrikeHandler {
         try { ServerPlayNetworking.send(p1, new MeteorGrantPayload(expiry)); } catch (Exception ignored) {}
         try { ServerPlayNetworking.send(p2, new MeteorGrantPayload(expiry)); } catch (Exception ignored) {}
         for (ServerPlayer p : p1.level().getServer().getPlayerList().getPlayers()) {
-            p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+            com.cooptest.MsgUtil.show(p, net.minecraft.network.chat.Component.literal(
                     "§c☄ " + p1.getName().getString() + " §7and §c" +
                             p2.getName().getString() + " §7have unlocked §c§lMETEOR STRIKE§7! Press §lG§7 to fire!"), false);
         }
@@ -133,7 +133,7 @@ public class MeteorStrikeHandler {
         }
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 2.0f, 0.5f);
-        player.displayClientMessage(net.minecraft.network.chat.Component.literal(
+        com.cooptest.MsgUtil.show(player, net.minecraft.network.chat.Component.literal(
                 "§c☄ METEOR INCOMING §7— impact in 3 seconds!"), true);
     }
     private static void tick(MinecraftServer server) {
