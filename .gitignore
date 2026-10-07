@@ -38,3 +38,8 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+build-log.txt
+report*.txt
+api.txt
+missing.txt
+show.txt
