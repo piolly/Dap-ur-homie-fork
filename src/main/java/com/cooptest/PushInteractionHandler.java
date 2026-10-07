@@ -1,240 +1,273 @@
 package com.cooptest;
 
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.Map.Entry;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import net.minecraft.world.phys.Vec3;
 
 public class PushInteractionHandler {
+   private static final float PUSH_RANGE = 2.5F;
+   private static final long HOLD_REQUIRED_MS = 1500L;
+   private static final long READY_WINDOW_MS = 3000L;
+   private static final long COOLDOWN_MS = 1500L;
+   private static final long PUSH_IMMUNITY_MS = 500L;
+   private static final long JUMP_WINDOW_MS = 800L;
+   private static final double VEL_LOW = 0.5;
+   private static final double VEL_MEDIUM = 1.8;
+   private static final double VEL_HIGH = 3.5;
+   private static final HashMap<UUID, UUID> holdTarget = new HashMap<>();
+   private static final HashMap<UUID, Long> holdStart = new HashMap<>();
+   private static final HashMap<UUID, UUID> readyPushers = new HashMap<>();
+   private static final HashMap<UUID, Long> readyStart = new HashMap<>();
+   private static final HashMap<UUID, Long> cooldowns = new HashMap<>();
+   public static final HashMap<UUID, Long> pushImmunity = new HashMap<>();
+   public static final HashMap<UUID, Long> lastJumpTime = new HashMap<>();
+   public static final Identifier PUSH_ANIM_ID = Identifier.fromNamespaceAndPath("cooptest", "push_anim");
 
-    private static final HashMap<UUID, Long> cooldowns = new HashMap<>();
-    public static final HashMap<UUID, Long> pushImmunity = new HashMap<>();
-    private static final long PUSH_IMMUNITY_MS = 500;
+   public static void registerPayloads() {
+      PayloadTypeRegistry.playS2C().register(PushInteractionHandler.PushAnimPayload.ID, PushInteractionHandler.PushAnimPayload.CODEC);
+   }
 
-    // JUMP PUSH PERMSSION
-    public static final HashMap<UUID, Long> lastJumpTime = new HashMap<>();
-    private static final long JUMP_WINDOW_MS = 1000;
+   public static void register() {
+      ServerTickEvents.END_SERVER_TICK.register(PushInteractionHandler::tick);
+      UseEntityCallback.EVENT.register((UseEntityCallback)(player, world, hand, entity, hitResult) -> {
+         if (world.isClientSide()) {
+            return InteractionResult.PASS;
+         }
 
-    private static final HashMap<UUID, PushRequest> pendingJumpPush = new HashMap<>();
-    private static final long REQUEST_TIMEOUT_MS = 5000;
-
-    private static class PushRequest {
-        UUID pusher;
-        double velocity;
-        long timestamp;
-
-        PushRequest(UUID pusher, double velocity) {
-            this.pusher = pusher;
-            this.velocity = velocity;
-            this.timestamp = System.currentTimeMillis();
-        }
-    }
-
-    public static final Identifier PUSH_ANIM_ID = Identifier.fromNamespaceAndPath("cooptest", "push_anim");
-
-    public record PushAnimPayload(UUID playerId) implements CustomPacketPayload {
-        public static final Type<PushAnimPayload> ID = new Type<>(PUSH_ANIM_ID);
-        public static final StreamCodec<FriendlyByteBuf, PushAnimPayload> CODEC =
-                StreamCodec.ofMember(
-                        (payload, buf) -> buf.writeUUID(payload.playerId),
-                        buf -> new PushAnimPayload(buf.readUUID())
-                );
-        @Override
-        public Type<? extends CustomPacketPayload> type() { return ID; }
-    }
-
-    public static void registerPayloads() {
-        PayloadTypeRegistry.clientboundPlay().register(PushAnimPayload.ID, PushAnimPayload.CODEC);
-    }
-
-    public static void register() {
-        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (world.isClientSide()) return InteractionResult.PASS;
-            if (!(entity instanceof Player target)) return InteractionResult.PASS;
-            if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
-            if (!(target instanceof ServerPlayer serverTarget)) return InteractionResult.PASS;
-
-            long now = System.currentTimeMillis();
-
-            PushRequest request = pendingJumpPush.get(player.getUUID());
-            if (request != null && request.pusher.equals(target.getUUID())) {
-
-                if (now - request.timestamp > REQUEST_TIMEOUT_MS) {
-                    pendingJumpPush.remove(player.getUUID());
-                    serverPlayer.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cRequest expired!"));
-                    return InteractionResult.FAIL;
-                }
-
-                if (player.distanceTo(target) > 2.5f) {
-                    pendingJumpPush.remove(player.getUUID());
-                    serverPlayer.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cToo far away!"));
-                    return InteractionResult.FAIL;
-                }
-
-                pendingJumpPush.remove(player.getUUID());
-                serverPlayer.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a✓ JUMP PUSH accepted!"));
-                serverTarget.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§a✓ " + serverPlayer.getName().getString() + " accepted!"));
-
-                executePush(serverTarget, serverPlayer, request.velocity, "§6§lJUMP PUSH!", now);
-                return InteractionResult.SUCCESS;
-            }
-
-            PoseState pose = PoseNetworking.poseStates.getOrDefault(player.getUUID(), PoseState.NONE);
-
-            if (pose == PoseState.GRAB_READY || pose == PoseState.GRAB_HOLDING) return InteractionResult.PASS;
-            if (HighFiveHandler.isInBlockingState(player.getUUID())) return InteractionResult.PASS;
-            if (pose != PoseState.PUSH_IDLE) return InteractionResult.PASS;
-            if (player.distanceTo(target) > 2.5f) return InteractionResult.PASS;
-
-            if (cooldowns.containsKey(player.getUUID()) && now - cooldowns.get(player.getUUID()) < 3000) return InteractionResult.FAIL;
-            if (cooldowns.containsKey(target.getUUID()) && now - cooldowns.get(target.getUUID()) < 3000) return InteractionResult.FAIL;
-
-            // DETERMINE PUSH POWER
-            double baseLaunchVelocity;
-            String pushType;
-
-            Long jumpTime = lastJumpTime.get(player.getUUID());
-            boolean jumped = jumpTime != null && (now - jumpTime) < JUMP_WINDOW_MS;
-
-            if (jumped) {
-                baseLaunchVelocity = 10.0;  // 40+ blocks!
-                pushType = "§6§lJUMP PUSH!";
-            } else if (player.isShiftKeyDown()) {
-                baseLaunchVelocity = 2.0;  // 4 blocks
-                pushType = "§7Gentle Push";
-            } else if (player.isSprinting()) {
-                baseLaunchVelocity = 8.0;  // 30 blocks
-                pushType = "§c§lMEGA PUSH!";
+         if (player instanceof ServerPlayer sp) {
+            if (!(entity instanceof ServerPlayer target)) {
+               return InteractionResult.PASS;
             } else {
-                baseLaunchVelocity = 6.0;  // 20 blocks
-                pushType = "§ePush";
+               if (!CoopMovesConfig.get().enablePush) {
+                  return InteractionResult.PASS;
+               }
+
+               long now = System.currentTimeMillis();
+               if (sp.isShiftKeyDown()) {
+                  if (HighFiveHandler.isInBlockingState(sp.getUUID())) {
+                     return InteractionResult.PASS;
+                  }
+
+                  if (isOnCooldown(sp.getUUID(), now)) {
+                     return InteractionResult.PASS;
+                  }
+
+                  if (readyPushers.containsKey(sp.getUUID())) {
+                     return InteractionResult.PASS;
+                  }
+
+                  if (sp.distanceTo(target) > 2.5F) {
+                     return InteractionResult.PASS;
+                  }
+
+                  UUID prevTarget = holdTarget.get(sp.getUUID());
+                  if (!target.getUUID().equals(prevTarget)) {
+                     holdTarget.put(sp.getUUID(), target.getUUID());
+                     holdStart.put(sp.getUUID(), now);
+                  }
+
+                  return InteractionResult.SUCCESS;
+               } else {
+                  UUID intendedTarget = readyPushers.get(target.getUUID());
+                  if (intendedTarget != null && intendedTarget.equals(sp.getUUID())) {
+                     Long rs = readyStart.get(target.getUUID());
+                     if (rs == null || now - rs > 3000L) {
+                        return InteractionResult.PASS;
+                     }
+
+                     if (isOnCooldown(target.getUUID(), now)) {
+                        return InteractionResult.PASS;
+                     }
+
+                     Long jt = lastJumpTime.get(sp.getUUID());
+                     boolean recentJump = jt != null && now - jt < 800L;
+                     double vel;
+                     if (recentJump) {
+                        vel = capToCeiling(sp, 3.5);
+                     } else if (sp.isShiftKeyDown()) {
+                        vel = capToCeiling(sp, 0.5);
+                     } else {
+                        vel = capToCeiling(sp, 1.8);
+                     }
+
+                     readyPushers.remove(target.getUUID());
+                     readyStart.remove(target.getUUID());
+                     executePush(target, sp, vel, now);
+                     return InteractionResult.SUCCESS;
+                  } else {
+                     return InteractionResult.PASS;
+                  }
+               }
             }
+         } else {
+            return InteractionResult.PASS;
+         }
+      });
+   }
 
-            // ALL PUSHES REQUIRE PERMISSION!
+   public static void tick(MinecraftServer server) {
+      long now = System.currentTimeMillis();
 
-            // PREVENT SPAM: Check if request already exists
-            if (pendingJumpPush.containsKey(target.getUUID())) {
-                // Already have a pending request for this target
-                return InteractionResult.FAIL;
+      for (Entry<UUID, UUID> entry : new HashMap<>(holdTarget).entrySet()) {
+         UUID pusherId = entry.getKey();
+         UUID targetId = entry.getValue();
+         Long startMs = holdStart.get(pusherId);
+         if (startMs == null) {
+            holdTarget.remove(pusherId);
+         } else {
+            ServerPlayer pusher = server.getPlayerList().getPlayer(pusherId);
+            ServerPlayer target = server.getPlayerList().getPlayer(targetId);
+            if (pusher == null || !pusher.isShiftKeyDown() || target == null || pusher.distanceTo(target) > 2.5F) {
+               holdTarget.remove(pusherId);
+               holdStart.remove(pusherId);
+            } else if (readyPushers.containsKey(pusherId)) {
+               holdTarget.remove(pusherId);
+               holdStart.remove(pusherId);
+            } else if (now - startMs >= 1500L) {
+               holdTarget.remove(pusherId);
+               holdStart.remove(pusherId);
+               readyPushers.put(pusherId, targetId);
+               readyStart.put(pusherId, now);
+               Vec3 mid = pusher.position().add(target.position()).scale(0.5);
+               pusher.level().playSound(null, mid.x, mid.y, mid.z, (SoundEvent)SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0F, 1.8F);
+               pusher.displayClientMessage(Component.literal("§eTell homie to right-click!"), true);
+               target.displayClientMessage(Component.literal("§e[Right-click to launch!]"), true);
             }
+         }
+      }
 
-            double velocity = calculateVelocity(serverTarget, baseLaunchVelocity);
-            pendingJumpPush.put(target.getUUID(), new PushRequest(player.getUUID(), velocity));
+      for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+         if (!p.onGround() && p.getDeltaMovement().y > 0.08) {
+            lastJumpTime.put(p.getUUID(), now);
+         }
+      }
 
-            serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.literal("§e⚡ Request sent to " + serverTarget.getName().getString() + "!"));
-            serverTarget.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§e⚡ " + serverPlayer.getName().getString() + " wants to push you! §aRight-click them to accept!"));
-
-            return InteractionResult.SUCCESS;
-        });
-    }
-
-    private static double calculateVelocity(ServerPlayer target, double base) {
-        int ceiling = getCeilingHeight(target);
-        if (ceiling < 10 && ceiling > 0) {
-            double maxH = Math.max(2, ceiling - 1);
-            double v = Math.sqrt(2 * 0.08 * 20 * maxH);
-            return Math.min(v, base);
-        }
-        return base;
-    }
-
-    private static void executePush(ServerPlayer pusher, ServerPlayer target, double velocity, String type, long now) {
-        PoseEffects.playActionEffects(pusher, target);
-        LaunchedPlayerTracker.markPlayerAsLaunched(target.getUUID());
-
-        PushAnimPayload payload = new PushAnimPayload(pusher.getUUID());
-        for (ServerPlayer p : PlayerLookup.tracking(pusher)) {
-            ServerPlayNetworking.send(p, payload);
-        }
-        ServerPlayNetworking.send(pusher, payload);
-
-        UUID carried = GrabMechanic.holding.get(target.getUUID());
-        if (carried != null) {
-            ServerPlayer c = target.level().getServer().getPlayerList().getPlayer(carried);
-            if (c != null) {
-                LaunchedPlayerTracker.markPlayerAsLaunched(c.getUUID());
-                c.push(0, velocity + 0.2, 0);
-                c.syncVelocity = true;
-                pushImmunity.put(c.getUUID(), now);
+      for (Entry<UUID, UUID> re : new HashMap<>(readyPushers).entrySet()) {
+         UUID pusherId = re.getKey();
+         UUID intendedTarget = re.getValue();
+         Long rs = readyStart.get(pusherId);
+         if (rs != null && now - rs <= 3000L) {
+            ServerPlayer pusher = server.getPlayerList().getPlayer(pusherId);
+            if (pusher != null) {
+               for (ServerPlayer nearby : server.getPlayerList().getPlayers()) {
+                  if (!nearby.getUUID().equals(pusherId) && pusher.distanceTo(nearby) <= 2.5F) {
+                     UUID nearbyId = nearby.getUUID();
+                     if (!nearbyId.equals(intendedTarget)) {
+                        readyPushers.put(pusherId, nearbyId);
+                        nearby.displayClientMessage(Component.literal("§e[Right-click to launch!]"), true);
+                     }
+                     break;
+                  }
+               }
             }
-        }
+         }
+      }
 
-        target.push(0, velocity, 0);
-        target.syncVelocity = true;
-        pushImmunity.put(target.getUUID(), now);
+      readyPushers.entrySet().removeIf(e -> {
+         Long t = readyStart.get(e.getKey());
+         return t == null || now - t > 3000L;
+      });
+      readyStart.entrySet().removeIf(e -> now - e.getValue() > 3000L);
+      holdStart.entrySet().removeIf(e -> now - e.getValue() > 10000L);
+      lastJumpTime.entrySet().removeIf(e -> now - e.getValue() > 3200L);
+      cooldowns.entrySet().removeIf(e -> now - e.getValue() > 3000L);
+   }
 
-        cooldowns.put(pusher.getUUID(), now);
-        cooldowns.put(target.getUUID(), now);
+   private static void executePush(ServerPlayer pusher, ServerPlayer target, double velocity, long now) {
+      PushInteractionHandler.PushAnimPayload pkt = new PushInteractionHandler.PushAnimPayload(pusher.getUUID());
 
-        PoseNetworking.broadcastPoseChange(
-                Objects.requireNonNull(pusher.level().getServer()),
-                pusher.getUUID(),
-                PoseState.PUSH_ACTION
-        );
+      for (ServerPlayer p : PlayerLookup.tracking(pusher)) {
+         ServerPlayNetworking.send(p, pkt);
+      }
 
-        pusher.sendOverlayMessage(net.minecraft.network.chat.Component.literal(type));
-    }
+      ServerPlayNetworking.send(pusher, pkt);
+      target.setDeltaMovement(target.getDeltaMovement().x, 0.0, target.getDeltaMovement().z);
+      target.push(0.0, velocity, 0.0);
+      target.hurtMarked = true;
+      pushImmunity.put(target.getUUID(), now);
+      LaunchedPlayerTracker.markPlayerAsLaunched(target.getUUID());
+      UUID carried = GrabMechanic.holding.get(target.getUUID());
+      if (carried != null) {
+         ServerPlayer c = target.level().getServer().getPlayerList().getPlayer(carried);
+         if (c != null) {
+            c.push(0.0, velocity * 0.85, 0.0);
+            c.hurtMarked = true;
+            LaunchedPlayerTracker.markPlayerAsLaunched(c.getUUID());
+            pushImmunity.put(c.getUUID(), now);
+         }
+      }
 
-    public static boolean hasPushImmunity(UUID uuid) {
-        Long t = pushImmunity.get(uuid);
-        if (t == null) return false;
-        if (System.currentTimeMillis() - t < PUSH_IMMUNITY_MS) return true;
-        pushImmunity.remove(uuid);
-        return false;
-    }
+      cooldowns.put(pusher.getUUID(), now);
+      PoseNetworking.broadcastPoseChange(Objects.requireNonNull(pusher.level().getServer()), pusher.getUUID(), PoseState.PUSH_ACTION);
+   }
 
-    private static int getCeilingHeight(ServerPlayer player) {
-        BlockPos pos = player.blockPosition();
-        for (int y = 1; y <= 15; y++) {
-            BlockPos check = pos.above(y);
-            BlockState state = player.level().getBlockState(check);
-            if (!state.isAir() && state.isRedstoneConductor(player.level(), check)) {
-                return y;
-            }
-        }
-        return -1;
-    }
+   private static double capToCeiling(ServerPlayer t, double base) {
+      BlockPos pos = t.blockPosition();
 
-    public static void cleanupExpiredImmunity() {
-        long now = System.currentTimeMillis();
-        pushImmunity.entrySet().removeIf(e -> now - e.getValue() > PUSH_IMMUNITY_MS);
-    }
+      for (int y = 1; y <= 15; y++) {
+         BlockPos check = pos.above(y);
+         BlockState state = t.level().getBlockState(check);
+         if (!state.isAir() && state.isRedstoneConductor(t.level(), check)) {
+            return Math.min(base, Math.sqrt(3.2 * Math.max(2, y - 1)));
+         }
+      }
 
-    public static void tick(net.minecraft.server.MinecraftServer server) {
-        long now = System.currentTimeMillis();
+      return base;
+   }
 
-        // Track jumps
-        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-            if (!p.onGround() && p.getDeltaMovement().y > 0.1) {
-                lastJumpTime.put(p.getUUID(), now);
-            }
-        }
+   private static boolean isOnCooldown(UUID uuid, long now) {
+      Long t = cooldowns.get(uuid);
+      return t != null && now - t < 1500L;
+   }
 
-        // Cleanup
-        pendingJumpPush.entrySet().removeIf(e -> {
-            if (now - e.getValue().timestamp > REQUEST_TIMEOUT_MS) {
-                ServerPlayer t = server.getPlayerList().getPlayer(e.getKey());
-                if (t != null) t.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§cRequest expired!"));
-                return true;
-            }
-            return false;
-        });
+   public static boolean hasPushImmunity(UUID uuid) {
+      Long t = pushImmunity.get(uuid);
+      if (t == null) {
+         return false;
+      }
 
-        lastJumpTime.entrySet().removeIf(e -> now - e.getValue() > 2000);
-    }
+      if (System.currentTimeMillis() - t < 500L) {
+         return true;
+      }
+
+      pushImmunity.remove(uuid);
+      return false;
+   }
+
+   public static void cleanupExpiredImmunity() {
+      long now = System.currentTimeMillis();
+      pushImmunity.entrySet().removeIf(e -> now - e.getValue() > 500L);
+   }
+
+   public record PushAnimPayload(UUID playerId) implements CustomPacketPayload {
+      public static final Type<PushInteractionHandler.PushAnimPayload> ID = new Type(PushInteractionHandler.PUSH_ANIM_ID);
+      public static final StreamCodec<FriendlyByteBuf, PushInteractionHandler.PushAnimPayload> CODEC = StreamCodec.ofMember(
+         (p, buf) -> buf.writeUUID(p.playerId), buf -> new PushInteractionHandler.PushAnimPayload(buf.readUUID())
+      );
+
+      public Type<? extends CustomPacketPayload> type() {
+         return ID;
+      }
+   }
 }

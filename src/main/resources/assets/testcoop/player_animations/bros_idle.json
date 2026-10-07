@@ -1,0 +1,40 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"bros_idle": {
+			"loop": true,
+			"animation_length": 1.25,
+			"bones": {
+				"torso": {
+					"rotation": {
+						"0.0": {
+							"post": {
+								"vector": [0, 10, 0]
+							},
+							"lerp_mode": "catmullrom"
+						}
+					},
+					"position": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [-206.3375, 65.0536, -108.3838]
+						},
+						"0.625": {
+							"vector": [-201.3029, 66.0644, -102.8546]
+						},
+						"1.25": {
+							"vector": [-206.3375, 65.0536, -108.3838]
+						}
+					},
+					"position": {
+						"vector": [-1, -1, 3]
+					}
+				}
+			}
+		}
+	}
+}

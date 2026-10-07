@@ -106,5 +106,11 @@
   "clap6": { "sounds": [{ "name": "testcoop:clap6", "stream": false }] },
   "heli": { "sounds": [{ "name": "testcoop:heli", "stream": false }], "subtitle": "Helicopter spin" },
   "cooldap": { "sounds": [{ "name": "testcoop:cooldap", "stream": false }] },
-  "slap": { "sounds": [{ "name": "testcoop:slap", "stream": false }] }
+  "slap": { "sounds": [{ "name": "testcoop:slap", "stream": false }] },
+  "totrute": { "sounds": [{ "name": "testcoop:totrute", "stream": false }] },
+  "fahh": { "sounds": [{ "name": "testcoop:fahh", "stream": false }] },
+  "clap_swap": { "sounds": [{ "name": "testcoop:clap_swap", "stream": false }] },
+  "clean_dap": { "sounds": [{ "name": "testcoop:clean_dap", "stream": false }], "subtitle": "Clean dap" },
+  "clean_dap2": { "sounds": [{ "name": "testcoop:clean_dap2", "stream": false }], "subtitle": "Clean dap impact" },
+  "dap_follow": { "sounds": [{ "name": "testcoop:dap_follow", "stream": false }], "subtitle": "Dap shockwave" }
 }

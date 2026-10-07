@@ -2,177 +2,209 @@ package com.cooptest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class CoopMovesConfig {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("coopmoves.json").toFile();
+   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+   private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("coopmoves.json").toFile();
+   private static CoopMovesConfig INSTANCE;
+   public static final int CURRENT_CONFIG_VERSION = 2;
+   public int configVersion = 0;
+   public boolean noGriefMode = false;
+   public boolean easyFusionTest = false;
+   public boolean impactFramesEveryDap = false;
+   public boolean enableGrab = true;
+   public boolean enableSpin = true;
+   public boolean enableGroundPound = true;
+   public boolean enableDap = true;
+   public boolean enableDapCombo = true;
+   public boolean enableDapHold = true;
+   public boolean enableFallDap = true;
+   public boolean enableFireDap = true;
+   public boolean enableHeavenDap = true;
+   public long dapChargeWindowMs = 250L;
+   public long dapReleaseWindowMs = 500L;
+   public long dapPerfectWindowMs = 85L;
+   public long dapCooldownMs = 1500L;
+   public long dapWhiffCooldownMs = 800L;
+   public long dapFireDelayMs = 2000L;
+   public long dapFireBuildTimeMs = 2000L;
+   public boolean enableHighFive = true;
+   public boolean enableHighFiveHug = true;
+   public boolean enableHighFiveCombo = true;
+   public boolean enableHighFivePass = false;
+   public double highFiveReachForward = 0.7;
+   public double highFiveReachDepth = 0.6;
+   public double highFiveReachRightOffset = 0.0;
+   public double highFiveReachWidth = 1.15;
+   public float dapRunHearts = 1.0F;
+   public float dapRunShake = 0.9F;
+   public int dapRunShakeMs = 260;
+   public int dapRunFlairBurstSec = 3;
+   public int dapRunFlairBurstAmp = 4;
+   public int dapRunFlairSprintSpeedSec = 30;
+   public int dapRunFlairPerfectSpeedSec = 3;
+   public boolean enableHighfiveDap = false;
+   public boolean enablePush = true;
+   public boolean enableCatch = true;
+   public boolean enableMarioJump = true;
+   public boolean enableKick = true;
+   public boolean enableDropKick = true;
+   public boolean enableSlap = true;
+   public boolean enableStrongSlapSmoothTp = true;
+   public boolean enableNormalSlapSmoothTp = true;
+   public boolean enableClap = true;
+   public boolean enablePact = true;
+   public long pactSealHoldMs = 2000L;
+   public long pactHoldTimeoutMs = 400L;
+   public long pactDurationMs = 1800000L;
+   public float pactBetrayalDamage = 4.0F;
+   public boolean pactBroadcastBetrayal = true;
+   public int pactBarSegments = 20;
+   public boolean enableRallyBeacon = true;
+   public long rallyBeaconMs = 120000L;
+   public boolean enableFlairBarrier = true;
+   public long flairBarrierCleanMs = 5000L;
+   public long flairBarrierPerfectMs = 8000L;
+   public long flairBarrierOtherMs = 5000L;
+   public boolean enableFlairBuffs = true;
+   public boolean enableFlairBlast = true;
+   public boolean enableHighFiveBuffs = true;
+   public int hypeMaxStacks = 10;
+   public long hypeDecayMs = 8000L;
+   public int hypeMaxSpeedAmp = 9;
+   public boolean enableHypeTornado = true;
+   public int hypeTornadoStacks = 5;
+   public double hypeTornadoRadius = 3.0;
+   public double hypeTornadoRadiusPerStack = 0.35;
+   public double hypeTornadoPush = 0.95;
+   public int hypeTornadoParticles = 4;
+   public boolean enableSpearStrike = true;
+   public String spearItemMatches = "spear,lance,pike,javelin";
+   public boolean spearDebug = false;
+   public boolean spearAnyItem = false;
+   public double spearAimRange = 10.0;
+   public double spearAimConeDeg = 55.0;
+   public double spearHomingTurn = 0.65;
+   public double spearHomingMinSpeed = 1.3;
+   public double spearHitRadius = 2.2;
+   public float spearBaseDamage = 8.0F;
+   public float spearSpeedDamage = 10.0F;
+   public float spearMaxDamage = 24.0F;
+   public double spearKnockback = 1.5;
+   public double spearBounce = 0.45;
+   public boolean enableSpearNuke = true;
+   public float spearNukePower = 14.0F;
+   public double spearNukeRadius = 14.0;
+   public float spearNukeDamage = 60.0F;
+   public boolean spearNukeKillsStriker = true;
+   public boolean spearMissileMode = false;
+   public double spearMissileRange = 160.0;
+   public double spearMissileConeDeg = 20.0;
+   public double spearMissileSpeed = 2.2;
+   public double spearMissileTurn = 0.5;
+   public double spearMissileHitRadius = 1.5;
+   public float spearMissileDamage = 60.0F;
+   public boolean enableDapHearts = true;
+   public float dapHeartsClean = 0.0F;
+   public float dapHeartsPerfect = 2.0F;
+   public float dapHeartsGreat = 0.0F;
+   public float dapHeartsFlairClean = 2.0F;
+   public float dapHeartsFlairBig = 4.0F;
+   public float dapHeartsMax = 8.0F;
+   public float dapCleanHeal = 0.0F;
+   public int dapHeartsSeconds = 60;
+   public double brosWalkSpeed = 0.17;
+   public double brosSprintMult = 1.35;
+   public double brosStepHeight = 1.05;
+   public double brosMaxYSplit = 1.15;
+   public float brosShieldHp = 40.0F;
+   public double brosDomeRadius = 2.2;
+   public float brosMobDamageThrough = 0.65F;
+   public float brosOtherDamageReduction = 0.4F;
+   public float brosPartnerShare = 0.5F;
+   public float brosHealAmount = 1.0F;
+   public int brosHealIntervalTicks = 15;
+   public int brosHealCombatPauseTicks = 80;
+   public float brosShatterDamage = 18.0F;
+   public int brosShieldRegenSeconds = 45;
+   public float brosRushDamage = 18.0F;
+   public int brosRushTicks = 8;
+   public double brosRushSpeed = 0.75;
+   public int brosRushCooldownTicks = 120;
+   public float brosRushShieldCost = 6.0F;
+   public boolean brosRushBreaksBlocks = true;
+   public float brosRushMaxHardness = 3.0F;
+   public double brosPulseRadius = 10.0;
+   public float brosPulseDamage = 10.0F;
+   public double brosPulseKnockback = 1.6;
+   public float brosPulseShieldCost = 8.0F;
+   public int brosPulseCooldownTicks = 160;
+   public float brosBunkerDrain = 0.25F;
+   public float brosBunkerDamageThrough = 0.08F;
+   public int brosRechargeFullTicks = 80;
+   public float brosRechargeHealthCost = 0.5F;
+   public float brosRechargeMinHealth = 6.0F;
 
-    private static CoopMovesConfig INSTANCE;
+   public static CoopMovesConfig get() {
+      if (INSTANCE == null) {
+         load();
+      }
 
-    public boolean noGriefMode = false;
-    public boolean easyFusionTest = false;
-    public boolean debugMode = false;
+      return INSTANCE;
+   }
 
-    public boolean enableGrab = true;
-    public boolean enableSpin = true;
-    public boolean enableGroundPound = true;
-    public boolean enableThrow = true;
-    public boolean enableYeet = true;
-    public boolean enableGrabThrow = true;
-    public boolean allowForcedPickup = true;
-    public boolean grabBreaksBlocks = false;
-    public float throwMinPower = 0.5f;
-    public float throwMaxPower = 1.5f;
-    public int grabCooldownTicks = 20;
-
-    public boolean enableDap = true;
-    public boolean enableDapCombo = true;
-    public boolean enableDapHold = true;
-    public boolean enableDapFirstPerson = true;
-    public boolean enableFallDap = true;
-    public boolean enableFireDap = true;
-    public boolean enableHeavenDap = true;
-    public boolean dapCausesExplosion = false;
-    public boolean enablePerfectLegendary = true;
-    public long dapChargeWindowMs = 250;
-    public long dapReleaseWindowMs = 500;
-    public long dapPerfectWindowMs = 85;
-    public long dapCooldownMs = 1500;
-    public long dapWhiffCooldownMs = 800;
-    public long dapFireDelayMs = 2000;
-    public long dapFireBuildTimeMs = 2000;
-    public double tier1Knockback = 0.3;
-    public double tier2Knockback = 0.6;
-    public double tier3Knockback = 1.0;
-    public double tier4Knockback = 2.0;
-    public int fireChargeDelayMs = 2000;
-    public int fireBuildTimeMs = 2000;
-    public float fireExplosionPower = 3.0f;
-    public int fireExplosionRadius = 50;
-    public float fireKnockbackMultiplier = 15.0f;
-    public boolean fireBreaksBlocks = false;
-    public double perfectLegendaryMinSpeed = 10.0;
-    public int perfectLegendaryLevitationSec = 10;
-    public int perfectLegendarySlowFallSec = 30;
-    public boolean perfectLegendaryKillsOnFail = true;
-    public boolean perfectLegendaryGivesEffects = true;
-
-    public boolean enableHighFive = true;
-    public boolean enableHighFiveHug = true;
-    public boolean enableHighFiveCombo = true;
-    public boolean enableHighFiveFirstPerson = true;
-    public int highFiveTimeoutMs = 2500;
-    public int highFiveLeftHangingCooldownMs = 1500;
-    public int highFiveComboWindowMs = 400;
-    public boolean highFiveComboAura = true;
-    public boolean highFiveComboBeam = true;
-    public boolean highFiveCausesLightning = false;
-
-    public boolean enableHug = true;
-    public boolean enableHugFirstPerson = true;
-    public boolean hugHealsPlayers = true;
-    public float hugHealAmount = 2.0f;
-    public int hugDurationSec = 10;
-
-    public boolean enablePush = true;
-    public boolean enablePushFirstPerson = true;
-    public boolean pushCausesParticles = true;
-    public boolean pushIntoOrbit = false;
-    public float pushDistance = 2.5f;
-    public int pushCooldownMs = 500;
-
-    public boolean enableCatch = true;
-    public boolean catchNegatesFallDamage = true;
-    public int catchWindowMs = 500;
-    public int catchCooldownMs = 1000;
-
-    public boolean enableMarioJump = true;
-    public boolean marioJumpSound = true;
-    public boolean marioJumpParticles = true;
-    public float marioJumpPower = 2.0f;
-
-    public boolean enableKick = true;
-    public boolean enableDropKick = true;
-
-    public boolean enableSlap = true;
-
-    public boolean enableClap = true;
-
-    public boolean enableMahito = true;
-    public boolean mahitoTransformsPlayer = true;
-    public int mahitoCurseDurationSec = 60;
-
-    public boolean enableShieldMode = true;
-    public boolean shieldBlocksProjectiles = true;
-    public float shieldDamageReduction = 0.8f;
-    public int shieldSwapCooldownMs = 3000;
-
-    public boolean enableSquash = true;
-    public boolean squashDropsItems = true;
-    public boolean squashMakesFlat = true;
-    public float squashDamage = 10.0f;
-    public int squashDurationSec = 25;
-    public int squashNauseaSec = 15;
-
-    public boolean enableFirstPersonAnimations = true;
-    public boolean firstPersonSmoothEndings = true;
-    public float firstPersonArmForwardOffset = 3.0f;
-    public float firstPersonArmHeightOffset = 2.0f;
-
-    public boolean showDapChargeBar = true;
-    public boolean showFireChargeBar = true;
-    public boolean announcePerectLegendaryInChat = true;
-    public boolean announceMahitoInChat = true;
-    public boolean announceComboInChat = true;
-
-    public boolean enableParticles = true;
-    public float particleDensity = 1.0f;
-    public float dapSoundVolume = 1.0f;
-    public float explosionSoundVolume = 1.5f;
-    public float epicDapSoundVolume = 2.0f;
-    public float highFiveSoundVolume = 1.0f;
-    public float pushSoundVolume = 1.0f;
-    public boolean muteAllSounds = false;
-
-    public static CoopMovesConfig get() {
-        if (INSTANCE == null) load();
-        return INSTANCE;
-    }
-
-    public static void load() {
-        if (CONFIG_FILE.exists()) {
-            try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                INSTANCE = GSON.fromJson(reader, CoopMovesConfig.class);
-                if (INSTANCE == null) INSTANCE = new CoopMovesConfig();
-            } catch (IOException e) {
-                System.err.println("[CoopMoves] Failed to load config: " + e.getMessage());
-                INSTANCE = new CoopMovesConfig();
-            }
-        } else {
+   public static void load() {
+      if (CONFIG_FILE.exists()) {
+         try (FileReader reader = new FileReader(CONFIG_FILE)) {
+            CoopMovesConfig loaded = (CoopMovesConfig)GSON.fromJson(reader, CoopMovesConfig.class);
+            INSTANCE = loaded != null ? loaded : new CoopMovesConfig();
+            INSTANCE.migrate();
+            save();
+         } catch (Exception e) {
+            System.err.println("[CoopMoves] Config corrupted, resetting: " + e.getMessage());
             INSTANCE = new CoopMovesConfig();
             save();
-        }
-    }
+         }
+      } else {
+         INSTANCE = new CoopMovesConfig();
+         save();
+      }
+   }
 
-    public static void save() {
-        try {
-            CONFIG_FILE.getParentFile().mkdirs();
-            try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-                GSON.toJson(INSTANCE, writer);
-            }
-        } catch (IOException e) {
-            System.err.println("[CoopMoves] Failed to save config: " + e.getMessage());
-        }
-    }
+   private void migrate() {
+      if (this.configVersion < 2) {
+         if (this.configVersion < 2) {
+            this.dapHeartsClean = 0.0F;
+            this.dapHeartsGreat = 0.0F;
+            this.dapHeartsPerfect = 2.0F;
+            this.dapHeartsMax = 8.0F;
+            this.dapCleanHeal = 0.0F;
+            System.out.println("[CoopMoves] Config migrated to v2 (golden-heart rebalance).");
+         }
 
-    public static void reload() {
-        INSTANCE = null;
-        load();
-    }
+         this.configVersion = 2;
+      }
+   }
+
+   public static void save() {
+      try {
+         CONFIG_FILE.getParentFile().mkdirs();
+
+         try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+            GSON.toJson(INSTANCE, writer);
+         }
+      } catch (IOException e) {
+         System.err.println("[CoopMoves] Failed to save config: " + e.getMessage());
+      }
+   }
+
+   public static void reload() {
+      INSTANCE = null;
+      load();
+   }
 }

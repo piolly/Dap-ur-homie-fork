@@ -1,0 +1,20 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"cuff": {
+			"loop": true,
+			"bones": {
+				"right_arm": {
+					"rotation": {
+						"vector": [36.8926, 22.7992, -27.3049]
+					}
+				},
+				"left_arm": {
+					"rotation": {
+						"vector": [28.2086, -21.6347, 34.5027]
+					}
+				}
+			}
+		}
+	}
+}

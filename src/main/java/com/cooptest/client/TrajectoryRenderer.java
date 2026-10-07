@@ -3,83 +3,103 @@ package com.cooptest.client;
 import com.cooptest.GrabInputHandler;
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
-import com.mojang.blaze3d.buffers.*;
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.*;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import net.minecraft.client.Camera;
+import com.mojang.blaze3d.vertex.PoseStack.Pose;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.ClipContext.Block;
+import net.minecraft.world.level.ClipContext.Fluid;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.HitResult.Type;
 
 public class TrajectoryRenderer {
+   private static final int TRAJECTORY_POINTS = 60;
+   private static final float GRAVITY = 0.08F;
+   private static final float VERTICAL_DRAG = 0.98F;
+   private static final float HORIZONTAL_DRAG = 0.91F;
+   private static final boolean STOP_ON_BLOCKS = true;
+   private static final float DOT_SIZE = 0.08F;
+   private static final float MIN_POWER_MULT = 1.5F;
+   private static final float MAX_POWER_MULT = 3.5F;
 
-    private static final int TRAJECTORY_POINTS = 30;
-    private static final float TIME_STEP = 0.1f;
-    private static final float GRAVITY = 0.08f;
-    private static final float DRAG = 0.02f;
+   public static void register() {
+      WorldRenderEvents.END_MAIN.register(TrajectoryRenderer::render);
+   }
 
-    private static final float DOT_SIZE = 0.08f;
-    private static final float MIN_POWER_MULT = 1.5f;
-    private static final float MAX_POWER_MULT = 3.5f;
-    // BufferAllocator is the correct allocator type — takes a byte size
-    private static final ByteBufferBuilder ALLOCATOR = new ByteBufferBuilder(786432);
+   private static void render(WorldRenderContext context) {
+      Minecraft client = Minecraft.getInstance();
+      if (client.player != null && client.level != null) {
+         PoseState pose = PoseNetworking.poseStates.getOrDefault(client.player.getUUID(), PoseState.NONE);
+         if (pose == PoseState.GRAB_HOLDING) {
+            float chargeProgress = GrabInputHandler.getThrowChargeProgress();
+            if (!(chargeProgress <= 0.0F)) {
+               float power = 1.5F + 2.0F * chargeProgress;
+               Vec3 lookVec = client.player.getViewVector(client.getDeltaTracker().getGameTimeDeltaPartialTick(true));
+               Vec3 startPos = client.player.getEyePosition().add(0.0, 0.5, 0.0);
+               Vec3 velocity = lookVec.scale(power);
+               Vec3[] points = new Vec3[60];
+               Vec3 pos = startPos;
+               Vec3 vel = velocity;
 
-    // DEBUG_FILLED_BOX already has blending and no cull — use it directly.
-// POSITION_COLOR_SNIPPET is private so you can't build on top of it.
-    private static final RenderPipeline TRAJECTORY_PIPELINE = RenderPipelines.DEBUG_FILLED_BOX;
-    public static void register() {
-        LevelRenderEvents.END_MAIN.register(TrajectoryRenderer::render);
-    }
+               for (int i = 0; i < 60; i++) {
+                  points[i] = pos;
+                  vel = new Vec3(vel.x * 0.91F, (vel.y - 0.08F) * 0.98F, vel.z * 0.91F);
+                  Vec3 next = pos.add(vel);
+                  BlockHitResult hit = client.level.clip(new ClipContext(pos, next, Block.COLLIDER, Fluid.NONE, client.player));
+                  if (hit != null && hit.getType() == Type.BLOCK) {
+                     points[i] = hit.getLocation();
+                     break;
+                  }
 
-    private static void render(LevelRenderContext context) {
-        Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.level == null) return;
+                  pos = next;
+                  if (pos.y < client.player.getY() - 40.0) {
+                     break;
+                  }
+               }
 
-        PoseState pose = PoseNetworking.poseStates.getOrDefault(
-            client.player.getUUID(), PoseState.NONE
-        );
+               renderTrajectoryDots(context, points, chargeProgress);
+            }
+         }
+      }
+   }
 
-        if (pose != PoseState.GRAB_HOLDING) return;
+   private static void renderTrajectoryDots(WorldRenderContext context, Vec3[] points, float charge) {
+      Vec3 camPos = context.worldState().cameraRenderState.pos;
+      PoseStack matrices = context.matrices();
+      matrices.pushPose();
+      matrices.translate(-camPos.x, -camPos.y, -camPos.z);
+      VertexConsumer buffer = context.consumers().getBuffer(CoopWorldPipelines.TRAJECTORY_LAYER);
+      Pose matrix = matrices.last();
+      int r = (int)(charge * 255.0F);
+      int g = (int)((1.0F - charge) * 255.0F);
+      int b = 50;
+      int alpha = 200;
 
-        float chargeProgress = GrabInputHandler.getThrowChargeProgress();
-        if (chargeProgress <= 0) return;
+      for (int i = 0; i < points.length && points[i] != null; i++) {
+         Vec3 point = points[i];
+         float fadeAlpha = alpha * (1.0F - (float)i / points.length);
+         float size = 0.08F * (1.0F - (float)i / points.length * 0.5F);
+         float x = (float)point.x;
+         float y = (float)point.y;
+         float z = (float)point.z;
+         buffer.addVertex(matrix, x - size, y - size, z + size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x + size, y - size, z + size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x + size, y + size, z + size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x - size, y + size, z + size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x + size, y - size, z - size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x - size, y - size, z - size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x - size, y + size, z - size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x + size, y + size, z - size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x - size, y + size, z - size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x - size, y + size, z + size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x + size, y + size, z + size).setColor(r, g, b, (int)fadeAlpha);
+         buffer.addVertex(matrix, x + size, y + size, z - size).setColor(r, g, b, (int)fadeAlpha);
+      }
 
-        float power = MIN_POWER_MULT + (MAX_POWER_MULT - MIN_POWER_MULT) * chargeProgress;
-
-        Vec3 lookVec = client.player.getViewVector(client.getDeltaTracker().getGameTimeDeltaTicks());
-        Vec3 startPos = client.player.getEyePosition().add(0, 0.5, 0); // Above head
-
-        Vec3 velocity = lookVec.scale(power);
-
-        Vec3[] points = new Vec3[TRAJECTORY_POINTS];
-        Vec3 pos = startPos;
-        Vec3 vel = velocity;
-
-        for (int i = 0; i < TRAJECTORY_POINTS; i++) {
-            points[i] = pos;
-
-            vel = vel.add(0, -GRAVITY, 0);
-            vel = vel.scale(1.0 - DRAG);
-            pos = pos.add(vel);
-
-            if (pos.y < client.player.getY() - 10) break;
-        }
-
-        renderTrajectoryDots(context, points, chargeProgress);
-    }
-
-    private static void renderTrajectoryDots(LevelRenderContext context, Vec3[] points, float charge) {
-        // TODO(26.3 port): DISABLED. context.matrices(), consumers() and getMainCamera() no longer exist.
-        // Re-implement with the new level render context (poseStack + submitNodeCollector).
-        // The original body is in git history, in the commit before this one.
-    }
+      matrices.popPose();
+   }
 }

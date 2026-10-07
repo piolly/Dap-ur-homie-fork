@@ -1,21 +1,38 @@
 {
   "required": true,
+  "minVersion": "0.8",
   "package": "com.cooptest.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "CraftingResultSlotMixin",
-    "CraftingScreenMixin",
-    "ExampleMixin",
-    "GrabbedPlayerControlMixin",
+    "CraftingInventoriesAccessor",
     "PlayerEntityPassengerOffsetMixin",
-    "PlayerModelMixin",
-    "PlayerRidingMixin"
+    "PlayerRidingMixin",
+    "GrabbedPlayerControlMixin",
+    "CraftingScreenMixin",
+    "SpinYeetCameraRollMixin",
+    "CraftingResultSlotInputAccessor",
+    "CraftingResultSlotMixin"
   ],
   "client": [
-    "client.MovementFreezeMixin",
+    "PlayerModelMixin",
     "client.PlayerEntityRendererMixin",
-    "client.InputAccessor"
+    "client.MovementFreezeMixin",
+    "client.HeldItemRendererMixin",
+    "client.CoopCameraShakeMixin",
+    "client.CoopCameraRollMixin",
+    "client.HighFivePassCameraLockMixin",
+    "client.impactframemixin.CoopGameRendererMixin",
+    "client.impactframemixin.CoopScreenSquishMixin",
+    "client.impactframemixin.LivingEntityRendererMixin",
+    "client.impactframemixin.HeldItemRendererImpactMixin",
+    "client.GrabRotationRenderMixin",
+    "client.LivingModelAccessor",
+    "client.InputAccessor",
+    "client.BrosLimbMixin",
+    "client.BrosCameraLockMixin",
+    "client.HandSpinCameraLockMixin"
   ],
+  "server": [],
   "injectors": {
     "defaultRequire": 1
   }

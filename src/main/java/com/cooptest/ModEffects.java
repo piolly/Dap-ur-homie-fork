@@ -6,16 +6,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 
-
 public class ModEffects {
+   public static Holder<MobEffect> MAHITO;
+   public static Holder<MobEffect> TODO;
 
-    public static Holder<MobEffect> MAHITO;
-
-    public static void register() {
-        MAHITO = Registry.registerForHolder(
-                BuiltInRegistries.MOB_EFFECT,
-                Identifier.fromNamespaceAndPath("testcoop", "mahito"),
-                new MahitoEffect()
-        );
-    }
+   public static void register() {
+      MAHITO = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath("testcoop", "mahito"), new MahitoEffect());
+      TODO = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath("testcoop", "todo"), new TodoEffect());
+   }
 }
