@@ -1,4 +1,5 @@
 package com.cooptest;
+import net.minecraft.world.entity.EntityTypes;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -556,7 +557,7 @@ public class DapHoldHandler {
     private static void spawnHandStand(ServerPlayer hf, ServerPlayer dap) {
         ServerLevel world = hf.level();
         Vec3 mid = hf.position().add(0, 1.4, 0).add(dap.position().add(0, 1.4, 0)).scale(0.5);
-        ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+        ArmorStand stand = new ArmorStand(EntityTypes.ARMOR_STAND, world);
         stand.setPos(mid.x, mid.y, mid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);

@@ -1,4 +1,5 @@
 package com.cooptest;
+import net.minecraft.world.entity.EntityTypes;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -229,7 +230,7 @@ public class NormalFacingDapHandler {
         w.playSound(null, m.x, m.y, m.z, ModSounds.DAP_HIT, SoundSource.PLAYERS, 1.0f + Math.min(count * 0.03f, 0.5f), 1.0f);
         w.sendParticles(ParticleTypes.CRIT, m.x, m.y, m.z, 4 + Math.min(count, 20), 0.2, 0.2, 0.2, 0.05);
         if (count >= 9)  w.sendParticles(ParticleTypes.END_ROD, m.x, m.y, m.z, count, 0.5, 0.3, 0.5, 0.05);
-        if (count >= 25 && count % 4 == 0) { var l = new net.minecraft.world.entity.LightningBolt(net.minecraft.world.entity.EntityType.LIGHTNING_BOLT, w); l.setPosRaw(m.x, m.y, m.z); l.setVisualOnly(true); w.addFreshEntity(l); }
+        if (count >= 25 && count % 4 == 0) { var l = new net.minecraft.world.entity.LightningBolt(net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT, w); l.setPosRaw(m.x, m.y, m.z); l.setVisualOnly(true); w.addFreshEntity(l); }
         if (count >= 480) endLoop(server, id1, id2);
     }
     private static void endLoop(MinecraftServer server, UUID id1, UUID id2) {

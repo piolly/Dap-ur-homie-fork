@@ -1,4 +1,5 @@
 package com.cooptest;
+import net.minecraft.world.entity.EntityTypes;
 
 import com.cooptest.HeavenDapPayloads;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -3299,7 +3300,7 @@ public class ChargedDapHandler {
 
     private static void spawnPrecisionDapParticles(ServerLevel world, Vec3 pos, int tier) {
 
-        ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+        ArmorStand stand = new ArmorStand(EntityTypes.ARMOR_STAND, world);
         stand.snapTo(pos.x, pos.y, pos.z, 0.0f, 0.0f);
         stand.setInvisible(true);
         stand.setNoGravity(true);
@@ -3922,7 +3923,7 @@ public class ChargedDapHandler {
         Vec3 handMid = p1Hand.add(p2Hand).scale(0.5);
 
         net.minecraft.world.entity.decoration.ArmorStand stand =
-                new net.minecraft.world.entity.decoration.ArmorStand(net.minecraft.world.entity.EntityType.ARMOR_STAND, world);
+                new net.minecraft.world.entity.decoration.ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
         stand.setPos(handMid.x, handMid.y, handMid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);

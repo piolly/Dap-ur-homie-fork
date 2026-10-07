@@ -1,4 +1,5 @@
 package com.cooptest;
+import net.minecraft.world.entity.EntityTypes;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -281,7 +282,7 @@ public class PerfectDapComboHandler {
         float vol   = Math.min(1.5f, 0.9f + c * 0.04f);
         if (c >= 5 && isSecond) {
             net.minecraft.world.entity.LightningBolt bolt = new net.minecraft.world.entity.LightningBolt(
-                    net.minecraft.world.entity.EntityType.LIGHTNING_BOLT, world);
+                    net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT, world);
             bolt.setPosRaw(pos.x, pos.y, pos.z);
             bolt.setVisualOnly(true);
             world.addFreshEntity(bolt);

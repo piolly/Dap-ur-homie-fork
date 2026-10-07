@@ -1,4 +1,5 @@
 package com.cooptest;
+import net.minecraft.world.entity.EntityTypes;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -891,7 +892,7 @@ public class GrabMechanic {
             double forwardZ = Math.cos(yaw) * 0.8;
 
             net.minecraft.world.entity.decoration.ArmorStand armorStand = new net.minecraft.world.entity.decoration.ArmorStand(
-                    net.minecraft.world.entity.EntityType.ARMOR_STAND, world);
+                    net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
 
             armorStand.setPos(
                     holder.getX() + forwardX,
