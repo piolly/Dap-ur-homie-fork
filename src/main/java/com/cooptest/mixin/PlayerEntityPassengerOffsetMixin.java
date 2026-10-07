@@ -18,7 +18,7 @@ public class PlayerEntityPassengerOffsetMixin {
 
    @Inject(method = "getPassengerRidingPosition", at = @At("RETURN"), cancellable = true)
    private void customPassengerPosition(Entity passenger, CallbackInfoReturnable<Vec3> cir) {
-      Entity vehicle = (Entity)this;
+      Entity vehicle = (Entity)(Object)this;
       if (vehicle instanceof Player holder) {
          if (passenger instanceof Player) {
             PoseState holderPose = PoseNetworking.poseStates.getOrDefault(holder.getUUID(), PoseState.NONE);

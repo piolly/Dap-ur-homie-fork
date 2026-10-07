@@ -130,8 +130,8 @@ public class HighfiveDapHandler {
             sendToAll(hfPlayer.level().getServer(), new HighfiveDapHandler.HfDapStartPayload(hfId, dapId, 1));
             PoseNetworking.broadcastAnimState(hfPlayer, 108);
             PoseNetworking.broadcastAnimState(dapPlayer, 109);
-            hfPlayer.swing(InteractionHand.MAIN_HAND);
-            dapPlayer.swing(InteractionHand.MAIN_HAND);
+            hfPlayer.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+            dapPlayer.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
             return true;
          }
       }
@@ -505,8 +505,8 @@ public class HighfiveDapHandler {
          b.setYRot(yawA + 180.0F);
          b.setYBodyRot(yawA + 180.0F);
          b.setYHeadRot(yawA + 180.0F);
-         a.swing(InteractionHand.MAIN_HAND);
-         b.swing(InteractionHand.MAIN_HAND);
+         a.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+         b.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
       }
    }
 

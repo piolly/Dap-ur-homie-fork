@@ -90,8 +90,8 @@ public class DapHoldHandler {
    private static void makeFaceEachOther(ServerPlayer p1, ServerPlayer p2) {
       Vec3 p1Pos = p1.position();
       Vec3 p2Pos = p2.position();
-      p1.swing(InteractionHand.MAIN_HAND);
-      p2.swing(InteractionHand.MAIN_HAND);
+      p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+      p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
       System.out.println("[DapHold]  Left click swing - body rotation synced!");
       double dx = p2Pos.x - p1Pos.x;
       double dz = p2Pos.z - p1Pos.z;
@@ -176,8 +176,8 @@ public class DapHoldHandler {
 
                updateHandStand(hfPlayer, dapPlayer, hfId);
                if (elapsed % 500L < 50L) {
-                  hfPlayer.swing(InteractionHand.MAIN_HAND);
-                  dapPlayer.swing(InteractionHand.MAIN_HAND);
+                  hfPlayer.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+                  dapPlayer.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
                }
 
                if (!windowOpen.contains(hfId) && elapsed >= 330L) {

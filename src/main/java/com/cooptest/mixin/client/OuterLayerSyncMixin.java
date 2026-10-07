@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class OuterLayerSyncMixin {
    @Inject(method = "setupAnim(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;)V", at = @At("RETURN"))
    private void coop$forceSyncOuterLayer(AvatarRenderState state, CallbackInfo ci) {
-      PlayerModel model = (PlayerModel)this;
+      PlayerModel model = (PlayerModel)(Object)this;
       model.jacket.loadPose(model.body.storePose());
       model.rightSleeve.loadPose(model.rightArm.storePose());
       model.leftSleeve.loadPose(model.leftArm.storePose());

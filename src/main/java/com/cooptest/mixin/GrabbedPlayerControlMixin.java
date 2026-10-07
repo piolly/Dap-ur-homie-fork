@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GrabbedPlayerControlMixin {
    @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
    private void lockGrabbedMovement(Vec3 movementInput, CallbackInfo ci) {
-      if (this instanceof Player self) {
+      if (((Object)this) instanceof Player self) {
          PoseState pose = PoseNetworking.poseStates.getOrDefault(self.getUUID(), PoseState.NONE);
          if (pose == PoseState.GRABBED && self.isPassenger()) {
             ci.cancel();
@@ -24,7 +24,7 @@ public abstract class GrabbedPlayerControlMixin {
 
    @Inject(method = "tick", at = @At("TAIL"))
    private void lockGrabbedRotation(CallbackInfo ci) {
-      if (this instanceof Player self) {
+      if (((Object)this) instanceof Player self) {
          PoseState pose = PoseNetworking.poseStates.getOrDefault(self.getUUID(), PoseState.NONE);
          if (pose == PoseState.GRABBED && self.isPassenger() && self.getVehicle() instanceof Player holder) {
             float yaw = holder.getYRot();

@@ -298,7 +298,7 @@ public class HighFiveClientHandler {
          if (myId.equals(player1) || myId.equals(player2)) {
             flashStartTime = now;
             currentTier = tier;
-            client.player.swing(InteractionHand.MAIN_HAND);
+            client.player.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
 
             String message = switch (tier) {
                case 0 -> "§6 High Five!";

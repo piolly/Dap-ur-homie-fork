@@ -100,7 +100,7 @@ public class PlayerModelMixin {
          UUID playerId = snap.uuid();
          PoseState pose = PoseNetworking.poseStates.getOrDefault(playerId, PoseState.NONE);
          PoseState lastPose = ArmPoseTracker.lastPose.getOrDefault(playerId, PoseState.NONE);
-         PlayerModel model = (PlayerModel)this;
+         PlayerModel model = (PlayerModel)(Object)this;
          ModelPart rightArm = model.rightArm;
          ModelPart leftArm = model.leftArm;
          ModelPart body = model.body;

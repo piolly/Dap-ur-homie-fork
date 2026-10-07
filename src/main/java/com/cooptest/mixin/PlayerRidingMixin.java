@@ -34,7 +34,7 @@ public abstract class PlayerRidingMixin {
 
    @Inject(method = "canAddPassenger", at = @At("HEAD"), cancellable = true)
    private void coop$allowGrabRiding(Entity passenger, CallbackInfoReturnable<Boolean> cir) {
-      if (passenger instanceof Player && coop$isGrabVehicle((Entity)this)) {
+      if (passenger instanceof Player && coop$isGrabVehicle((Entity)(Object)this)) {
          cir.setReturnValue(true);
       }
    }

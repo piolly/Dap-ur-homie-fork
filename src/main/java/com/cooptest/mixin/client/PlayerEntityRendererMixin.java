@@ -48,7 +48,7 @@ public class PlayerEntityRendererMixin {
             player.getYRot()
          )
       );
-      CoopImpactHandler.registerPlayerModel(((LivingModelAccessor)this).coop$getModel());
+      CoopImpactHandler.registerPlayerModel(((LivingModelAccessor)(Object)this).coop$getModel());
       UUID uuid = player.getUUID();
       PoseState pose = PoseNetworking.poseStates.getOrDefault(uuid, PoseState.NONE);
       boolean spearFlying = SpearStrikeClientHandler.isFlying(player.getId())

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BrosLimbMixin {
    @Inject(method = "updateWalkAnimation", at = @At("HEAD"), cancellable = true)
    private void cooptest$brosLegs(float posDelta, CallbackInfo ci) {
-      LivingEntity self = (LivingEntity)this;
+      LivingEntity self = (LivingEntity)(Object)this;
       if (self.level().isClientSide()) {
          if (BrosClientHandler.isLegDriven(self.getId())) {
             ci.cancel();

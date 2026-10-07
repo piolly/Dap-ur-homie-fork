@@ -56,8 +56,8 @@ public class DapSession {
                this.computeTargets(playerA, playerB);
                this.smoothMoveToTargets(playerA, playerB);
                this.makeFaceEachOther(playerA, playerB);
-               playerA.swing(InteractionHand.MAIN_HAND);
-               playerB.swing(InteractionHand.MAIN_HAND);
+               playerA.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+               playerB.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
                if (!this.positioningComplete) {
                   this.checkPositioningComplete(playerA, playerB);
                }

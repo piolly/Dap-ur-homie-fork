@@ -533,8 +533,8 @@ public class HandSpinHandler {
       long tick = server.getTickCount();
       if (s.lastHandSwingTick == -1L || tick - s.lastHandSwingTick >= 4L) {
          s.lastHandSwingTick = tick;
-         p1.swing(InteractionHand.MAIN_HAND, true);
-         p2.swing(InteractionHand.MAIN_HAND, true);
+         p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+         p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
       }
    }
 

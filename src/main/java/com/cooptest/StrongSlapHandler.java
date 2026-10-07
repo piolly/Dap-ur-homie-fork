@@ -139,7 +139,7 @@ public class StrongSlapHandler {
       StrongSlapHandler.SlapSession session = new StrongSlapHandler.SlapSession(attacker.getUUID(), victim.getUUID(), attacker.position(), tpTarget);
       sessions.put(attacker.getUUID(), session);
       victimToAtk.put(victim.getUUID(), attacker.getUUID());
-      attacker.swing(InteractionHand.MAIN_HAND, true);
+      attacker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
       sendFreeze(attacker, true);
       if (!CoopMovesConfig.get().enableStrongSlapSmoothTp) {
          session.tpTick = 5;

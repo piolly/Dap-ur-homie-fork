@@ -286,7 +286,7 @@ public class BullyDapHandler {
             p1.syncVelocity = true;
             p1.fallDistance = 0.0;
             if (f.tick % 2 == 0) {
-               p1.swing(InteractionHand.MAIN_HAND);
+               p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
             }
 
             p2.teleportTo(world, f.p2FrozenPos.x, f.p2FrozenPos.y, f.p2FrozenPos.z, Set.of(), p2.getYRot(), 0.0F, false);

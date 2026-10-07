@@ -20,7 +20,7 @@ public abstract class LivingEntityRendererMixin<S extends LivingEntityRenderStat
    private void coopSwapRenderLayer(S state, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderType> cir) {
       if (CoopImpactHandler.playing) {
          if (CoopImpactRenderType.isReady()) {
-            Identifier texture = ((LivingEntityRenderer)this).getTextureLocation(state);
+            Identifier texture = ((LivingEntityRenderer)(Object)this).getTextureLocation(state);
             switch (CoopImpactHandler.currentFrameType) {
                case WHITE:
                case RED:

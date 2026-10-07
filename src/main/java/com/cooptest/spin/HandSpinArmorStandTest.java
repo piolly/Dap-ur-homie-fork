@@ -205,7 +205,7 @@ public class HandSpinArmorStandTest {
       long tick = server.getTickCount();
       if (s.lastHandSwingTick == -1L || tick - s.lastHandSwingTick >= 4L) {
          s.lastHandSwingTick = tick;
-         player.swing(InteractionHand.MAIN_HAND, true);
+         player.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
       }
    }
 

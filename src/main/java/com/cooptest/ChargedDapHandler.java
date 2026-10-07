@@ -1356,7 +1356,7 @@ public class ChargedDapHandler {
          trio[i].setYBodyRot(yaw);
          trio[i].setYHeadRot(yaw);
          trio[i].yBodyRotO = yaw;
-         trio[i].swing(InteractionHand.MAIN_HAND);
+         trio[i].swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
       }
 
       stand.discard();
@@ -1438,8 +1438,8 @@ public class ChargedDapHandler {
                         executeTier5FireDap(world, dapPos, p1, p2, perfectHit);
                   }
 
-                  p1.swing(InteractionHand.MAIN_HAND, true);
-                  p2.swing(InteractionHand.MAIN_HAND, true);
+                  p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+                  p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
                   MahitoTrollHandler.checkForMahitoTroll(p1, p2);
                   speedHistory.remove(p1.getUUID());
                   speedHistory.remove(p2.getUUID());
@@ -1730,8 +1730,8 @@ public class ChargedDapHandler {
       DapPositioning.openReleaseWindow(p1, p2, true);
       PactHandler.onHandshakeCounted(p1, p2);
       DapFlair.open(world, pos, p1, p2, 0L, 3, false, true);
-      p1.swing(InteractionHand.MAIN_HAND);
-      p2.swing(InteractionHand.MAIN_HAND);
+      p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+      p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
       Vec3 p1Hand = p1.position().add(0.0, 1.4, 0.0);
       Vec3 p2Hand = p2.position().add(0.0, 1.4, 0.0);
       Vec3 handMid = p1Hand.add(p2Hand).scale(0.5);
@@ -3004,8 +3004,8 @@ public class ChargedDapHandler {
       long now = System.currentTimeMillis();
       fireDapStartTime.put(id1, now);
       fireDapStartTime.put(id2, now);
-      p1.swing(InteractionHand.MAIN_HAND);
-      p2.swing(InteractionHand.MAIN_HAND);
+      p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+      p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
       Vec3 p1Hand = p1.position().add(0.0, 1.4, 0.0);
       Vec3 p2Hand = p2.position().add(0.0, 1.4, 0.0);
       Vec3 handMid = p1Hand.add(p2Hand).scale(0.5);
@@ -3081,8 +3081,8 @@ public class ChargedDapHandler {
       fireDapComboRequestTime.remove(id1);
       fireDapComboRequestTime.remove(id2);
       DapSessionManager.removeSessionForPlayer(id1);
-      p1.swing(InteractionHand.MAIN_HAND);
-      p2.swing(InteractionHand.MAIN_HAND);
+      p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+      p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
       fireDapComboFreezeEnd.put(id1, now + 4000L);
       fireDapComboFreezeEnd.put(id2, now + 4000L);
 

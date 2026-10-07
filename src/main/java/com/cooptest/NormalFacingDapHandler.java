@@ -293,8 +293,8 @@ public class NormalFacingDapHandler {
             p2.teleportTo(p2.level(), pos2.x, p2.getY(), pos2.z, Set.of(), yaw2, p2.getXRot(), false);
             applyYaw(p1, yaw1);
             applyYaw(p2, yaw2);
-            p1.swing(InteractionHand.MAIN_HAND, true);
-            p2.swing(InteractionHand.MAIN_HAND, true);
+            p1.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+            p2.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
             long now = System.currentTimeMillis();
             NormalFacingDapHandler.Session s = new NormalFacingDapHandler.Session(id1, id2, yaw1, yaw2, now);
             sessions.put(id1, s);

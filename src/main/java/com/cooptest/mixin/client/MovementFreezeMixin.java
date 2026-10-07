@@ -40,12 +40,12 @@ public class MovementFreezeMixin {
          || isInHandSpin()
          || BrosClientHandler.isEngaged();
       if (shouldFreeze) {
-         InputAccessor input = (InputAccessor)this;
+         InputAccessor input = (InputAccessor)(Object)this;
          input.coop$setPlayerInput(Input.EMPTY);
          input.coop$setMovementVector(Vec2.ZERO);
       } else {
          if (HuddleClientHandler.isSuppressingSneak()) {
-            InputAccessor input = (InputAccessor)this;
+            InputAccessor input = (InputAccessor)(Object)this;
             Input cur = input.coop$getPlayerInput();
             if (cur != null && cur.shift()) {
                input.coop$setPlayerInput(new Input(cur.forward(), cur.backward(), cur.left(), cur.right(), cur.jump(), false, cur.sprint()));

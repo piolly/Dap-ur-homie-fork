@@ -96,7 +96,7 @@ public class SikeFollowUpHandler {
       freezePlayer(siker, true);
       freezePlayer(victim, true);
       StrongSlapHandler.sendLookLockAtYaw(siker, yawAwayFromVictim);
-      siker.swing(InteractionHand.MAIN_HAND, true);
+      siker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
    }
 
    private static void tick(MinecraftServer server) {
@@ -160,8 +160,8 @@ public class SikeFollowUpHandler {
    }
 
    private static void launchAnimation(MinecraftServer server, SikeFollowUpHandler.NoyaSession session, ServerPlayer siker, ServerPlayer victim) {
-      siker.swing(InteractionHand.MAIN_HAND, true);
-      siker.swing(InteractionHand.MAIN_HAND, true);
+      siker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+      siker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
       PoseNetworking.broadcastAnimState(siker, 94);
       UUID sikerUUID = session.sikerId;
       UUID victimUUID = session.victimId;

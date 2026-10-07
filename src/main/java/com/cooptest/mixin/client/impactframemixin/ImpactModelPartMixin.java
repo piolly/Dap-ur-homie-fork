@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(ModelPart.class)
 public abstract class ImpactModelPartMixin {
    private boolean shouldFlash() {
-      return CoopImpactHandler.playing && CoopImpactHandler.isPlayerPart((ModelPart)this);
+      return CoopImpactHandler.playing && CoopImpactHandler.isPlayerPart((ModelPart)(Object)this);
    }
 
    @ModifyVariable(

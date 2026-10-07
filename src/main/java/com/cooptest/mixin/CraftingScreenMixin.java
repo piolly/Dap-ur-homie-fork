@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CraftingScreenMixin {
    @Inject(method = "slotsChanged", at = @At("HEAD"), cancellable = true)
    private void onCraftingChanged(Container inventory, CallbackInfo ci) {
-      CraftingInventoriesAccessor acc = (CraftingInventoriesAccessor)this;
+      CraftingInventoriesAccessor acc = (CraftingInventoriesAccessor)(Object)this;
       CraftingContainer input = acc.coop$getCraftingInventory();
       ResultContainer result = acc.coop$getCraftingResultInventory();
       if (MahitoCraftingHandler.isValidMahitoRecipe(input)) {

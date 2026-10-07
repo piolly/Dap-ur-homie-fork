@@ -34,7 +34,7 @@ public class CraftingResultSlotMixin {
    @Inject(method = "onTake", at = @At("HEAD"))
    private void onTakeMahitoPotion(Player player, ItemStack stack, CallbackInfo ci) {
       if (this.isMahitoPotion(stack)) {
-         CraftingContainer input = ((CraftingResultSlotInputAccessor)this).coop$getInput();
+         CraftingContainer input = ((CraftingResultSlotInputAccessor)(Object)this).coop$getInput();
 
          for (int i = 0; i < input.getContainerSize(); i++) {
             input.setItem(i, ItemStack.EMPTY);

@@ -455,7 +455,7 @@ public class HuddleHandler {
                         for (UUID uid : s.players) {
                            ServerPlayer pp = server.getPlayerList().getPlayer(uid);
                            if (pp != null) {
-                              pp.swing(InteractionHand.MAIN_HAND, true);
+                              pp.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
                            }
                         }
 
@@ -467,7 +467,7 @@ public class HuddleHandler {
                                  for (UUID uid : allNow) {
                                     ServerPlayer pp = server.getPlayerList().getPlayer(uid);
                                     if (pp != null) {
-                                       pp.swing(InteractionHand.MAIN_HAND, true);
+                                       pp.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
                                     }
                                  }
                               });
@@ -480,7 +480,7 @@ public class HuddleHandler {
                                  for (UUID uid : allNow) {
                                     ServerPlayer pp = server.getPlayerList().getPlayer(uid);
                                     if (pp != null) {
-                                       pp.swing(InteractionHand.MAIN_HAND, true);
+                                       pp.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
                                     }
                                  }
                               });
@@ -579,7 +579,7 @@ public class HuddleHandler {
          ServerPlayer p = server.getPlayerList().getPlayer(uid);
          if (p != null) {
             PoseNetworking.broadcastAnimState(p, 70);
-            p.swing(InteractionHand.MAIN_HAND, true);
+            p.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
          }
       }
 
@@ -591,7 +591,7 @@ public class HuddleHandler {
                for (UUID uid : foundersSnap) {
                   ServerPlayer p = pa.level().getServer().getPlayerList().getPlayer(uid);
                   if (p != null) {
-                     p.swing(InteractionHand.MAIN_HAND, true);
+                     p.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
                   }
                }
             });
@@ -604,7 +604,7 @@ public class HuddleHandler {
                for (UUID uid : foundersSnap) {
                   ServerPlayer p = pa.level().getServer().getPlayerList().getPlayer(uid);
                   if (p != null) {
-                     p.swing(InteractionHand.MAIN_HAND, true);
+                     p.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
                   }
                }
             });
