@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class BlackHoodNetworking {
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(BlackHoodNetworking.HoodStatePayload.ID, BlackHoodNetworking.HoodStatePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(BlackHoodNetworking.HoodStatePayload.ID, BlackHoodNetworking.HoodStatePayload.CODEC);
    }
 
    public static void broadcastHoodState(MinecraftServer server, UUID targetId, boolean hasHood) {

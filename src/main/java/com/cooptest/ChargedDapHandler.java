@@ -223,23 +223,23 @@ public class ChargedDapHandler {
    }
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(ChargedDapHandler.ChargeStartPayload.ID, ChargedDapHandler.ChargeStartPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(ChargedDapHandler.ChargeReleasePayload.ID, ChargedDapHandler.ChargeReleasePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.HeavenReadyPayload.ID, ChargedDapHandler.HeavenReadyPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.ChargeSyncPayload.ID, ChargedDapHandler.ChargeSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.DapResultPayload.ID, ChargedDapHandler.DapResultPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.WhiffCooldownPayload.ID, ChargedDapHandler.WhiffCooldownPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.ImpactFramePayload.ID, ChargedDapHandler.ImpactFramePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.PerfectDapFreezePayload.ID, ChargedDapHandler.PerfectDapFreezePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.PerfectDapImpactFramePayload.ID, ChargedDapHandler.PerfectDapImpactFramePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.FacingDapImpactPayload.ID, ChargedDapHandler.FacingDapImpactPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(ChargedDapHandler.FireDapJPressPayload.ID, ChargedDapHandler.FireDapJPressPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.FireDapWindowPayload.ID, ChargedDapHandler.FireDapWindowPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.FireDapFreezePayload.ID, ChargedDapHandler.FireDapFreezePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ChargedDapHandler.FireDapFirstPersonPayload.ID, ChargedDapHandler.FireDapFirstPersonPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(QTEButtonPressPayload.ID, QTEButtonPressPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(QTEWindowPayload.ID, QTEWindowPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(QTEClearPayload.ID, QTEClearPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ChargedDapHandler.ChargeStartPayload.ID, ChargedDapHandler.ChargeStartPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ChargedDapHandler.ChargeReleasePayload.ID, ChargedDapHandler.ChargeReleasePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.HeavenReadyPayload.ID, ChargedDapHandler.HeavenReadyPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.ChargeSyncPayload.ID, ChargedDapHandler.ChargeSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.DapResultPayload.ID, ChargedDapHandler.DapResultPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.WhiffCooldownPayload.ID, ChargedDapHandler.WhiffCooldownPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.ImpactFramePayload.ID, ChargedDapHandler.ImpactFramePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.PerfectDapFreezePayload.ID, ChargedDapHandler.PerfectDapFreezePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.PerfectDapImpactFramePayload.ID, ChargedDapHandler.PerfectDapImpactFramePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.FacingDapImpactPayload.ID, ChargedDapHandler.FacingDapImpactPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ChargedDapHandler.FireDapJPressPayload.ID, ChargedDapHandler.FireDapJPressPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.FireDapWindowPayload.ID, ChargedDapHandler.FireDapWindowPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.FireDapFreezePayload.ID, ChargedDapHandler.FireDapFreezePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ChargedDapHandler.FireDapFirstPersonPayload.ID, ChargedDapHandler.FireDapFirstPersonPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(QTEButtonPressPayload.ID, QTEButtonPressPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(QTEWindowPayload.ID, QTEWindowPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(QTEClearPayload.ID, QTEClearPayload.CODEC);
    }
 
    public static void register() {
@@ -734,7 +734,7 @@ public class ChargedDapHandler {
                                  partner.displayClientMessage(
                                     Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed J!"), true
                                  );
-                                 player.displayClientMessage(Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"), true);
+                                 player.sendOverlayMessage(Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"));
                               }
                            }
                         }
@@ -1005,7 +1005,7 @@ public class ChargedDapHandler {
                                           .playSound(
                                              null, player.getX(), player.getY(), player.getZ(), SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1.0F, 0.8F
                                           );
-                                       player.displayClientMessage(Component.literal("§d§l✨ HEAVEN READY! ✨ §7(Fire UI broken!)"), true);
+                                       player.sendOverlayMessage(Component.literal("§d§l✨ HEAVEN READY! ✨ §7(Fire UI broken!)"));
                                        ChargedDapHandler.HeavenReadyPayload payload = new ChargedDapHandler.HeavenReadyPayload(id, true);
 
                                        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
@@ -1127,7 +1127,7 @@ public class ChargedDapHandler {
       } else if (HighFiveHandler.isInBlockingAnimation(uuid)) {
          broadcastChargeCancel(player);
       } else if (isInComboCooldown(uuid)) {
-         player.displayClientMessage(Component.literal("§cWait 1 second after combo!"), true);
+         player.sendOverlayMessage(Component.literal("§cWait 1 second after combo!"));
          broadcastChargeCancel(player);
       } else if (!FallCatchHandler.isInCatchReadyMode(uuid)) {
          if (!isOnCooldown(uuid)) {
@@ -1230,7 +1230,7 @@ public class ChargedDapHandler {
                long cooldownEnd = now + whiffCooldownMs();
                cooldowns.put(uuid, cooldownEnd);
                broadcastWhiffCooldown(player, cooldownEnd);
-               player.displayClientMessage(Component.literal("§c✗ Whiff! 0.8s cooldown"), true);
+               player.sendOverlayMessage(Component.literal("§c✗ Whiff! 0.8s cooldown"));
             } else {
                UUID partnerId = partner.getUUID();
                if (HighFiveHandler.hasHandRaised(partnerId) && !chargeStartTime.containsKey(partnerId) && HighfiveDapHandler.tryStart(player, partner)) {
@@ -1343,7 +1343,7 @@ public class ChargedDapHandler {
       ArmorStand stand = new ArmorStand(world, center.x, center.y, center.z);
       stand.setInvisible(true);
       stand.setNoGravity(true);
-      stand.setInvulnerable(true);
+      stand.setPermanentlyInvulnerable(true);
       stand.setSilent(true);
       world.addFreshEntity(stand);
       double radius = 0.7;
@@ -1380,7 +1380,7 @@ public class ChargedDapHandler {
       Component msg = Component.literal("§6§l⚡ TRIPLE DAP!");
 
       for (ServerPlayer p : trio) {
-         p.displayClientMessage(msg, true);
+         p.sendOverlayMessage(msg);
       }
    }
 
@@ -1404,8 +1404,8 @@ public class ChargedDapHandler {
             boolean isPerfectDap = tier >= 3 && bothCharging && perfectHit;
             boolean isHighTierDap = tier >= 4;
             if (!isPerfectDap && !isHighTierDap && !arePlayersFacingEachOther(p1, p2)) {
-               p1.displayClientMessage(Component.literal("§c§lKeep eye contact!"), true);
-               p2.displayClientMessage(Component.literal("§c§lKeep eye contact!"), true);
+               p1.sendOverlayMessage(Component.literal("§c§lKeep eye contact!"));
+               p2.sendOverlayMessage(Component.literal("§c§lKeep eye contact!"));
                cooldowns.remove(p1.getUUID());
                cooldowns.remove(p2.getUUID());
                broadcastChargeCancel(p1);
@@ -1520,8 +1520,8 @@ public class ChargedDapHandler {
       world.playSound(null, pos.x, pos.y, pos.z, (SoundEvent)SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.PLAYERS, 0.8F, 0.5F);
       world.sendParticles(ParticleTypes.POOF, pos.x, pos.y, pos.z, 12, 0.4, 0.3, 0.4, 0.03);
       world.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 8, 0.3, 0.3, 0.3, 0.02);
-      p1.displayClientMessage(Component.literal("§7*missed!* timing off..."), true);
-      p2.displayClientMessage(Component.literal("§7*missed!* timing off..."), true);
+      p1.sendOverlayMessage(Component.literal("§7*missed!* timing off..."));
+      p2.sendOverlayMessage(Component.literal("§7*missed!* timing off..."));
       chargeStartTime.remove(p1.getUUID());
       chargeStartTime.remove(p2.getUUID());
       fireLevel.remove(p1.getUUID());
@@ -1573,7 +1573,7 @@ public class ChargedDapHandler {
          ServerPlayNetworking.send(p, new ChargedDapHandler.FireDapFirstPersonPayload(playerId, false));
       }
 
-      player.displayClientMessage(Component.literal("§7*whoosh*"), true);
+      player.sendOverlayMessage(Component.literal("§7*whoosh*"));
    }
 
    private static void executeTier0(ServerLevel world, Vec3 pos, ServerPlayer p1, ServerPlayer p2) {
@@ -1583,8 +1583,8 @@ public class ChargedDapHandler {
       if (session == null) {
          world.playSound(null, pos.x, pos.y, pos.z, ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0F, 1.0F);
          spawnPrecisionDapParticles(world, pos, 0);
-         p1.displayClientMessage(Component.literal("§7Weak dap..."), true);
-         p2.displayClientMessage(Component.literal("§7Weak dap..."), true);
+         p1.sendOverlayMessage(Component.literal("§7Weak dap..."));
+         p2.sendOverlayMessage(Component.literal("§7Weak dap..."));
       } else {
          session.onComplete(() -> {
             new Thread(() -> {
@@ -1622,8 +1622,8 @@ public class ChargedDapHandler {
       if (session == null) {
          world.playSound(null, pos.x, pos.y, pos.z, ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0F, 1.0F);
          spawnPrecisionDapParticles(world, pos, 1);
-         p1.displayClientMessage(Component.literal("§e✋ Decent Dap!"), true);
-         p2.displayClientMessage(Component.literal("§e✋ Decent Dap!"), true);
+         p1.sendOverlayMessage(Component.literal("§e✋ Decent Dap!"));
+         p2.sendOverlayMessage(Component.literal("§e✋ Decent Dap!"));
       } else {
          session.onComplete(() -> {
             new Thread(() -> {
@@ -1661,8 +1661,8 @@ public class ChargedDapHandler {
       if (session == null) {
          world.playSound(null, pos.x, pos.y, pos.z, ModSounds.DAP_WEAK, SoundSource.PLAYERS, 1.0F, 1.0F);
          spawnPrecisionDapParticles(world, pos, 2);
-         p1.displayClientMessage(Component.literal("§a✋ Good Dap! ✋"), true);
-         p2.displayClientMessage(Component.literal("§a✋ Good Dap! ✋"), true);
+         p1.sendOverlayMessage(Component.literal("§a✋ Good Dap! ✋"));
+         p2.sendOverlayMessage(Component.literal("§a✋ Good Dap! ✋"));
       } else {
          session.onComplete(() -> {
             new Thread(() -> {
@@ -1748,8 +1748,8 @@ public class ChargedDapHandler {
       setBlockingAnimation(id2, 1210L);
       long effectTime = now + 150L;
       scheduledPerfectDapEffects.add(new ChargedDapHandler.ScheduledPerfectDapEffect(world, pos, p1, p2, effectTime));
-      p1.displayClientMessage(Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"), true);
-      p2.displayClientMessage(Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"), true);
+      p1.sendOverlayMessage(Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"));
+      p2.sendOverlayMessage(Component.literal("§6§l✋ PERFECT GREAT DAP! ✋"));
       DapHearts.perfect(p1);
       DapHearts.perfect(p2);
       DuoPoseHandler.onDapEnded(p1, p2);
@@ -1812,8 +1812,8 @@ public class ChargedDapHandler {
          Object[] flav = DapFlair.flavour(new Random(), true);
          String label = (String)flav[0];
          boolean rare = (Boolean)flav[1];
-         p1.displayClientMessage(Component.literal(label), true);
-         p2.displayClientMessage(Component.literal(label), true);
+         p1.sendOverlayMessage(Component.literal(label));
+         p2.sendOverlayMessage(Component.literal(label));
          if (rare) {
             DapFlair.playRareEffect(world, pos, label);
          }
@@ -1871,8 +1871,8 @@ public class ChargedDapHandler {
          world.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, -1), pos.x, pos.y, pos.z, 1, 0.0, 0.0, 0.0, 0.0);
          createExplosion(world, pos, p1, p2, 3.5, 6.0F);
          applyKnockback(p1, p2, pos, 1.0);
-         p1.displayClientMessage(Component.literal("§6§l✋ GREAT DAP! ✋"), true);
-         p2.displayClientMessage(Component.literal("§6§l✋ GREAT DAP! ✋"), true);
+         p1.sendOverlayMessage(Component.literal("§6§l✋ GREAT DAP! ✋"));
+         p2.sendOverlayMessage(Component.literal("§6§l✋ GREAT DAP! ✋"));
          DapHearts.great(p1);
          DapHearts.great(p2);
       } else {
@@ -1886,8 +1886,8 @@ public class ChargedDapHandler {
             applyKnockback(p1, p2, pos, 1.0);
             Object[] gflav = DapFlair.flavour(new Random(), false);
             String glabel = (String)gflav[0];
-            p1.displayClientMessage(Component.literal(glabel), true);
-            p2.displayClientMessage(Component.literal(glabel), true);
+            p1.sendOverlayMessage(Component.literal(glabel));
+            p2.sendOverlayMessage(Component.literal(glabel));
             DapHearts.great(p1);
             DapHearts.great(p2);
             if ((Boolean)gflav[1]) {
@@ -1916,8 +1916,8 @@ public class ChargedDapHandler {
       perfectDapFreezeEnd.put(id2, now + 4500L);
       PoseNetworking.broadcastAnimState(p1, CoopAnimationHandler.AnimState.PERFECT_DAP_EXTEND1_P1.ordinal());
       PoseNetworking.broadcastAnimState(p2, CoopAnimationHandler.AnimState.PERFECT_DAP_EXTEND1_P2.ordinal());
-      p1.displayClientMessage(Component.literal("§d§l★ EXTENDER DAP! ★"), true);
-      p2.displayClientMessage(Component.literal("§d§l★ EXTENDER DAP! ★"), true);
+      p1.sendOverlayMessage(Component.literal("§d§l★ EXTENDER DAP! ★"));
+      p2.sendOverlayMessage(Component.literal("§d§l★ EXTENDER DAP! ★"));
       new Thread(() -> {
          try {
             Thread.sleep(4500L);
@@ -2042,8 +2042,8 @@ public class ChargedDapHandler {
          p2.setHealth(0.0F);
          p1.die(world.damageSources().magic());
          p2.die(world.damageSources().magic());
-         p1.displayClientMessage(Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"), true);
-         p2.displayClientMessage(Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"), true);
+         p1.sendOverlayMessage(Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"));
+         p2.sendOverlayMessage(Component.literal("§4§l☠ THE POWER WAS TOO GREAT! ☠"));
 
          for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.displayClientMessage(
@@ -2066,8 +2066,8 @@ public class ChargedDapHandler {
          world.sendParticles(ParticleTypes.FIREWORK, pos.x, pos.y, pos.z, 40, 0.5, 0.5, 0.5, 0.25);
          world.explode(null, pos.x, pos.y, pos.z, 5.0F, !CoopMovesConfig.get().noGriefMode, ExplosionInteraction.MOB);
          applyKnockback(p1, p2, pos, 2.0);
-         p1.displayClientMessage(Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"), true);
-         p2.displayClientMessage(Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"), true);
+         p1.sendOverlayMessage(Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"));
+         p2.sendOverlayMessage(Component.literal("§d§l⚡ LEGENDARY DAP! ⚡"));
       }
    }
 
@@ -2088,7 +2088,7 @@ public class ChargedDapHandler {
          tickSpeedRestoreTime = 0L;
 
          for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            player.displayClientMessage(Component.literal("§7Time returns to normal..."), false);
+            player.sendSystemMessage(Component.literal("§7Time returns to normal..."));
          }
       }
 
@@ -2476,11 +2476,11 @@ public class ChargedDapHandler {
          if (perfectHit) {
             world.sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F), pos.x, pos.y, pos.z, 40, 0.8, 0.8, 0.8, 0.15);
             world.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 50, 0.6, 0.6, 0.6, 0.3);
-            p1.displayClientMessage(Component.literal("§c§l\ud83d\udd25 PERFECT FIRE DAP! \ud83d\udd25"), true);
-            p2.displayClientMessage(Component.literal("§c§l\ud83d\udd25 PERFECT FIRE DAP! \ud83d\udd25"), true);
+            p1.sendOverlayMessage(Component.literal("§c§l\ud83d\udd25 PERFECT FIRE DAP! \ud83d\udd25"));
+            p2.sendOverlayMessage(Component.literal("§c§l\ud83d\udd25 PERFECT FIRE DAP! \ud83d\udd25"));
          } else {
-            p1.displayClientMessage(Component.literal("§c§l\ud83d\udd25 FIRE DAP! \ud83d\udd25"), true);
-            p2.displayClientMessage(Component.literal("§c§l\ud83d\udd25 FIRE DAP! \ud83d\udd25"), true);
+            p1.sendOverlayMessage(Component.literal("§c§l\ud83d\udd25 FIRE DAP! \ud83d\udd25"));
+            p2.sendOverlayMessage(Component.literal("§c§l\ud83d\udd25 FIRE DAP! \ud83d\udd25"));
          }
 
          startFireDap(p1, p2, pos);
@@ -2493,8 +2493,8 @@ public class ChargedDapHandler {
 
             p1.level().getServer().execute(() -> {
                if (inFireDapHit.getOrDefault(p1.getUUID(), false)) {
-                  p1.displayClientMessage(Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"), true);
-                  p2.displayClientMessage(Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"), true);
+                  p1.sendOverlayMessage(Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"));
+                  p2.sendOverlayMessage(Component.literal("§6Press §lG §r§6to FUSE  §7|  §cPress §lJ §r§cfor Fire Combo"));
                }
             });
          }).start();
@@ -2514,11 +2514,11 @@ public class ChargedDapHandler {
    }
 
    private static void spawnPrecisionDapParticles(ServerLevel world, Vec3 pos, int tier) {
-      ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+      ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
       stand.snapTo(pos.x, pos.y, pos.z, 0.0F, 0.0F);
       stand.setInvisible(true);
       stand.setNoGravity(true);
-      stand.setInvulnerable(true);
+      stand.setPermanentlyInvulnerable(true);
       stand.setCustomNameVisible(false);
       world.addFreshEntity(stand);
       Vec3 exactPos = stand.position().add(0.0, 1.0, 0.0);
@@ -3018,11 +3018,11 @@ public class ChargedDapHandler {
       Vec3 p1Hand = p1.position().add(0.0, 1.4, 0.0);
       Vec3 p2Hand = p2.position().add(0.0, 1.4, 0.0);
       Vec3 handMid = p1Hand.add(p2Hand).scale(0.5);
-      ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+      ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
       stand.setPos(handMid.x, handMid.y, handMid.z);
       stand.setInvisible(true);
       stand.setNoGravity(true);
-      stand.setInvulnerable(true);
+      stand.setPermanentlyInvulnerable(true);
       stand.setSilent(true);
       stand.setRemainingFireTicks(0);
       world.addFreshEntity(stand);
@@ -3075,7 +3075,7 @@ public class ChargedDapHandler {
                   }
                }
             } else {
-               player.displayClientMessage(Component.literal("§cToo early/late for combo!"), true);
+               player.sendOverlayMessage(Component.literal("§cToo early/late for combo!"));
             }
          }
       }
@@ -3110,8 +3110,8 @@ public class ChargedDapHandler {
          ServerPlayNetworking.send(player, new ChargedDapHandler.FireDapFirstPersonPayload(id2, true));
       }
 
-      p1.displayClientMessage(Component.literal("§c§l\ud83d\udd25 DIVINE FLAME COMBO! \ud83d\udd25"), true);
-      p2.displayClientMessage(Component.literal("§c§l\ud83d\udd25 DIVINE FLAME COMBO! \ud83d\udd25"), true);
+      p1.sendOverlayMessage(Component.literal("§c§l\ud83d\udd25 DIVINE FLAME COMBO! \ud83d\udd25"));
+      p2.sendOverlayMessage(Component.literal("§c§l\ud83d\udd25 DIVINE FLAME COMBO! \ud83d\udd25"));
       p1.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 100, 255, false, false));
       p1.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 100, 255, false, false));
       p2.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 100, 255, false, false));

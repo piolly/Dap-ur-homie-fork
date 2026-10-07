@@ -60,7 +60,7 @@ public class DuoPoseHandler {
    }
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(DuoPoseHandler.DuoPoseFreezePayload.ID, DuoPoseHandler.DuoPoseFreezePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DuoPoseHandler.DuoPoseFreezePayload.ID, DuoPoseHandler.DuoPoseFreezePayload.CODEC);
    }
 
    public static void register() {
@@ -269,8 +269,8 @@ public class DuoPoseHandler {
          world.sendParticles(ParticleTypes.CRIT, mid.x, mid.y, mid.z, 20, 0.4, 0.4, 0.4, 0.2);
          world.playSound(null, mid.x, mid.y, mid.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.5F, 1.2F);
          world.playSound(null, mid.x, mid.y, mid.z, SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, 1.5F);
-         p1.displayClientMessage(Component.literal("§6§l✨ Perfect sync!"), true);
-         p2.displayClientMessage(Component.literal("§6§l✨ Perfect sync!"), true);
+         p1.sendOverlayMessage(Component.literal("§6§l✨ Perfect sync!"));
+         p2.sendOverlayMessage(Component.literal("§6§l✨ Perfect sync!"));
       }
 
       new Thread(() -> {

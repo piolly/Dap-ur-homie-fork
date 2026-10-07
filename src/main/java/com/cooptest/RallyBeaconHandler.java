@@ -87,7 +87,7 @@ public class RallyBeaconHandler {
             if (server != null) {
                ServerPlayer p = server.getPlayerList().getPlayer(uid);
                if (p != null) {
-                  p.displayClientMessage(Component.literal("§6§lRALLY §7— one save for the group, " + formatDuration(ms)), false);
+                  p.sendSystemMessage(Component.literal("§6§lRALLY §7— one save for the group, " + formatDuration(ms)));
                }
             }
          }
@@ -131,8 +131,8 @@ public class RallyBeaconHandler {
       player.hurtMarked = true;
       player.teleportTo(world, b.pos.x, b.pos.y, b.pos.z, Set.of(), player.getYRot(), player.getXRot(), false);
       String line = REVIVE_LINES[(int)(Math.random() * REVIVE_LINES.length)];
-      player.displayClientMessage(Component.literal(line), false);
-      player.displayClientMessage(Component.literal("§7The huddle brought you back."), true);
+      player.sendSystemMessage(Component.literal(line));
+      player.sendOverlayMessage(Component.literal("§7The huddle brought you back."));
       world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, b.pos.x, b.pos.y + 1.0, b.pos.z, 90, 0.6, 0.9, 0.6, 0.45);
       world.sendParticles(ParticleTypes.END_ROD, b.pos.x, b.pos.y + 1.0, b.pos.z, 40, 0.3, 1.2, 0.3, 0.3);
       world.playSound(null, b.pos.x, b.pos.y, b.pos.z, ModSounds.TRUE_FRIENDSHIP, SoundSource.PLAYERS, 1.4F, 1.0F);
@@ -142,7 +142,7 @@ public class RallyBeaconHandler {
             if (!uid.equals(player.getUUID())) {
                ServerPlayer other = server.getPlayerList().getPlayer(uid);
                if (other != null && other.isAlive()) {
-                  other.displayClientMessage(Component.literal("§6" + player.getName().getString() + " §7was saved by the huddle."), false);
+                  other.sendSystemMessage(Component.literal("§6" + player.getName().getString() + " §7was saved by the huddle."));
                   float cost = 4.0F;
                   float left = other.getHealth() - cost;
                   if (left < 2.0F) {
@@ -151,7 +151,7 @@ public class RallyBeaconHandler {
 
                   if (left < other.getHealth()) {
                      other.setHealth(left);
-                     other.displayClientMessage(Component.literal("§c-2❤ §7you gave your strength"), true);
+                     other.sendOverlayMessage(Component.literal("§c-2❤ §7you gave your strength"));
                      ServerLevel ow = other.level();
                      ow.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, other.getX(), other.getY() + 1.0, other.getZ(), 12, 0.3, 0.5, 0.3, 0.1);
                   }
@@ -164,7 +164,7 @@ public class RallyBeaconHandler {
          for (UUID uid : b.members) {
             ServerPlayer m = server.getPlayerList().getPlayer(uid);
             if (m != null) {
-               m.displayClientMessage(Component.literal("§8The rally is spent."), true);
+               m.sendOverlayMessage(Component.literal("§8The rally is spent."));
             }
          }
       }
@@ -200,7 +200,7 @@ public class RallyBeaconHandler {
 
                         ServerPlayer p = server.getPlayerList().getPlayer(uid);
                         if (p != null) {
-                           p.displayClientMessage(Component.literal("§8The rally fades."), true);
+                           p.sendOverlayMessage(Component.literal("§8The rally fades."));
                         }
                      }
 

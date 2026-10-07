@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Join;
-import org.lwjgl.glfw.GLFW;
 
 public class ReadyHugClientHandler {
    private static boolean shiftWasHeld = false;
@@ -49,7 +48,7 @@ public class ReadyHugClientHandler {
                }
             } else {
                long win = client.getWindow().handle();
-               boolean held = GLFW.glfwGetKey(win, 340) == 1 || GLFW.glfwGetKey(win, 344) == 1;
+               boolean held = com.mojang.blaze3d.platform.InputConstants.isKeyDown(340) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(344);
                boolean rightClick = GLFW.glfwGetMouseButton(win, 1) == 1;
                if (held != shiftWasHeld) {
                   ClientPlayNetworking.send(new ReadyHugHandler.HugShiftPayload(held, rightClick));

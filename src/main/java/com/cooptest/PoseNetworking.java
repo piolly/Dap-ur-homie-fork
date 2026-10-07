@@ -35,14 +35,14 @@ public class PoseNetworking {
    public static final HashMap<UUID, Float> chargeProgress = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(PoseNetworking.PoseSyncPayload.ID, PoseNetworking.PoseSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(PoseNetworking.PoseSyncPayload.ID, PoseNetworking.PoseSyncPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(PoseNetworking.ChargeSyncPayload.ID, PoseNetworking.ChargeSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(PoseNetworking.ChargeSyncPayload.ID, PoseNetworking.ChargeSyncPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(PoseNetworking.ThrowAnimPayload.ID, PoseNetworking.ThrowAnimPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(PoseNetworking.ThrowAnimPayload.ID, PoseNetworking.ThrowAnimPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(PoseNetworking.AnimStateSyncPayload.ID, PoseNetworking.AnimStateSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(PoseNetworking.AnimStateSyncPayload.ID, PoseNetworking.AnimStateSyncPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(PoseNetworking.PoseSyncPayload.ID, PoseNetworking.PoseSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(PoseNetworking.PoseSyncPayload.ID, PoseNetworking.PoseSyncPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(PoseNetworking.ChargeSyncPayload.ID, PoseNetworking.ChargeSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(PoseNetworking.ChargeSyncPayload.ID, PoseNetworking.ChargeSyncPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(PoseNetworking.ThrowAnimPayload.ID, PoseNetworking.ThrowAnimPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(PoseNetworking.ThrowAnimPayload.ID, PoseNetworking.ThrowAnimPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(PoseNetworking.AnimStateSyncPayload.ID, PoseNetworking.AnimStateSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(PoseNetworking.AnimStateSyncPayload.ID, PoseNetworking.AnimStateSyncPayload.CODEC);
    }
 
    public static void registerServerReceiver() {
@@ -56,7 +56,7 @@ public class PoseNetworking {
                   ServerPlayNetworking.send(requester, new PoseNetworking.PoseSyncPayload(id, PoseState.NONE.ordinal()));
                }
             } else if (state == PoseState.PUSH_IDLE && requester != null && !requester.getMainHandItem().isEmpty()) {
-               requester.displayClientMessage(Component.literal("§cHold nothing in your main hand to push!"), true);
+               requester.sendOverlayMessage(Component.literal("§cHold nothing in your main hand to push!"));
                ServerPlayNetworking.send(requester, new PoseNetworking.PoseSyncPayload(id, PoseState.NONE.ordinal()));
             } else {
                poseStates.put(id, state);

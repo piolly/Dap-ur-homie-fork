@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import org.lwjgl.glfw.GLFW;
 
 public class HighFiveClientHandler {
    private static KeyMapping highFiveKey;
@@ -109,10 +107,10 @@ public class HighFiveClientHandler {
             boolean isArmedForHandshake = HighFiveShakeClientHandler.isLocalPlayerArmed();
             if (inActiveHandshake) {
                long winHandle = Minecraft.getInstance().getWindow().handle();
-               boolean w = GLFW.glfwGetKey(winHandle, 87) == 1;
-               boolean a = GLFW.glfwGetKey(winHandle, 65) == 1;
-               boolean s = GLFW.glfwGetKey(winHandle, 83) == 1;
-               boolean d = GLFW.glfwGetKey(winHandle, 68) == 1;
+               boolean w = com.mojang.blaze3d.platform.InputConstants.isKeyDown(87);
+               boolean a = com.mojang.blaze3d.platform.InputConstants.isKeyDown(65);
+               boolean s = com.mojang.blaze3d.platform.InputConstants.isKeyDown(83);
+               boolean d = com.mojang.blaze3d.platform.InputConstants.isKeyDown(68);
                int dirOrdinal;
                if (w) {
                   dirOrdinal = HighFiveShakeHandler.Dir.W.ordinal();
@@ -127,7 +125,7 @@ public class HighFiveClientHandler {
                }
 
                ClientPlayNetworking.send(new HighFiveShakeHandler.ShakeDirPayload(dirOrdinal));
-               boolean fPressed = GLFW.glfwGetKey(winHandle, 70) == 1;
+               boolean fPressed = com.mojang.blaze3d.platform.InputConstants.isKeyDown(70);
                if (fPressed) {
                   ClientPlayNetworking.send(new HighFiveShakeHandler.ShakeEndKeyPayload());
                }
@@ -255,9 +253,9 @@ public class HighFiveClientHandler {
 
                   if (!inComboWindow && isKeyPressed && !wasKeyPressed) {
                      if (ChargedDapClientHandler.isLocalPlayerCharging()) {
-                        client.player.displayClientMessage(Component.literal("§cCan't high five while charging dap!"), true);
+                        client.player.sendOverlayMessage(Component.literal("§cCan't high five while charging dap!"));
                      } else if (!client.player.getMainHandItem().isEmpty()) {
-                        client.player.displayClientMessage(Component.literal("§cHands must be empty for high five!"), true);
+                        client.player.sendOverlayMessage(Component.literal("§cHands must be empty for high five!"));
                      } else {
                         raisedHands.put(client.player.getUUID(), true);
                         boolean rightClickHeld = client.options.keyUse.isDown();
@@ -277,7 +275,7 @@ public class HighFiveClientHandler {
             }
          }
       });
-      HudRenderCallback.EVENT.register(HighFiveClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "highfiveclienthandler_hud"), HighFiveClientHandler::renderHUD);
    }
 
    private static void onHighFiveSuccess(double x, double y, double z, UUID player1, UUID player2, int tier) {
@@ -309,7 +307,7 @@ public class HighFiveClientHandler {
                case 3 -> "§c§l⚡ EXPLOSIVE HIGH FIVE! ⚡";
                default -> "§6 High Five!";
             };
-            client.player.displayClientMessage(Component.literal(message), true);
+            client.player.sendOverlayMessage(Component.literal(message));
          }
       }
    }
@@ -363,7 +361,7 @@ public class HighFiveClientHandler {
             float pulse = (float)(Math.sin(System.currentTimeMillis() / 150.0) * 0.3 + 0.7);
             int alpha = (int)(pulse * 255.0F);
             int color = alpha << 24 | 16776960;
-            context.drawString(client.font, text, textX, textY, color, true);
+            context.text(client.font, text, textX, textY, color, true);
          }
 
          if (inComboWindow && !FusionClientHandler.isQTEOpen() && !FusionClientHandler.isGWindowOpen()) {
@@ -393,7 +391,7 @@ public class HighFiveClientHandler {
                int color = (float)elapsed / 750.0F < 0.5F ? alpha << 24 | 16776960 : alpha << 24 | 16729088;
                String text = "[" + hKey + "] Combo";
                int tw = client.font.width(text);
-               context.drawString(client.font, text, (screenWidth - tw) / 2, screenHeight / 2 + 10, color, true);
+               context.text(client.font, text, (screenWidth - tw) / 2, screenHeight / 2 + 10, color, true);
             }
          }
       }

@@ -39,7 +39,7 @@ public class FallCatchHandler {
    public static final Identifier CATCH_ANIM_ID = Identifier.fromNamespaceAndPath("cooptest", "catch_anim");
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(FallCatchHandler.CatchAnimPayload.ID, FallCatchHandler.CatchAnimPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(FallCatchHandler.CatchAnimPayload.ID, FallCatchHandler.CatchAnimPayload.CODEC);
    }
 
    public static void register() {
@@ -57,7 +57,7 @@ public class FallCatchHandler {
                   catchCooldowns.put(playerId, now + 1000L);
                   ServerPlayer player = server.getPlayerList().getPlayer(playerId);
                   if (player != null) {
-                     player.displayClientMessage(Component.literal("§c✗ Catch missed! 1 sec cooldown"), true);
+                     player.sendOverlayMessage(Component.literal("§c✗ Catch missed! 1 sec cooldown"));
                   }
                }
 
@@ -173,8 +173,8 @@ public class FallCatchHandler {
       PoseNetworking.poseStates.put(catcher.getUUID(), PoseState.NONE);
       PoseNetworking.broadcastPoseChange(catcher.level().getServer(), catcher.getUUID(), PoseState.NONE);
       PoseNetworking.broadcastAnimState(catcher, 16);
-      caught.displayClientMessage(Component.literal("§a§l✓ " + catcher.getName().getString() + " caught you!"), true);
-      catcher.displayClientMessage(Component.literal("§a§l✓ PERFECT CATCH! " + caught.getName().getString()), true);
+      caught.sendOverlayMessage(Component.literal("§a§l✓ " + catcher.getName().getString() + " caught you!"));
+      catcher.sendOverlayMessage(Component.literal("§a§l✓ PERFECT CATCH! " + caught.getName().getString()));
    }
 
    public static void cleanup(UUID playerId) {

@@ -44,7 +44,7 @@ public class DapPositioning {
    private static final List<DapPositioning.YawStep> yawSteps = new ArrayList<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(DapPositioning.DapReleasePayload.ID, DapPositioning.DapReleasePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapPositioning.DapReleasePayload.ID, DapPositioning.DapReleasePayload.CODEC);
    }
 
    public static void register() {

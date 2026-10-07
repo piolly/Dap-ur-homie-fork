@@ -14,7 +14,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.J
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
 
 public class HandSpinClientHandler {
    private static final int SPIN_HOLD_KEY = 71;
@@ -123,7 +122,7 @@ public class HandSpinClientHandler {
                }
             } else {
                long win = client.getWindow().handle();
-               boolean held = GLFW.glfwGetKey(win, 71) == 1;
+               boolean held = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
                if (held && !gWasHeld) {
                   ClientPlayNetworking.send(new HandSpinHandler.HandSpinFHoldPayload(true));
                   gWasHeld = true;

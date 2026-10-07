@@ -72,9 +72,9 @@ public class NormalFacingDapHandler {
    private static final Map<UUID, Long> clickTime = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(NormalFacingDapHandler.DapLoopHoldPayload.ID, NormalFacingDapHandler.DapLoopHoldPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(NormalFacingDapHandler.FaceDapSessionPayload.ID, NormalFacingDapHandler.FaceDapSessionPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(NormalFacingDapHandler.FaceDapShakePayload.ID, NormalFacingDapHandler.FaceDapShakePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(NormalFacingDapHandler.DapLoopHoldPayload.ID, NormalFacingDapHandler.DapLoopHoldPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(NormalFacingDapHandler.FaceDapSessionPayload.ID, NormalFacingDapHandler.FaceDapSessionPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(NormalFacingDapHandler.FaceDapShakePayload.ID, NormalFacingDapHandler.FaceDapShakePayload.CODEC);
    }
 
    public static boolean isActive(UUID id) {
@@ -262,8 +262,8 @@ public class NormalFacingDapHandler {
          if (!PactHandler.isSealing(s.a)) {
             long held = s.inStage(now) / 1000L;
             Component t = Component.literal("§6\ud83e\udd1d §f" + held + "s");
-            a.displayClientMessage(t, true);
-            b.displayClientMessage(t, true);
+            a.sendOverlayMessage(t);
+            b.sendOverlayMessage(t);
          }
       }
    }
@@ -407,7 +407,7 @@ public class NormalFacingDapHandler {
    public static void recordRightClick(ServerPlayer sp, ServerPlayer target) {
       clickMap.put(sp.getUUID(), target.getUUID());
       clickTime.put(sp.getUUID(), System.currentTimeMillis());
-      sp.displayClientMessage(Component.literal("§e✦ Waiting for homie..."), true);
+      sp.sendOverlayMessage(Component.literal("§e✦ Waiting for homie..."));
    }
 
    public static boolean isConfirmed(UUID id1, UUID id2) {

@@ -147,7 +147,7 @@ public class PactHandler {
    private static void listPacts(ServerPlayer me) {
       PactHandler.Pact pact = pacts.get(me.getUUID());
       if (pact == null) {
-         me.displayClientMessage(Component.literal("§7No active pact. Shake hands and hold G to make one."), false);
+         me.sendSystemMessage(Component.literal("§7No active pact. Shake hands and hold G to make one."));
       } else {
          UUID other = pact.a.equals(me.getUUID()) ? pact.b : pact.a;
          PactHandler.Bond b = bond(me.getUUID(), other);
@@ -161,11 +161,11 @@ public class PactHandler {
          }
 
          long heldMin = (System.currentTimeMillis() - pact.sealedAt) / 60000L;
-         me.displayClientMessage(Component.literal("§6\ud83e\udd1d " + name + "  " + tier(b)), false);
-         me.displayClientMessage(Component.literal("§7Handshakes §f" + b.daps + " §8| §7Pacts §f" + b.sealed + " §8| §aKept §f" + b.kept), false);
-         me.displayClientMessage(Component.literal("§7Betrayed §c" + b.broken + " §8| §7Confirmed §f" + b.confirmed + " §8| §7Held §f" + heldMin + "m"), false);
-         me.displayClientMessage(Component.literal(pact.confirmed ? "§a✔ Confirmed" : "§e○ Not confirmed §7— shake hands again to confirm it"), false);
-         me.displayClientMessage(Component.literal("§8/handshake " + name.replaceAll("§.", "") + " broken §8— if they betray the pact"), false);
+         me.sendSystemMessage(Component.literal("§6\ud83e\udd1d " + name + "  " + tier(b)));
+         me.sendSystemMessage(Component.literal("§7Handshakes §f" + b.daps + " §8| §7Pacts §f" + b.sealed + " §8| §aKept §f" + b.kept));
+         me.sendSystemMessage(Component.literal("§7Betrayed §c" + b.broken + " §8| §7Confirmed §f" + b.confirmed + " §8| §7Held §f" + heldMin + "m"));
+         me.sendSystemMessage(Component.literal(pact.confirmed ? "§a✔ Confirmed" : "§e○ Not confirmed §7— shake hands again to confirm it"));
+         me.sendSystemMessage(Component.literal("§8/handshake " + name.replaceAll("§.", "") + " broken §8— if they betray the pact"));
       }
    }
 
@@ -186,7 +186,7 @@ public class PactHandler {
          }
       }
 
-      me.displayClientMessage(Component.literal("§6" + them.getName().getString() + "§7's record"), false);
+      me.sendSystemMessage(Component.literal("§6" + them.getName().getString() + "§7's record"));
       me.displayClientMessage(
          Component.literal(
             "§7Pacts §f" + totalSealed + " §8| §aKept §f" + totalKept + " §8| §cBetrayed §f" + totalBroken + " §8| §7Confirmed §f" + totalDissolved
@@ -194,7 +194,7 @@ public class PactHandler {
          false
       );
       if (totalBroken > 0) {
-         me.displayClientMessage(Component.literal("§c⚠ Has betrayed " + totalBroken + " pact(s)."), false);
+         me.sendSystemMessage(Component.literal("§c⚠ Has betrayed " + totalBroken + " pact(s)."));
       }
 
       PactHandler.Bond shared = bond(me.getUUID(), them.getUUID());
@@ -208,7 +208,7 @@ public class PactHandler {
 
    private static void declareBroken(ServerPlayer me, ServerPlayer them) {
       if (me.getUUID().equals(them.getUUID())) {
-         me.displayClientMessage(Component.literal("§7Name the player who betrayed you, not yourself."), false);
+         me.sendSystemMessage(Component.literal("§7Name the player who betrayed you, not yourself."));
       } else {
          PactHandler.Pact pact = pacts.get(me.getUUID());
          if (pact != null && (pact.a.equals(them.getUUID()) || pact.b.equals(them.getUUID()))) {
@@ -219,15 +219,15 @@ public class PactHandler {
             pacts.remove(pact.b);
             declaredBroken.remove(key(me.getUUID(), them.getUUID()));
             save();
-            me.displayClientMessage(Component.literal("§c§lPACT BROKEN §7— " + them.getName().getString() + " betrayed you."), false);
-            them.displayClientMessage(Component.literal("§c§lYOU BROKE THE PACT §7— " + me.getName().getString() + " has declared your betrayal."), false);
+            me.sendSystemMessage(Component.literal("§c§lPACT BROKEN §7— " + them.getName().getString() + " betrayed you."));
+            them.sendSystemMessage(Component.literal("§c§lYOU BROKE THE PACT §7— " + me.getName().getString() + " has declared your betrayal."));
             ServerLevel w = me.level();
             ceremonyEffect(w, me.position().add(0.0, 1.0, 0.0), false);
             announce(
                me.level().getServer(), Component.literal("§c§l⚠ " + them.getName().getString() + " §7betrayed §c" + me.getName().getString() + "§7's pact.")
             );
          } else {
-            me.displayClientMessage(Component.literal("§7You have no pact with " + them.getName().getString() + "."), false);
+            me.sendSystemMessage(Component.literal("§7You have no pact with " + them.getName().getString() + "."));
          }
       }
    }
@@ -279,12 +279,12 @@ public class PactHandler {
       w.sendParticles(ParticleTypes.END_ROD, m.x, m.y, m.z, 30, 0.3, 0.5, 0.3, 0.3);
       w.sendParticles(ParticleTypes.FIREWORK, m.x, m.y, m.z, 40, 0.4, 0.4, 0.4, 0.28);
       String word = b.kept > 0 ? "§6§lBROTHER" : "§6§lHOMIE";
-      p1.displayClientMessage(Component.literal(word + " §7— " + p2.getName().getString()), true);
-      p2.displayClientMessage(Component.literal(word + " §7— " + p1.getName().getString()), true);
+      p1.sendOverlayMessage(Component.literal(word + " §7— " + p2.getName().getString()));
+      p2.sendOverlayMessage(Component.literal(word + " §7— " + p1.getName().getString()));
       if (firstConfirm) {
          ceremonyEffect(w, m, true);
-         p1.displayClientMessage(Component.literal("§a§l✔ PACT CONFIRMED"), false);
-         p2.displayClientMessage(Component.literal("§a§l✔ PACT CONFIRMED"), false);
+         p1.sendSystemMessage(Component.literal("§a§l✔ PACT CONFIRMED"));
+         p2.sendSystemMessage(Component.literal("§a§l✔ PACT CONFIRMED"));
          announce(
             p1.level().getServer(),
             Component.literal("§a✔ §6" + p1.getName().getString() + " §7and §6" + p2.getName().getString() + " §7confirmed their pact.")
@@ -293,7 +293,7 @@ public class PactHandler {
    }
 
    private static void send(ServerPlayer to, String otherName, PactHandler.Bond b) {
-      to.displayClientMessage(Component.literal(tier(b) + " §7with §f" + otherName), true);
+      to.sendOverlayMessage(Component.literal(tier(b) + " §7with §f" + otherName));
    }
 
    private static void warnIfBadReputation(ServerPlayer to, ServerPlayer about) {
@@ -307,7 +307,7 @@ public class PactHandler {
       }
 
       if (total > 0) {
-         to.displayClientMessage(Component.literal("§c⚠ " + about.getName().getString() + " has betrayed " + total + " pact" + (total == 1 ? "" : "s")), true);
+         to.sendOverlayMessage(Component.literal("§c⚠ " + about.getName().getString() + " has betrayed " + total + " pact" + (total == 1 ? "" : "s")));
       }
    }
 
@@ -364,8 +364,8 @@ public class PactHandler {
                   long since = now - Math.max(s.startedA, s.startedB);
                   float progress = Math.min(1.0F, (float)since / (float)sealHoldMs());
                   String bar = bar(progress);
-                  a.displayClientMessage(Component.literal(bar), true);
-                  b.displayClientMessage(Component.literal(bar), true);
+                  a.sendOverlayMessage(Component.literal(bar));
+                  b.sendOverlayMessage(Component.literal(bar));
                   Vec3 mid = a.position().add(b.position()).scale(0.5).add(0.0, 1.0, 0.0);
                   ServerLevel world = a.level();
                   world.sendParticles(ParticleTypes.END_ROD, mid.x, mid.y + progress, mid.z, 2, 0.12, 0.05, 0.12, 0.01);
@@ -393,15 +393,15 @@ public class PactHandler {
             String line = "§6§l⚔ PACT KEPT ⚔";
             String sub = "§7You are now " + tier(bd) + "§7.";
             if (a != null) {
-               a.displayClientMessage(Component.literal(line), false);
-               a.displayClientMessage(Component.literal(sub), false);
-               a.displayClientMessage(Component.literal("§8Shake hands again to start another."), false);
+               a.sendSystemMessage(Component.literal(line));
+               a.sendSystemMessage(Component.literal(sub));
+               a.sendSystemMessage(Component.literal("§8Shake hands again to start another."));
             }
 
             if (b != null) {
-               b.displayClientMessage(Component.literal(line), false);
-               b.displayClientMessage(Component.literal(sub), false);
-               b.displayClientMessage(Component.literal("§8Shake hands again to start another."), false);
+               b.sendSystemMessage(Component.literal(line));
+               b.sendSystemMessage(Component.literal(sub));
+               b.sendSystemMessage(Component.literal("§8Shake hands again to start another."));
             }
          }
       }
@@ -423,7 +423,7 @@ public class PactHandler {
    private static void announce(MinecraftServer server, Component line) {
       if (server != null) {
          for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-            p.displayClientMessage(line, false);
+            p.sendSystemMessage(line);
          }
       }
    }
@@ -476,8 +476,8 @@ public class PactHandler {
       String tier = tier(bd);
 
       for (ServerPlayer p : new ServerPlayer[]{a, b}) {
-         p.displayClientMessage(Component.literal("§6§l⚔ PACT SEALED ⚔"), false);
-         p.displayClientMessage(Component.literal("§7Your bond is now §f" + tier), false);
+         p.sendSystemMessage(Component.literal("§6§l⚔ PACT SEALED ⚔"));
+         p.sendSystemMessage(Component.literal("§7Your bond is now §f" + tier));
       }
 
       announce(
@@ -502,15 +502,15 @@ public class PactHandler {
          Component announcement = Component.literal("§4§l☠ " + brName + " BROKE THE PACT ☠");
          if (CoopMovesConfig.get().pactBroadcastBetrayal) {
             for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-               p.displayClientMessage(announcement, false);
+               p.sendSystemMessage(announcement);
             }
          } else {
             if (a != null) {
-               a.displayClientMessage(announcement, false);
+               a.sendSystemMessage(announcement);
             }
 
             if (b != null) {
-               b.displayClientMessage(announcement, false);
+               b.sendSystemMessage(announcement);
             }
          }
 

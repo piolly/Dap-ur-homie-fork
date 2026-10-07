@@ -33,11 +33,11 @@ public final class BrosPayloads {
    }
 
    public static void register() {
-      PayloadTypeRegistry.playC2S().register(BrosPayloads.Arm.ID, BrosPayloads.Arm.CODEC);
-      PayloadTypeRegistry.playC2S().register(BrosPayloads.Input.ID, BrosPayloads.Input.CODEC);
-      PayloadTypeRegistry.playC2S().register(BrosPayloads.End.ID, BrosPayloads.End.CODEC);
-      PayloadTypeRegistry.playC2S().register(BrosPayloads.Ability.ID, BrosPayloads.Ability.CODEC);
-      PayloadTypeRegistry.playS2C().register(BrosPayloads.State.ID, BrosPayloads.State.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(BrosPayloads.Arm.ID, BrosPayloads.Arm.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(BrosPayloads.Input.ID, BrosPayloads.Input.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(BrosPayloads.End.ID, BrosPayloads.End.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(BrosPayloads.Ability.ID, BrosPayloads.Ability.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(BrosPayloads.State.ID, BrosPayloads.State.CODEC);
    }
 
    public record Ability(byte kind, boolean down) implements CustomPacketPayload {

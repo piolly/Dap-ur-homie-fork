@@ -46,8 +46,8 @@ public class GroundPoundHandler {
    static final Set<UUID> megaPound = new HashSet<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(GroundPoundHandler.GroundPoundStartPayload.ID, GroundPoundHandler.GroundPoundStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(GroundPoundHandler.GroundPoundSyncPayload.ID, GroundPoundHandler.GroundPoundSyncPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GroundPoundHandler.GroundPoundStartPayload.ID, GroundPoundHandler.GroundPoundStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(GroundPoundHandler.GroundPoundSyncPayload.ID, GroundPoundHandler.GroundPoundSyncPayload.CODEC);
    }
 
    public static void register() {
@@ -228,9 +228,9 @@ public class GroundPoundHandler {
       player.setDeltaMovement(0.0, 0.0, 0.0);
       player.hurtMarked = true;
       if (scaledPower >= 0.6) {
-         player.displayClientMessage(Component.literal("§c§l\ud83d\udca5 GROUND POUND!"), true);
+         player.sendOverlayMessage(Component.literal("§c§l\ud83d\udca5 GROUND POUND!"));
       } else {
-         player.displayClientMessage(Component.literal("§e\ud83d\udca5 Ground Pound"), true);
+         player.sendOverlayMessage(Component.literal("§e\ud83d\udca5 Ground Pound"));
       }
    }
 

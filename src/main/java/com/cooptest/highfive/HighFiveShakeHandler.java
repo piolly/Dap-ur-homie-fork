@@ -87,15 +87,15 @@ public class HighFiveShakeHandler {
    public static final Identifier SHAKE_IMPACT_ID = Identifier.fromNamespaceAndPath("cooptest", "shake_impact");
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(HighFiveShakeHandler.ShakeDirPayload.ID, HighFiveShakeHandler.ShakeDirPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighFiveShakeHandler.ShakeEndKeyPayload.ID, HighFiveShakeHandler.ShakeEndKeyPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighFiveShakeHandler.ShakeArmTogglePayload.ID, HighFiveShakeHandler.ShakeArmTogglePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveShakeHandler.ShakeArmedStatePayload.ID, HighFiveShakeHandler.ShakeArmedStatePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveShakeHandler.ShakeSessionPayload.ID, HighFiveShakeHandler.ShakeSessionPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveShakeHandler.ShakeResultPayload.ID, HighFiveShakeHandler.ShakeResultPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveShakeHandler.ShakeKeyPressPayload.ID, HighFiveShakeHandler.ShakeKeyPressPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveShakeHandler.ShakeAnimStartPayload.ID, HighFiveShakeHandler.ShakeAnimStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveShakeHandler.ShakeImpactPayload.ID, HighFiveShakeHandler.ShakeImpactPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveShakeHandler.ShakeDirPayload.ID, HighFiveShakeHandler.ShakeDirPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveShakeHandler.ShakeEndKeyPayload.ID, HighFiveShakeHandler.ShakeEndKeyPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveShakeHandler.ShakeArmTogglePayload.ID, HighFiveShakeHandler.ShakeArmTogglePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveShakeHandler.ShakeArmedStatePayload.ID, HighFiveShakeHandler.ShakeArmedStatePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveShakeHandler.ShakeSessionPayload.ID, HighFiveShakeHandler.ShakeSessionPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveShakeHandler.ShakeResultPayload.ID, HighFiveShakeHandler.ShakeResultPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveShakeHandler.ShakeKeyPressPayload.ID, HighFiveShakeHandler.ShakeKeyPressPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveShakeHandler.ShakeAnimStartPayload.ID, HighFiveShakeHandler.ShakeAnimStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveShakeHandler.ShakeImpactPayload.ID, HighFiveShakeHandler.ShakeImpactPayload.CODEC);
    }
 
    public static void register() {

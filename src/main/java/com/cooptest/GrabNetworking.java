@@ -13,13 +13,13 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class GrabNetworking {
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(GrabNetworking.ThrowRequestPayload.ID, GrabNetworking.ThrowRequestPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(GrabNetworking.DropRequestPayload.ID, GrabNetworking.DropRequestPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(GrabNetworking.EscapeRequestPayload.ID, GrabNetworking.EscapeRequestPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(GrabNetworking.ElytraBoostRequestPayload.ID, GrabNetworking.ElytraBoostRequestPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(GrabNetworking.AirMovementPayload.ID, GrabNetworking.AirMovementPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(GrabNetworking.ShieldTogglePayload.ID, GrabNetworking.ShieldTogglePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(GrabNetworking.GrabStatePayload.ID, GrabNetworking.GrabStatePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GrabNetworking.ThrowRequestPayload.ID, GrabNetworking.ThrowRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GrabNetworking.DropRequestPayload.ID, GrabNetworking.DropRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GrabNetworking.EscapeRequestPayload.ID, GrabNetworking.EscapeRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GrabNetworking.ElytraBoostRequestPayload.ID, GrabNetworking.ElytraBoostRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GrabNetworking.AirMovementPayload.ID, GrabNetworking.AirMovementPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(GrabNetworking.ShieldTogglePayload.ID, GrabNetworking.ShieldTogglePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(GrabNetworking.GrabStatePayload.ID, GrabNetworking.GrabStatePayload.CODEC);
    }
 
    public static void registerServerReceivers() {

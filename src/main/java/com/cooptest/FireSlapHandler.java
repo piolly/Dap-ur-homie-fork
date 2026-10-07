@@ -61,7 +61,7 @@ public class FireSlapHandler {
       world.sendParticles(ParticleTypes.CRIT, x, y, z, 6, 0.3, 0.3, 0.3, 0.1);
       world.playSound(null, x, y, z, SoundEvents.PLAYER_ATTACK_KNOCKBACK, SoundSource.PLAYERS, 1.0F, 0.8F);
       world.playSound(null, x, y, z, SoundEvents.BLAZE_HURT, SoundSource.PLAYERS, 0.5F, 1.2F);
-      player.displayClientMessage(Component.literal("§c FIRE SLAP! "), true);
+      player.sendOverlayMessage(Component.literal("§c FIRE SLAP! "));
       ChargedDapHandler.fireLevel.put(player.getUUID(), 0.5F);
    }
 }

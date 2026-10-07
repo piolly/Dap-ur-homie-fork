@@ -34,13 +34,13 @@ public class SpinYeetHandler {
    private static final Map<UUID, ServerLevel> yeetedWorlds = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(SpinYeetGrabPayload.ID, SpinYeetGrabPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(SpinYeetReleasePayload.ID, SpinYeetReleasePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinYeetStartPayload.ID, SpinYeetStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinYeetCameraPayload.ID, SpinYeetCameraPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinYeetEndPayload.ID, SpinYeetEndPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinYeetGrabberYawPayload.ID, SpinYeetGrabberYawPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinYeetImpactPayload.ID, SpinYeetImpactPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SpinYeetGrabPayload.ID, SpinYeetGrabPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SpinYeetReleasePayload.ID, SpinYeetReleasePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinYeetStartPayload.ID, SpinYeetStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinYeetCameraPayload.ID, SpinYeetCameraPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinYeetEndPayload.ID, SpinYeetEndPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinYeetGrabberYawPayload.ID, SpinYeetGrabberYawPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinYeetImpactPayload.ID, SpinYeetImpactPayload.CODEC);
    }
 
    public static void register() {

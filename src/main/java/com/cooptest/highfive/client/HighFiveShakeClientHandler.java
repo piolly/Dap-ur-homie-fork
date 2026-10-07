@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTic
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -92,7 +91,7 @@ public class HighFiveShakeClientHandler {
             }
          }
       });
-      HudRenderCallback.EVENT.register(HighFiveShakeClientHandler::renderHud);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "highfiveshakeclienthandler_hud"), HighFiveShakeClientHandler::renderHud);
    }
 
    private static void renderHud(GuiGraphicsExtractor ctx, DeltaTracker tc) {
@@ -103,7 +102,7 @@ public class HighFiveShakeClientHandler {
          renderSessionHud(ctx, client, sw, now);
       } else if (isArmed) {
          String txt = "\ud83e\udd1d ARMED — find your partner!";
-         ctx.drawString(client.font, Component.literal(txt), (sw - client.font.width(txt)) / 2, 20, 5635925, true);
+         ctx.text(client.font, Component.literal(txt), (sw - client.font.width(txt)) / 2, 20, 5635925, true);
       }
    }
 
@@ -119,7 +118,7 @@ public class HighFiveShakeClientHandler {
       }
 
       String streakTxt = "\ud83e\udd1d " + currentStreak;
-      ctx.drawString(client.font, Component.literal(streakTxt), (sw - client.font.width(streakTxt)) / 2, 20, streakColor, true);
+      ctx.text(client.font, Component.literal(streakTxt), (sw - client.font.width(streakTxt)) / 2, 20, streakColor, true);
       int cx = sw / 2;
       int top = 36;
       int keySize = 14;
@@ -144,7 +143,7 @@ public class HighFiveShakeClientHandler {
          if (inPerfectZone) {
             String pressHint = "PRESS!";
             int hintColor = (int)(System.currentTimeMillis() / 100L) % 2 == 0 ? -10496 : -1;
-            ctx.drawString(client.font, Component.literal(pressHint), (sw - client.font.width(pressHint)) / 2, barY + barH + 3, hintColor, true);
+            ctx.text(client.font, Component.literal(pressHint), (sw - client.font.width(pressHint)) / 2, barY + barH + 3, hintColor, true);
          }
       }
    }
@@ -162,10 +161,10 @@ public class HighFiveShakeClientHandler {
       int bgColor = flashing ? -1437204651 : 1428300322;
       int txtColor = flashing ? 0 : 13421772;
       ctx.fill(x, y, x + size, y + size, bgColor);
-      ctx.drawString(client.font, Component.literal(label), x + size / 2 - client.font.width(label) / 2, y + size / 2 - 4, txtColor, false);
+      ctx.text(client.font, Component.literal(label), x + size / 2 - client.font.width(label) / 2, y + size / 2 - 4, txtColor, false);
       if (flashing && presserName != null) {
          int nw = client.font.width(presserName);
-         ctx.drawString(client.font, Component.literal(presserName), x + size / 2 - nw / 2, y - 11, 16777215, true);
+         ctx.text(client.font, Component.literal(presserName), x + size / 2 - nw / 2, y - 11, 16777215, true);
       }
    }
 

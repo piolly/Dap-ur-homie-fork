@@ -31,7 +31,7 @@ public class MarioJumpHandler {
    private static final double LAUNCH_VELOCITY = 0.68;
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(MarioJumpHandler.MarioJumpRequestPayload.ID, MarioJumpHandler.MarioJumpRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(MarioJumpHandler.MarioJumpRequestPayload.ID, MarioJumpHandler.MarioJumpRequestPayload.CODEC);
    }
 
    public static void register() {
@@ -126,8 +126,8 @@ public class MarioJumpHandler {
       marioAnimEnd.put(jumper.getUUID(), now + 500L);
       popAnimEnd.put(target.getUUID(), now + 417L);
       world.playSound(null, pos.x, pos.y, pos.z, ModSounds.MARIO_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
-      jumper.displayClientMessage(Component.literal("§a WAHOO!"), true);
-      target.displayClientMessage(Component.literal("§c BONK!"), true);
+      jumper.sendOverlayMessage(Component.literal("§a WAHOO!"));
+      target.sendOverlayMessage(Component.literal("§c BONK!"));
    }
 
    public static void cleanup(UUID playerId) {

@@ -53,9 +53,9 @@ public class BonkHandler {
    private static final Map<UUID, Set<Long>> firedThisCycle = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(BonkHandler.BonkCameraPayload.ID, BonkHandler.BonkCameraPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(BonkHandler.BonkMoveLockPayload.ID, BonkHandler.BonkMoveLockPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(BonkHandler.BonkLKeyPayload.ID, BonkHandler.BonkLKeyPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(BonkHandler.BonkCameraPayload.ID, BonkHandler.BonkCameraPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(BonkHandler.BonkMoveLockPayload.ID, BonkHandler.BonkMoveLockPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(BonkHandler.BonkLKeyPayload.ID, BonkHandler.BonkLKeyPayload.CODEC);
    }
 
    public static void register() {
@@ -87,7 +87,7 @@ public class BonkHandler {
       player.teleportTo(player.level(), player.getX(), player.getY() - 1.0, player.getZ(), Set.of(), player.getYRot(), 0.0F, false);
       PoseNetworking.broadcastAnimState(player, 79);
       ServerPlayNetworking.send(player, new BonkHandler.BonkMoveLockPayload(true));
-      player.displayClientMessage(Component.literal("§7[Laying down — press L to get up]"), true);
+      player.sendOverlayMessage(Component.literal("§7[Laying down — press L to get up]"));
    }
 
    private static void stopLaying(UUID id, MinecraftServer server) {
@@ -124,11 +124,11 @@ public class BonkHandler {
             bonker.setYRot(yaw);
             bonker.setYBodyRot(yaw);
             bonker.setYHeadRot(yaw);
-            bonker.setInvulnerable(true);
+            bonker.setPermanentlyInvulnerable(true);
             PoseNetworking.broadcastAnimState(bonker, 80);
             ServerPlayNetworking.send(bonker, new BonkHandler.BonkMoveLockPayload(true));
-            bonker.displayClientMessage(Component.literal("§c§lBONK! §7Press L to stop"), true);
-            victim.displayClientMessage(Component.literal("§c§lYou're getting bonked! §7Press L to escape"), true);
+            bonker.sendOverlayMessage(Component.literal("§c§lBONK! §7Press L to stop"));
+            victim.sendOverlayMessage(Component.literal("§c§lYou're getting bonked! §7Press L to escape"));
          }
       }
    }
@@ -143,7 +143,7 @@ public class BonkHandler {
       victimLockedYaw.remove(bonkerId);
       ServerPlayer bonker = server.getPlayerList().getPlayer(bonkerId);
       if (bonker != null) {
-         bonker.setInvulnerable(false);
+         bonker.setPermanentlyInvulnerable(false);
          PoseNetworking.broadcastAnimState(bonker, 0);
          ServerPlayNetworking.send(bonker, new BonkHandler.BonkMoveLockPayload(false));
          bonker.push(0.0, 0.3, 0.0);
@@ -190,7 +190,7 @@ public class BonkHandler {
             float bonkerYaw = lockedYaw + 180.0F;
             float bonkerPitch = 30.0F;
             bonker.teleportTo(bonker.level(), bx, vPos.y + 0.6, bz, Set.of(), bonkerYaw, bonkerPitch, false);
-            bonker.setInvulnerable(true);
+            bonker.setPermanentlyInvulnerable(true);
             victim.setDeltaMovement(0.0, 0.0, 0.0);
             victim.hurtMarked = true;
             Long startMs = sessionStartMs.get(bonkerId);

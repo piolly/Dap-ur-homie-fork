@@ -145,8 +145,8 @@ public class CuffHandler {
                         held.shrink(1);
                      }
 
-                     clicker.displayClientMessage(Component.literal("§a[Cuff] Fed " + target.getName().getString() + "."), true);
-                     target.displayClientMessage(Component.literal("§aYou were fed."), true);
+                     clicker.sendOverlayMessage(Component.literal("§a[Cuff] Fed " + target.getName().getString() + "."));
+                     target.sendOverlayMessage(Component.literal("§aYou were fed."));
                      return InteractionResult.SUCCESS;
                   }
 
@@ -165,8 +165,8 @@ public class CuffHandler {
                            }
                         }
 
-                        clicker.displayClientMessage(Component.literal("§a[Cuff] Applied potion to " + target.getName().getString() + "."), true);
-                        target.displayClientMessage(Component.literal("§aA potion was applied to you."), true);
+                        clicker.sendOverlayMessage(Component.literal("§a[Cuff] Applied potion to " + target.getName().getString() + "."));
+                        target.sendOverlayMessage(Component.literal("§aA potion was applied to you."));
                         return InteractionResult.SUCCESS;
                      }
                   }
@@ -184,7 +184,7 @@ public class CuffHandler {
                if (cuffedPlayers.contains(targetId) && !cuffCarriers.containsKey(targetId)) {
                   ItemStack held = clicker.getItemInHand(hand);
                   if (!held.isEmpty()) {
-                     clicker.displayClientMessage(Component.literal("§cEmpty your hand to carry them."), true);
+                     clicker.sendOverlayMessage(Component.literal("§cEmpty your hand to carry them."));
                      return InteractionResult.PASS;
                   } else {
                      pickupCuffed(clicker, target);
@@ -238,7 +238,7 @@ public class CuffHandler {
                return true;
             }
 
-            sp.displayClientMessage(Component.literal("§c⛓ You can't break blocks while cuffed."), true);
+            sp.sendOverlayMessage(Component.literal("§c⛓ You can't break blocks while cuffed."));
             return false;
          } else {
             return true;
@@ -258,7 +258,7 @@ public class CuffHandler {
             } else {
                ItemStack held = player.getItemInHand(hand);
                if (!held.isEmpty() && held.getItem() instanceof BlockItem) {
-                  sp.displayClientMessage(Component.literal("§c⛓ You can't place blocks while cuffed."), true);
+                  sp.sendOverlayMessage(Component.literal("§c⛓ You can't place blocks while cuffed."));
                   return InteractionResult.FAIL;
                } else {
                   return InteractionResult.PASS;
@@ -281,7 +281,7 @@ public class CuffHandler {
                return InteractionResult.PASS;
             }
 
-            sp.displayClientMessage(Component.literal("§c⛓ You can't attack while cuffed."), true);
+            sp.sendOverlayMessage(Component.literal("§c⛓ You can't attack while cuffed."));
             return InteractionResult.FAIL;
          } else {
             return InteractionResult.PASS;
@@ -292,7 +292,7 @@ public class CuffHandler {
    private static void cuff(ServerPlayer target) {
       cuffedPlayers.add(target.getUUID());
       PoseNetworking.broadcastAnimState(target, 98);
-      target.displayClientMessage(Component.literal("§c⛓ You have been cuffed. You cannot move."), false);
+      target.sendSystemMessage(Component.literal("§c⛓ You have been cuffed. You cannot move."));
    }
 
    private static void uncuff(ServerPlayer target) {
@@ -311,22 +311,22 @@ public class CuffHandler {
 
       cuffedPlayers.remove(targetId);
       PoseNetworking.broadcastAnimState(target, 0);
-      target.displayClientMessage(Component.literal("§a⛓ You have been uncuffed. You are free!"), false);
+      target.sendSystemMessage(Component.literal("§a⛓ You have been uncuffed. You are free!"));
    }
 
    private static void pickupCuffed(ServerPlayer carrier, ServerPlayer cuffed) {
       if (cuffCarrying.containsKey(carrier.getUUID())) {
-         carrier.displayClientMessage(Component.literal("§cYou're already carrying someone."), true);
+         carrier.sendOverlayMessage(Component.literal("§cYou're already carrying someone."));
       } else {
          boolean success = cuffed.startRiding(carrier, true, true);
          if (!success) {
-            carrier.displayClientMessage(Component.literal("§cCouldn't pick them up — try standing closer."), true);
+            carrier.sendOverlayMessage(Component.literal("§cCouldn't pick them up — try standing closer."));
          } else {
             cuffCarriers.put(cuffed.getUUID(), carrier.getUUID());
             cuffCarrying.put(carrier.getUUID(), cuffed.getUUID());
             broadcastPassengers(carrier);
-            carrier.displayClientMessage(Component.literal("§c[Cuff] Carrying. Shift+right-click to drop."), true);
-            cuffed.displayClientMessage(Component.literal("§cYou are being carried!"), true);
+            carrier.sendOverlayMessage(Component.literal("§c[Cuff] Carrying. Shift+right-click to drop."));
+            cuffed.sendOverlayMessage(Component.literal("§cYou are being carried!"));
          }
       }
    }
@@ -340,11 +340,11 @@ public class CuffHandler {
             if (cuffed != null) {
                cuffed.stopRiding();
                broadcastPassengers(carrier);
-               cuffed.displayClientMessage(Component.literal("§cYou were dropped."), true);
+               cuffed.sendOverlayMessage(Component.literal("§cYou were dropped."));
             }
          }
 
-         carrier.displayClientMessage(Component.literal("§a[Cuff] Dropped."), true);
+         carrier.sendOverlayMessage(Component.literal("§a[Cuff] Dropped."));
       }
    }
 

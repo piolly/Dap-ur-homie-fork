@@ -121,16 +121,16 @@ public class HuddleHandler {
    }
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(HuddleHandler.HuddleFHoldPayload.ID, HuddleHandler.HuddleFHoldPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HuddleHandler.HuddleShiftPayload.ID, HuddleHandler.HuddleShiftPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HuddleHandler.HuddleTapPayload.ID, HuddleHandler.HuddleTapPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HuddleHandler.HuddleCancelPayload.ID, HuddleHandler.HuddleCancelPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HuddleHandler.HuddleHoldOpenPayload.ID, HuddleHandler.HuddleHoldOpenPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HuddleHandler.HuddleHoldInfoPayload.ID, HuddleHandler.HuddleHoldInfoPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HuddleHandler.HuddleEndPayload.ID, HuddleHandler.HuddleEndPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HuddleHandler.HuddleBarPayload.ID, HuddleHandler.HuddleBarPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HuddleHandler.HuddleShakePayload.ID, HuddleHandler.HuddleShakePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HuddleHandler.HuddleYawPayload.ID, HuddleHandler.HuddleYawPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HuddleHandler.HuddleFHoldPayload.ID, HuddleHandler.HuddleFHoldPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HuddleHandler.HuddleShiftPayload.ID, HuddleHandler.HuddleShiftPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HuddleHandler.HuddleTapPayload.ID, HuddleHandler.HuddleTapPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HuddleHandler.HuddleCancelPayload.ID, HuddleHandler.HuddleCancelPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HuddleHandler.HuddleHoldOpenPayload.ID, HuddleHandler.HuddleHoldOpenPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HuddleHandler.HuddleHoldInfoPayload.ID, HuddleHandler.HuddleHoldInfoPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HuddleHandler.HuddleEndPayload.ID, HuddleHandler.HuddleEndPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HuddleHandler.HuddleBarPayload.ID, HuddleHandler.HuddleBarPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HuddleHandler.HuddleShakePayload.ID, HuddleHandler.HuddleShakePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HuddleHandler.HuddleYawPayload.ID, HuddleHandler.HuddleYawPayload.CODEC);
    }
 
    public static void register() {
@@ -284,7 +284,7 @@ public class HuddleHandler {
                      ServerPlayer lp = srv.getPlayerList().getPlayer(u);
                      if (lp != null) {
                         ServerPlayNetworking.send(lp, new HuddleHandler.HuddleShakePayload(0.5F, 140));
-                        lp.displayClientMessage(Component.literal("§6§lIN SYNC"), true);
+                        lp.sendOverlayMessage(Component.literal("§6§lIN SYNC"));
                      }
                   }
                }
@@ -304,7 +304,7 @@ public class HuddleHandler {
             MinecraftServer server = player.level().getServer();
             if (server != null) {
                UUID id = player.getUUID();
-               player.displayClientMessage(Component.literal("§7left the huddle"), true);
+               player.sendOverlayMessage(Component.literal("§7left the huddle"));
                s.players.remove(id);
                s.holdsF.remove(id);
                s.cancelArmed.remove(id);
@@ -513,13 +513,13 @@ public class HuddleHandler {
                            .playSound(
                               null, s.center.x, s.center.y, s.center.z, (SoundEvent)SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0F, 1.7F
                            );
-                        pj.displayClientMessage(Component.literal("§aYou joined the huddle!"), true);
+                        pj.sendOverlayMessage(Component.literal("§aYou joined the huddle!"));
 
                         for (UUID pid : s.players) {
                            if (!pid.equals(joiner)) {
                               ServerPlayer pp = server.getPlayerList().getPlayer(pid);
                               if (pp != null) {
-                                 pp.displayClientMessage(Component.literal("§a" + pj.getName().getString() + " joined the huddle!"), true);
+                                 pp.sendOverlayMessage(Component.literal("§a" + pj.getName().getString() + " joined the huddle!"));
                               }
                            }
                         }
@@ -950,12 +950,12 @@ public class HuddleHandler {
          double px = centre.x + rr * Math.cos(angle);
          double pz = centre.z + rr * Math.sin(angle);
          float yaw = (float)(-Math.toDegrees(Math.atan2(centre.x - px, centre.z - pz)));
-         ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+         ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
          stand.setPosRaw(px, centre.y, pz);
          stand.setYRot(yaw);
          stand.setYHeadRot(yaw);
          stand.setYBodyRot(yaw);
-         stand.setInvulnerable(true);
+         stand.setPermanentlyInvulnerable(true);
          stand.setCustomNameVisible(true);
          stand.setCustomName(Component.literal("§e#" + i + " §7yaw §f" + String.format("%.1f", yaw)));
          world.addFreshEntity(stand);
@@ -966,7 +966,7 @@ public class HuddleHandler {
          }
       }
 
-      player.displayClientMessage(Component.literal("§6/testhuddle §7ring of §f" + count + " §7at radius §f1.0§7 — stands despawn in 30s"), false);
+      player.sendSystemMessage(Component.literal("§6/testhuddle §7ring of §f" + count + " §7at radius §f1.0§7 — stands despawn in 30s"));
       MinecraftServer srv = world.getServer();
       if (srv != null) {
          new Thread(() -> {
@@ -1199,7 +1199,7 @@ public class HuddleHandler {
             PoseNetworking.broadcastAnimState(lp, 0);
             lp.removeEffect(MobEffects.SPEED);
             lp.removeEffect(MobEffects.STRENGTH);
-            lp.displayClientMessage(Component.literal("§c✗ Huddle failed!"), true);
+            lp.sendOverlayMessage(Component.literal("§c✗ Huddle failed!"));
             ServerPlayNetworking.send(lp, new HuddleHandler.HuddleEndPayload(s.p1, s.p2, false));
          }
 

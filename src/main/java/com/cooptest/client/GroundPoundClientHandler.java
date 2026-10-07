@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -35,7 +34,7 @@ public class GroundPoundClientHandler {
             }
          }
       }));
-      HudRenderCallback.EVENT.register(GroundPoundClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "groundpoundclienthandler_hud"), GroundPoundClientHandler::renderHUD);
    }
 
    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
@@ -48,7 +47,7 @@ public class GroundPoundClientHandler {
             int a = Math.min(220, (int)(elapsed / 8L)) << 24;
             String label = "⬇ GROUND POUND";
             int lx = (sw - client.font.width(label)) / 2;
-            context.drawString(client.font, Component.literal("§c§l" + label), lx, sh / 2 - 30, a | 16777215, true);
+            context.text(client.font, Component.literal("§c§l" + label), lx, sh / 2 - 30, a | 16777215, true);
          }
       }
    }

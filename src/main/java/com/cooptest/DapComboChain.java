@@ -83,8 +83,8 @@ public class DapComboChain {
       if (!button.equals(session.expectedButton)) {
          String who = player.getName().getString();
          Component msg = Component.literal("§c" + who + " pressed the wrong button!");
-         session.p1Ref.displayClientMessage(msg, true);
-         session.p2Ref.displayClientMessage(msg, true);
+         session.p1Ref.sendOverlayMessage(msg);
+         session.p2Ref.sendOverlayMessage(msg);
          closeQTEWindow(session);
          session.evaluated = true;
          session.stage = -(session.stage + 1);
@@ -267,8 +267,8 @@ public class DapComboChain {
       PoseNetworking.broadcastAnimState(s.p2Ref, CoopAnimationHandler.AnimState.PERFECT_DAP_MYBOY_P1.ordinal());
       ServerPlayNetworking.send(s.p1Ref, new ChargedDapHandler.PerfectDapFreezePayload(false));
       ServerPlayNetworking.send(s.p2Ref, new ChargedDapHandler.PerfectDapFreezePayload(false));
-      s.p1Ref.displayClientMessage(Component.literal("§d§l★ MY BOY! ★"), true);
-      s.p2Ref.displayClientMessage(Component.literal("§d§l★ MY BOY! ★"), true);
+      s.p1Ref.sendOverlayMessage(Component.literal("§d§l★ MY BOY! ★"));
+      s.p2Ref.sendOverlayMessage(Component.literal("§d§l★ MY BOY! ★"));
       spawnFinishEffect(s);
    }
 
@@ -357,13 +357,13 @@ public class DapComboChain {
    private static void sendFailMessage(DapComboChain.ComboSession s) {
       if (!s.p1Pressed && !s.p2Pressed) {
          Component msg = Component.literal("§cBoth players missed!");
-         s.p1Ref.displayClientMessage(msg, true);
-         s.p2Ref.displayClientMessage(msg, true);
+         s.p1Ref.sendOverlayMessage(msg);
+         s.p2Ref.sendOverlayMessage(msg);
       } else {
          String who = !s.p1Pressed ? s.p1Ref.getName().getString() : s.p2Ref.getName().getString();
          Component msg = Component.literal("§c" + who + " missed the extend!");
-         s.p1Ref.displayClientMessage(msg, true);
-         s.p2Ref.displayClientMessage(msg, true);
+         s.p1Ref.sendOverlayMessage(msg);
+         s.p2Ref.sendOverlayMessage(msg);
       }
    }
 

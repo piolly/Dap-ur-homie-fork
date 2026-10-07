@@ -59,8 +59,8 @@ public class ReadyHugHandler {
    private static final Map<UUID, Long> cancelRequested = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(ReadyHugHandler.HugShiftPayload.ID, ReadyHugHandler.HugShiftPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(ReadyHugHandler.HugSessionPayload.ID, ReadyHugHandler.HugSessionPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ReadyHugHandler.HugShiftPayload.ID, ReadyHugHandler.HugShiftPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ReadyHugHandler.HugSessionPayload.ID, ReadyHugHandler.HugSessionPayload.CODEC);
    }
 
    public static void register() {

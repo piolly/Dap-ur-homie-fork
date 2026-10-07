@@ -56,7 +56,7 @@ public class ReadyFiveHandler {
    private static final List<ReadyFiveHandler.PendingRepos> pendingRepos = new ArrayList<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(ReadyFiveHandler.ReadyFiveImpactPayload.ID, ReadyFiveHandler.ReadyFiveImpactPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(ReadyFiveHandler.ReadyFiveImpactPayload.ID, ReadyFiveHandler.ReadyFiveImpactPayload.CODEC);
    }
 
    public static boolean onHandRaise(ServerPlayer player) {

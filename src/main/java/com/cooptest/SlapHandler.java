@@ -38,10 +38,10 @@ public class SlapHandler {
    private static final int ANIM_SLAP_FRONT = 82;
 
    public static void register() {
-      PayloadTypeRegistry.playS2C().register(SlapHandler.CameraFlickPayload.ID, SlapHandler.CameraFlickPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SlapHandler.CameraYawFlickPayload.ID, SlapHandler.CameraYawFlickPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SlapHandler.ScreenClosePayload.ID, SlapHandler.ScreenClosePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SlapHandler.FishSlapPayload.ID, SlapHandler.FishSlapPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SlapHandler.CameraFlickPayload.ID, SlapHandler.CameraFlickPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SlapHandler.CameraYawFlickPayload.ID, SlapHandler.CameraYawFlickPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SlapHandler.ScreenClosePayload.ID, SlapHandler.ScreenClosePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SlapHandler.FishSlapPayload.ID, SlapHandler.FishSlapPayload.CODEC);
    }
 
    public static boolean checkSlapOnRelease(ServerPlayer attacker, long chargeDurationMs) {
@@ -194,8 +194,8 @@ public class SlapHandler {
                }
 
                ServerPlayNetworking.send(v, new SlapHandler.ScreenClosePayload(victimId));
-               v.displayClientMessage(Component.literal(isJumpSlap ? "§c§l✋ AERIAL SLAP!" : "§c§l✋ I like ya cut G"), true);
-               attacker.displayClientMessage(Component.literal(isJumpSlap ? "§6§l✋ JUMP SLAP!" : "§6§l✋ SLAP!"), true);
+               v.sendOverlayMessage(Component.literal(isJumpSlap ? "§c§l✋ AERIAL SLAP!" : "§c§l✋ I like ya cut G"));
+               attacker.sendOverlayMessage(Component.literal(isJumpSlap ? "§6§l✋ JUMP SLAP!" : "§6§l✋ SLAP!"));
                world.sendParticles(ParticleTypes.CRIT, hitPos.x, hitPos.y, hitPos.z, 10, 0.15, 0.1, 0.15, 0.15);
                world.sendParticles(ParticleTypes.SWEEP_ATTACK, hitPos.x, hitPos.y, hitPos.z, 4, 0.1, 0.05, 0.1, 0.05);
                world.sendParticles(ParticleTypes.ENCHANTED_HIT, hitPos.x, hitPos.y, hitPos.z, 6, 0.1, 0.1, 0.1, 0.08);
@@ -253,8 +253,8 @@ public class SlapHandler {
                v.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 40, 3, false, true));
                ServerPlayNetworking.send(v, new SlapHandler.FishSlapPayload(victimId));
                ServerPlayNetworking.send(v, new SlapHandler.ScreenClosePayload(victimId));
-               v.displayClientMessage(Component.literal("§b§l\ud83d\udc1f YOU JUST GOT FISH SLAPPED"), true);
-               attacker.displayClientMessage(Component.literal("§b§l\ud83d\udc1f FISH SLAP!"), true);
+               v.sendOverlayMessage(Component.literal("§b§l\ud83d\udc1f YOU JUST GOT FISH SLAPPED"));
+               attacker.sendOverlayMessage(Component.literal("§b§l\ud83d\udc1f FISH SLAP!"));
             }
          });
       }).start();

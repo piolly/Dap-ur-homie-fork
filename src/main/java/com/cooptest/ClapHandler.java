@@ -47,7 +47,7 @@ public class ClapHandler {
    private static final Map<UUID, Entity> firstTarget = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(ClapHandler.ClapRequestPayload.ID, ClapHandler.ClapRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ClapHandler.ClapRequestPayload.ID, ClapHandler.ClapRequestPayload.CODEC);
       registerTodoPayload();
    }
 
@@ -178,7 +178,7 @@ public class ClapHandler {
    }
 
    public static void registerTodoPayload() {
-      PayloadTypeRegistry.playC2S().register(ClapHandler.TodoRightClickPayload.ID, ClapHandler.TodoRightClickPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ClapHandler.TodoRightClickPayload.ID, ClapHandler.TodoRightClickPayload.CODEC);
    }
 
    public static void registerTodoReceiver() {

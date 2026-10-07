@@ -149,8 +149,8 @@ public class BlackHoodHandler {
          BlackHoodNetworking.broadcastHoodState(server, target.getUUID(), true);
       }
 
-      equiper.displayClientMessage(Component.literal("§c[Hood] ").append(target.getName()).append(Component.literal(" can't see a thing.")), true);
-      target.displayClientMessage(Component.literal("§8[Hood] §cSomething was just put on your head..."), false);
+      equiper.sendOverlayMessage(Component.literal("§c[Hood] ").append(target.getName()).append(Component.literal(" can't see a thing.")));
+      target.sendSystemMessage(Component.literal("§8[Hood] §cSomething was just put on your head..."));
    }
 
    private static void removeHoodByCommand(MinecraftServer server, ServerPlayer target) {
@@ -170,7 +170,7 @@ public class BlackHoodHandler {
          BlackHoodNetworking.broadcastHoodState(server, targetId, false);
       }
 
-      target.displayClientMessage(Component.literal("§a[Hood] §fYour hood was removed by an admin."), false);
+      target.sendSystemMessage(Component.literal("§a[Hood] §fYour hood was removed by an admin."));
    }
 
    private static void removeHood(MinecraftServer server, ServerPlayer target, ServerPlayer remover) {
@@ -193,8 +193,8 @@ public class BlackHoodHandler {
          BlackHoodNetworking.broadcastHoodState(server, targetId, false);
       }
 
-      remover.displayClientMessage(Component.literal("§a[Hood] Removed from ").append(target.getName()).append(Component.literal(".")), true);
-      target.displayClientMessage(Component.literal("§a[Hood] §fThe hood has been removed. You can see again!"), false);
+      remover.sendOverlayMessage(Component.literal("§a[Hood] Removed from ").append(target.getName()).append(Component.literal(".")));
+      target.sendSystemMessage(Component.literal("§a[Hood] §fThe hood has been removed. You can see again!"));
    }
 
    private static void registerTickEnforcement() {

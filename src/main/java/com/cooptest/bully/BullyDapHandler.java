@@ -58,8 +58,8 @@ public class BullyDapHandler {
    private static final Map<UUID, BullyDapHandler.ActiveDap> activeDaps = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(BullyDapHandler.BullyDapEffectsPayload.ID, BullyDapHandler.BullyDapEffectsPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(BullyDapHandler.BullySimpleFlashPayload.ID, BullyDapHandler.BullySimpleFlashPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(BullyDapHandler.BullyDapEffectsPayload.ID, BullyDapHandler.BullyDapEffectsPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(BullyDapHandler.BullySimpleFlashPayload.ID, BullyDapHandler.BullySimpleFlashPayload.CODEC);
    }
 
    public static void register() {
@@ -150,7 +150,7 @@ public class BullyDapHandler {
    public static boolean tryBullyDap(ServerPlayer player, double height) {
       long now = System.currentTimeMillis();
       UUID id = player.getUUID();
-      player.displayClientMessage(Component.literal("§7[Bully] tryBullyDap — pending size=" + pending.size()), true);
+      player.sendOverlayMessage(Component.literal("§7[Bully] tryBullyDap — pending size=" + pending.size()));
       Iterator<Entry<UUID, BullyDapHandler.PendingRelease>> it = pending.entrySet().iterator();
 
       while (it.hasNext()) {
@@ -160,7 +160,7 @@ public class BullyDapHandler {
             BullyDapHandler.PendingRelease pr = e.getValue();
             long age = now - pr.timestamp;
             if (age > 500L) {
-               player.displayClientMessage(Component.literal("§7[Bully] candidate expired, age=" + age + "ms"), true);
+               player.sendOverlayMessage(Component.literal("§7[Bully] candidate expired, age=" + age + "ms"));
                it.remove();
             } else {
                ServerPlayer other = player.level().getServer().getPlayerList().getPlayer(otherId);
@@ -238,8 +238,8 @@ public class BullyDapHandler {
             String msg = normalized < 0.33F
                ? "§e⚡ Bully Dap!"
                : (normalized < 0.67F ? "§6§l⚡⚡ Hard Bully Dap!" : (normalized < 1.0F ? "§c§l⚡⚡⚡ Heavy Bully Dap!" : "§4§l\ud83d\udca5 MAX BULLY DAP!"));
-            p1.displayClientMessage(Component.literal(msg), true);
-            p2.displayClientMessage(Component.literal(msg), true);
+            p1.sendOverlayMessage(Component.literal(msg));
+            p2.sendOverlayMessage(Component.literal(msg));
             Vec3 pos1 = p1.position();
             Vec3 pos2 = p2.position();
             double dx = pos1.x - pos2.x;

@@ -9,7 +9,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 
 @Environment(EnvType.CLIENT)
@@ -24,7 +23,7 @@ public class BlackHoodClientHandler {
             hoodedPlayers.remove(payload.targetId());
          }
       }));
-      HudRenderCallback.EVENT.register((HudRenderCallback)(drawContext, tickCounter) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "blackhoodclienthandler_hud"), (drawContext, tickCounter) -> {
          Minecraft client = Minecraft.getInstance();
          if (client.player != null) {
             if (hoodedPlayers.contains(client.player.getUUID())) {

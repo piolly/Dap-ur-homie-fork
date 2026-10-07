@@ -4,13 +4,11 @@ import com.cooptest.MeteorStrikeHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
-import org.lwjgl.glfw.GLFW;
 
 public class MeteorStrikeClientHandler {
    private static boolean hasAbility = false;
@@ -37,7 +35,7 @@ public class MeteorStrikeClientHandler {
       ClientTickEvents.END_CLIENT_TICK.register((EndTick)client -> {
          if (hasAbility && client.player != null) {
             long win = client.getWindow().handle();
-            boolean g = GLFW.glfwGetKey(win, 71) == 1;
+            boolean g = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
             if (g && !wasGPressed && countdownMs < 0L) {
                ClientPlayNetworking.send(new MeteorStrikeHandler.MeteorFirePayload());
             }
@@ -45,7 +43,7 @@ public class MeteorStrikeClientHandler {
             wasGPressed = g;
          }
       });
-      HudRenderCallback.EVENT.register(MeteorStrikeClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "meteorstrikeclienthandler_hud"), MeteorStrikeClientHandler::renderHUD);
    }
 
    private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker ticker) {
@@ -61,7 +59,7 @@ public class MeteorStrikeClientHandler {
                int tw = client.font.width(cdText);
                int alpha = (int)(180.0 + 75.0 * Math.abs(Math.sin(System.currentTimeMillis() / 300.0)));
                int col = alpha << 24 | 16720384;
-               ctx.drawString(client.font, cdText, (sw - tw) / 2, sh / 2 - 60, col, true);
+               ctx.text(client.font, cdText, (sw - tw) / 2, sh / 2 - 60, col, true);
             } else {
                int bw = 100;
                int bh = 20;
@@ -73,10 +71,10 @@ public class MeteorStrikeClientHandler {
                ctx.fill(bx, by, bx + bw, by + bh, bcol);
                String label = "☄ G — METEOR";
                int lw = client.font.width(label);
-               ctx.drawString(client.font, label, bx + (bw - lw) / 2, by + 6, -1, true);
+               ctx.text(client.font, label, bx + (bw - lw) / 2, by + 6, -1, true);
                String timer = abilityLeftMs / 1000L + "s";
                int tiw = client.font.width(timer);
-               ctx.drawString(client.font, timer, bx + (bw - tiw) / 2, by + bh + 3, -5592406, false);
+               ctx.text(client.font, timer, bx + (bw - tiw) / 2, by + bh + 3, -5592406, false);
             }
 
             mat.popMatrix();

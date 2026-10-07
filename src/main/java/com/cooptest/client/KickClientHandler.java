@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -59,7 +58,7 @@ public class KickClientHandler {
             hitFlashStart = System.currentTimeMillis();
          }
       }));
-      HudRenderCallback.EVENT.register(KickClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "kickclienthandler_hud"), KickClientHandler::renderHUD);
    }
 
    public static void handleKickTick(Minecraft client, boolean keyHeld, boolean sprinting) {
@@ -86,7 +85,7 @@ public class KickClientHandler {
 
       if (justPressed && isOnCooldown() && client.player != null) {
          long rem = cooldownEndMs - System.currentTimeMillis();
-         client.player.displayClientMessage(Component.literal("§cKick cooldown! " + String.format("%.1f", rem / 1000.0) + "s"), true);
+         client.player.sendOverlayMessage(Component.literal("§cKick cooldown! " + String.format("%.1f", rem / 1000.0) + "s"));
       }
 
       wasHeld = keyHeld;
@@ -137,7 +136,7 @@ public class KickClientHandler {
             if (full) {
                String lbl = "DROP KICK";
                int lx = centreX - client.font.width(lbl) / 2;
-               context.drawString(client.font, Component.literal("§f" + lbl), lx, barY - 9, -855638017, false);
+               context.text(client.font, Component.literal("§f" + lbl), lx, barY - 9, -855638017, false);
             }
          } else if (isOnCooldown()) {
             float pct = (float)(cooldownEndMs - System.currentTimeMillis()) / 2000.0F;

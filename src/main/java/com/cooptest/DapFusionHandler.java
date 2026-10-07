@@ -55,42 +55,42 @@ public class DapFusionHandler {
    private static final Map<UUID, Integer> smoothTpProgress = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionPhasePayload.ID, DapFusionHandler.FusionPhasePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionQTEPayload.ID, DapFusionHandler.FusionQTEPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionBlackScreenPayload.ID, DapFusionHandler.FusionBlackScreenPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionFusedPayload.ID, DapFusionHandler.FusionFusedPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(DapFusionHandler.FusionGPressPayload.ID, DapFusionHandler.FusionGPressPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(DapFusionHandler.FusionUnfusePayload.ID, DapFusionHandler.FusionUnfusePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionPhasePayload.ID, DapFusionHandler.FusionPhasePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionQTEPayload.ID, DapFusionHandler.FusionQTEPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionBlackScreenPayload.ID, DapFusionHandler.FusionBlackScreenPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionFusedPayload.ID, DapFusionHandler.FusionFusedPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapFusionHandler.FusionGPressPayload.ID, DapFusionHandler.FusionGPressPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapFusionHandler.FusionUnfusePayload.ID, DapFusionHandler.FusionUnfusePayload.CODEC);
    }
 
    public static void registerClientPayloads() {
       try {
-         PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionPhasePayload.ID, DapFusionHandler.FusionPhasePayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionPhasePayload.ID, DapFusionHandler.FusionPhasePayload.CODEC);
       } catch (Exception var6) {
       }
 
       try {
-         PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionQTEPayload.ID, DapFusionHandler.FusionQTEPayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionQTEPayload.ID, DapFusionHandler.FusionQTEPayload.CODEC);
       } catch (Exception var5) {
       }
 
       try {
-         PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionBlackScreenPayload.ID, DapFusionHandler.FusionBlackScreenPayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionBlackScreenPayload.ID, DapFusionHandler.FusionBlackScreenPayload.CODEC);
       } catch (Exception var4) {
       }
 
       try {
-         PayloadTypeRegistry.playS2C().register(DapFusionHandler.FusionFusedPayload.ID, DapFusionHandler.FusionFusedPayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(DapFusionHandler.FusionFusedPayload.ID, DapFusionHandler.FusionFusedPayload.CODEC);
       } catch (Exception var3) {
       }
 
       try {
-         PayloadTypeRegistry.playC2S().register(DapFusionHandler.FusionGPressPayload.ID, DapFusionHandler.FusionGPressPayload.CODEC);
+         PayloadTypeRegistry.serverboundPlay().register(DapFusionHandler.FusionGPressPayload.ID, DapFusionHandler.FusionGPressPayload.CODEC);
       } catch (Exception var2) {
       }
 
       try {
-         PayloadTypeRegistry.playC2S().register(DapFusionHandler.FusionUnfusePayload.ID, DapFusionHandler.FusionUnfusePayload.CODEC);
+         PayloadTypeRegistry.serverboundPlay().register(DapFusionHandler.FusionUnfusePayload.ID, DapFusionHandler.FusionUnfusePayload.CODEC);
       } catch (Exception var1) {
       }
    }
@@ -175,7 +175,7 @@ public class DapFusionHandler {
                startWalkPhase(s);
             }
          } else {
-            player.displayClientMessage(Component.literal("§cToo early/late for fusion!"), true);
+            player.sendOverlayMessage(Component.literal("§cToo early/late for fusion!"));
          }
       }
    }
@@ -392,8 +392,8 @@ public class DapFusionHandler {
       s.p1Ref.hurtMarked = true;
       s.p2Ref.hurtMarked = true;
       broadcast(s, new DapFusionHandler.FusionPhasePayload(s.p1Id, s.p2Id, 99));
-      s.p1Ref.displayClientMessage(Component.literal(reason), true);
-      s.p2Ref.displayClientMessage(Component.literal(reason), true);
+      s.p1Ref.sendOverlayMessage(Component.literal(reason));
+      s.p2Ref.sendOverlayMessage(Component.literal(reason));
       cleanupSession(s);
    }
 
@@ -523,9 +523,9 @@ public class DapFusionHandler {
                s.fusionStage++;
                s.lastFusionStageEnd = System.currentTimeMillis();
                String progress = s.fusionStage >= 10 ? "§6§l★ 10/10 ★" : "§a" + s.fusionStage + "/10 §7— §6Keep going!";
-               s.p1Ref.displayClientMessage(Component.literal(progress), true);
+               s.p1Ref.sendOverlayMessage(Component.literal(progress));
                if (!s.isSolo()) {
-                  s.p2Ref.displayClientMessage(Component.literal(progress), true);
+                  s.p2Ref.sendOverlayMessage(Component.literal(progress));
                }
 
                if (s.fusionStage >= 10) {
@@ -564,8 +564,8 @@ public class DapFusionHandler {
       s.p1Ref.hurtMarked = true;
       s.p2Ref.hurtMarked = true;
       broadcast(s, new DapFusionHandler.FusionPhasePayload(s.p1Id, s.p2Id, 99));
-      s.p1Ref.displayClientMessage(Component.literal(reason), false);
-      s.p2Ref.displayClientMessage(Component.literal(reason), false);
+      s.p1Ref.sendSystemMessage(Component.literal(reason));
+      s.p2Ref.sendSystemMessage(Component.literal(reason));
 
       for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
          p.displayClientMessage(
@@ -585,8 +585,8 @@ public class DapFusionHandler {
       MobEffectInstance invuln2 = new MobEffectInstance(MobEffects.RESISTANCE, 300, 255, false, false);
       s.p1Ref.addEffect(invuln1);
       s.p2Ref.addEffect(invuln2);
-      s.p1Ref.setInvulnerable(true);
-      s.p2Ref.setInvulnerable(true);
+      s.p1Ref.setPermanentlyInvulnerable(true);
+      s.p2Ref.setPermanentlyInvulnerable(true);
       fusedPairs.put(s.p1Id, s.p2Id);
       fusedPairs.put(s.p2Id, s.p1Id);
 
@@ -705,8 +705,8 @@ public class DapFusionHandler {
                            s.world.sendParticles(ParticleTypes.EXPLOSION_EMITTER, mid.x, mid.y + 1.0, mid.z, 8, 3.0, 3.0, 3.0, 0.0);
                            s.world.playSound(null, mid.x, mid.y, mid.z, ModSounds.GALACTIC_DAP, SoundSource.PLAYERS, 4.0F, 0.8F);
                            s.world.playSound(null, mid.x, mid.y, mid.z, ModSounds.EPIC_DAP, SoundSource.PLAYERS, 3.0F, 0.5F);
-                           s.p1Ref.setInvulnerable(false);
-                           s.p2Ref.setInvulnerable(false);
+                           s.p1Ref.setPermanentlyInvulnerable(false);
+                           s.p2Ref.setPermanentlyInvulnerable(false);
 
                            try {
                               ServerPlayNetworking.send(s.p1Ref, new DapFusionHandler.FusionBlackScreenPayload(false));
@@ -945,14 +945,14 @@ public class DapFusionHandler {
 
    private static void broadcastServer(DapFusionHandler.FusionSession s, String msg) {
       for (ServerPlayer p : s.p1Ref.level().getServer().getPlayerList().getPlayers()) {
-         p.displayClientMessage(Component.literal(msg), false);
+         p.sendSystemMessage(Component.literal(msg));
       }
    }
 
    public static void autoPressBothCorrect(ServerPlayer player) {
       DapFusionHandler.FusionSession s = sessions.get(player.getUUID());
       if (s == null) {
-         player.displayClientMessage(Component.literal("§cNo active fusion session."), true);
+         player.sendOverlayMessage(Component.literal("§cNo active fusion session."));
       } else {
          if (s.phase == DapFusionHandler.FusionPhase.WALK_QTE && s.walkQteOpen) {
             handleWalkQTEPress(s, s.p1Id, s.walkExpectedButton);
@@ -968,7 +968,7 @@ public class DapFusionHandler {
             handleGPressFromClient(player);
             handleGPressFromClient(player);
          } else {
-            player.displayClientMessage(Component.literal("§cNo QTE window currently open. Phase: " + s.phase), true);
+            player.sendOverlayMessage(Component.literal("§cNo QTE window currently open. Phase: " + s.phase));
          }
       }
    }
@@ -1025,9 +1025,9 @@ public class DapFusionHandler {
          UUID id2 = p2 != null ? p2.getUUID() : id1;
          fusedPairs.remove(id1);
          fusedPairs.remove(id2);
-         p1.setInvulnerable(false);
+         p1.setPermanentlyInvulnerable(false);
          if (p2 != null) {
-            p2.setInvulnerable(false);
+            p2.setPermanentlyInvulnerable(false);
          }
 
          Vec3 mid = p2 != null ? p1.position().add(p2.position()).scale(0.5) : p1.position();
@@ -1065,16 +1065,16 @@ public class DapFusionHandler {
             }
          }
 
-         p1.displayClientMessage(Component.literal("§7Fusion dissolved."), true);
+         p1.sendOverlayMessage(Component.literal("§7Fusion dissolved."));
          if (p2 != null) {
-            p2.displayClientMessage(Component.literal("§7Fusion dissolved."), true);
+            p2.sendOverlayMessage(Component.literal("§7Fusion dissolved."));
          }
 
          String name1 = p1.getName().getString();
          String name2 = p2 != null ? p2.getName().getString() : name1;
 
          for (ServerPlayer p : p1.level().getServer().getPlayerList().getPlayers()) {
-            p.displayClientMessage(Component.literal("§7" + name1 + " and " + name2 + " have defused."), false);
+            p.sendSystemMessage(Component.literal("§7" + name1 + " and " + name2 + " have defused."));
          }
       }
    }

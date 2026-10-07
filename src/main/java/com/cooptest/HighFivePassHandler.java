@@ -42,7 +42,7 @@ public class HighFivePassHandler {
    public static final Identifier PASS_START_ID = Identifier.fromNamespaceAndPath("testcoop", "highfive_pass_start");
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(HighFivePassHandler.HighFivePassStartPayload.ID, HighFivePassHandler.HighFivePassStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFivePassHandler.HighFivePassStartPayload.ID, HighFivePassHandler.HighFivePassStartPayload.CODEC);
    }
 
    public static void register() {

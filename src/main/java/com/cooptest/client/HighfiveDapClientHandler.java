@@ -9,12 +9,10 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class HighfiveDapClientHandler {
@@ -143,11 +141,11 @@ public class HighfiveDapClientHandler {
       ClientTickEvents.END_CLIENT_TICK.register((EndTick)client -> {
          if (client.player != null && active) {
             long win = client.getWindow().handle();
-            boolean g = GLFW.glfwGetKey(win, 71) == 1;
-            boolean h = GLFW.glfwGetKey(win, 72) == 1;
-            boolean space = GLFW.glfwGetKey(win, 32) == 1;
-            boolean shift = GLFW.glfwGetKey(win, 340) == 1 || GLFW.glfwGetKey(win, 344) == 1;
-            boolean r = GLFW.glfwGetKey(win, 82) == 1;
+            boolean g = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
+            boolean h = com.mojang.blaze3d.platform.InputConstants.isKeyDown(72);
+            boolean space = com.mojang.blaze3d.platform.InputConstants.isKeyDown(32);
+            boolean shift = com.mojang.blaze3d.platform.InputConstants.isKeyDown(340) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(344);
+            boolean r = com.mojang.blaze3d.platform.InputConstants.isKeyDown(82);
             if (g && !gWasHeld || h && !hWasHeld || shift && !shiftWasHeld || r && !rWasHeld) {
                requestCancel();
             }
@@ -160,7 +158,7 @@ public class HighfiveDapClientHandler {
 
             if (inIdle) {
                String hud = buildScoreHUD();
-               client.player.displayClientMessage(Component.literal(hud), true);
+               client.player.sendOverlayMessage(Component.literal(hud));
             }
 
             gWasHeld = g;
@@ -172,7 +170,7 @@ public class HighfiveDapClientHandler {
             spaceWasHeld = false;
          }
       });
-      HudRenderCallback.EVENT.register(HighfiveDapClientHandler::renderHud);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "highfivedapclienthandler_hud"), HighfiveDapClientHandler::renderHud);
    }
 
    private static String buildScoreHUD() {
@@ -199,8 +197,8 @@ public class HighfiveDapClientHandler {
             int panelX = (screenW - panelW) / 2;
             int panelY = 20;
             ctx.fill(panelX - 2, panelY - 2, panelX + panelW + 2, panelY + panelH + 2, -2013265920);
-            ctx.drawString(client.font, Component.literal("§eYou  " + myScore + "/" + win), panelX, panelY + 2, 16777215, true);
-            ctx.drawString(client.font, Component.literal("§bPart " + partnerScore + "/" + win), panelX + barW + 8, panelY + 2, 16777215, true);
+            ctx.text(client.font, Component.literal("§eYou  " + myScore + "/" + win), panelX, panelY + 2, 16777215, true);
+            ctx.text(client.font, Component.literal("§bPart " + partnerScore + "/" + win), panelX + barW + 8, panelY + 2, 16777215, true);
             int barH = 6;
             int barY = panelY + 14;
             int myFill = (int)((float)myScore / win * barW);

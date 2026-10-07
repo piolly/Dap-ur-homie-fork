@@ -60,7 +60,7 @@ public class HighFiveStreakHandler {
          }
 
          String bar = "§6" + "▮".repeat(s.stacks) + "§8" + "▮".repeat(max - s.stacks);
-         p.displayClientMessage(Component.literal("§e§lHYPE §7[" + bar + "§7]"), true);
+         p.sendOverlayMessage(Component.literal("§e§lHYPE §7[" + bar + "§7]"));
       }
    }
 
@@ -85,7 +85,7 @@ public class HighFiveStreakHandler {
             ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
             if (p != null && p.isAlive()) {
                if (now - s.lastFiveMs >= c.hypeDecayMs) {
-                  p.displayClientMessage(Component.literal("§8Hype faded"), true);
+                  p.sendOverlayMessage(Component.literal("§8Hype faded"));
                   it.remove();
                } else {
                   s.ticks++;

@@ -28,10 +28,10 @@ public class StrongSlapCommand {
          UUID id = player.getUUID();
          if (armed.contains(id)) {
             armed.remove(id);
-            player.displayClientMessage(Component.literal("§7[Strong Slap §cDISARMED§7] — G behaves normally."), false);
+            player.sendSystemMessage(Component.literal("§7[Strong Slap §cDISARMED§7] — G behaves normally."));
          } else {
             armed.add(id);
-            player.displayClientMessage(Component.literal("§6[Strong Slap §aARMED§6] — Hold G on a player's back then release to start the QTE."), false);
+            player.sendSystemMessage(Component.literal("§6[Strong Slap §aARMED§6] — Hold G on a player's back then release to start the QTE."));
          }
 
          return 1;

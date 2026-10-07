@@ -57,12 +57,12 @@ public final class BrosAbilities {
                }
 
                if (s.bunkering) {
-                  p.displayClientMessage(Component.literal("§7Let go of the bunker first"), true);
+                  p.sendOverlayMessage(Component.literal("§7Let go of the bunker first"));
                   return;
                }
 
                if (s.shieldHp <= RUSH_SHIELD_COST) {
-                  p.displayClientMessage(Component.literal("§cShield too weak to rush"), true);
+                  p.sendOverlayMessage(Component.literal("§cShield too weak to rush"));
                   return;
                }
 
@@ -258,7 +258,7 @@ public final class BrosAbilities {
    private static int expire(BrosHandler.Session s, int vote, LivingEntity who, String key) {
       if (vote >= 0 && s.ticks - vote > 8) {
          if (who instanceof ServerPlayer p) {
-            p.displayClientMessage(Component.literal("§7Your bro didn't press §f" + key), true);
+            p.sendOverlayMessage(Component.literal("§7Your bro didn't press §f" + key));
          }
 
          return -1;
@@ -377,7 +377,7 @@ public final class BrosAbilities {
 
             for (LivingEntity e : new LivingEntity[]{s.a, s.b}) {
                if (e instanceof ServerPlayer p) {
-                  p.displayClientMessage(Component.literal("§cShield too weak to pulse"), true);
+                  p.sendOverlayMessage(Component.literal("§cShield too weak to pulse"));
                }
             }
          } else {
@@ -446,6 +446,6 @@ public final class BrosAbilities {
    }
 
    private static void cooldownMsg(ServerPlayer p, String what, int ticksLeft) {
-      p.displayClientMessage(Component.literal(String.format("§7%s ready in §f%.1fs", what, ticksLeft / 20.0F)), true);
+      p.sendOverlayMessage(Component.literal(String.format("§7%s ready in §f%.1fs", what, ticksLeft / 20.0F)));
    }
 }

@@ -57,11 +57,11 @@ public class BullyFailHandler {
                player.hurtServer(world, world.damageSources().fall(), extra);
             }
 
-            ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+            ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
             stand.setPos(pos.x, pos.y + -0.5, pos.z);
             stand.setInvisible(true);
             stand.setNoGravity(true);
-            stand.setInvulnerable(true);
+            stand.setPermanentlyInvulnerable(true);
             stand.setSilent(true);
             stand.setYRot(player.getYRot());
             stand.setYHeadRot(player.getYRot());
@@ -70,7 +70,7 @@ public class BullyFailHandler {
             PoseNetworking.broadcastAnimState(player, CoopAnimationHandler.AnimState.BULLY_FAIL.ordinal());
             inFail.add(id);
             failStands.put(id, stand);
-            player.displayClientMessage(Component.literal("§c§l⚡ Miss!  §rPress §nSHIFT§r to get up"), true);
+            player.sendOverlayMessage(Component.literal("§c§l⚡ Miss!  §rPress §nSHIFT§r to get up"));
          }
       }
    }

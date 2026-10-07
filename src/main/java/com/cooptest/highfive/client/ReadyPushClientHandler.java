@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Join;
-import org.lwjgl.glfw.GLFW;
 
 public class ReadyPushClientHandler {
    private static boolean lastShift = false;
@@ -31,7 +30,7 @@ public class ReadyPushClientHandler {
                }
             } else {
                long win = client.getWindow().handle();
-               boolean shift = GLFW.glfwGetKey(win, 340) == 1 || GLFW.glfwGetKey(win, 344) == 1;
+               boolean shift = com.mojang.blaze3d.platform.InputConstants.isKeyDown(340) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(344);
                boolean right = GLFW.glfwGetMouseButton(win, 1) == 1;
                boolean changed = shift != lastShift || right != lastRight;
                if (changed || shift && ++refreshTicks >= 5) {

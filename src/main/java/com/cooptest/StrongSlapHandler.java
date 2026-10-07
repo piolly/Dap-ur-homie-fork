@@ -65,11 +65,11 @@ public class StrongSlapHandler {
    private static final long RESIST_DAMAGE_COOLDOWN_MS = 600L;
 
    public static void register() {
-      PayloadTypeRegistry.playS2C().register(StrongSlapHandler.NeckBrokenPayload.ID, StrongSlapHandler.NeckBrokenPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(StrongSlapHandler.MoveFreezePayload.ID, StrongSlapHandler.MoveFreezePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(StrongSlapHandler.TortureTickPayload.ID, StrongSlapHandler.TortureTickPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(StrongSlapHandler.LookLockPayload.ID, StrongSlapHandler.LookLockPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(StrongSlapHandler.NeckResistPayload.ID, StrongSlapHandler.NeckResistPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(StrongSlapHandler.NeckBrokenPayload.ID, StrongSlapHandler.NeckBrokenPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(StrongSlapHandler.MoveFreezePayload.ID, StrongSlapHandler.MoveFreezePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(StrongSlapHandler.TortureTickPayload.ID, StrongSlapHandler.TortureTickPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(StrongSlapHandler.LookLockPayload.ID, StrongSlapHandler.LookLockPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(StrongSlapHandler.NeckResistPayload.ID, StrongSlapHandler.NeckResistPayload.CODEC);
       ServerPlayNetworking.registerGlobalReceiver(StrongSlapHandler.NeckResistPayload.ID, (payload, ctx) -> {
          ServerPlayer victim = ctx.player();
          UUID id = victim.getUUID();
@@ -526,7 +526,7 @@ public class StrongSlapHandler {
             sendFreeze(atk, false);
             sendLookLock(atk, false);
             if (reason != null) {
-               atk.displayClientMessage(Component.literal(reason), true);
+               atk.sendOverlayMessage(Component.literal(reason));
             }
          }
 

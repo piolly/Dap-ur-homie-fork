@@ -121,7 +121,7 @@ public class GrabMechanic {
       }
 
       if (isInShieldMode(holder.getUUID())) {
-         holder.displayClientMessage(Component.literal("§cSwitch to throw mode first! (Press V)"), true);
+         holder.sendOverlayMessage(Component.literal("§cSwitch to throw mode first! (Press V)"));
          return false;
       }
 
@@ -133,7 +133,7 @@ public class GrabMechanic {
 
       if (!holder.isCreative()) {
          if (holder.getFoodData().getFoodLevel() < 6) {
-            holder.displayClientMessage(Component.literal("§cToo hungry to throw!"), true);
+            holder.sendOverlayMessage(Component.literal("§cToo hungry to throw!"));
             return false;
          }
 
@@ -660,7 +660,7 @@ public class GrabMechanic {
          world.sendParticles(ParticleTypes.EXPLOSION_EMITTER, ghastPos.x, ghastPos.y, ghastPos.z, 3, 0.5, 0.5, 0.5, 0.0);
          world.sendParticles(ParticleTypes.CLOUD, ghastPos.x, ghastPos.y, ghastPos.z, 30, 1.5, 1.5, 1.5, 0.1);
          world.sendParticles(ParticleTypes.FLAME, ghastPos.x, ghastPos.y, ghastPos.z, 20, 1.0, 1.0, 1.0, 0.2);
-         player.displayClientMessage(Component.literal("§6§l\ud83d\udca5 GHAST OBLITERATED! \ud83d\udca5"), true);
+         player.sendOverlayMessage(Component.literal("§6§l\ud83d\udca5 GHAST OBLITERATED! \ud83d\udca5"));
       }
    }
 
@@ -778,7 +778,7 @@ public class GrabMechanic {
       Long cooldownEnd = shieldSwapCooldown.get(holderId);
       if (cooldownEnd != null && System.currentTimeMillis() < cooldownEnd) {
          long remaining = (cooldownEnd - System.currentTimeMillis()) / 100L;
-         holder.displayClientMessage(Component.literal("§cSwap cooldown! " + remaining / 10.0 + "s"), true);
+         holder.sendOverlayMessage(Component.literal("§cSwap cooldown! " + remaining / 10.0 + "s"));
          return false;
       }
 
@@ -793,19 +793,19 @@ public class GrabMechanic {
       shieldMode.put(holderId, newMode);
       shieldSwapCooldown.put(holderId, System.currentTimeMillis() + 1000L);
       if (newMode) {
-         holder.displayClientMessage(Component.literal("§b\ud83d\udee1 HUMAN SHIELD MODE"), true);
-         held.displayClientMessage(Component.literal("§c⚠ You are now a SHIELD!"), true);
+         holder.sendOverlayMessage(Component.literal("§b\ud83d\udee1 HUMAN SHIELD MODE"));
+         held.sendOverlayMessage(Component.literal("§c⚠ You are now a SHIELD!"));
          held.stopRiding();
          ServerLevel world = holder.level();
          double yaw = Math.toRadians(holder.getYRot());
          double forwardX = -Math.sin(yaw) * 0.8;
          double forwardZ = Math.cos(yaw) * 0.8;
-         ArmorStand armorStand = new ArmorStand(EntityType.ARMOR_STAND, world);
+         ArmorStand armorStand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
          armorStand.setPos(holder.getX() + forwardX, holder.getY() - 0.5, holder.getZ() + forwardZ);
          armorStand.setYRot(holder.getYRot());
          armorStand.setInvisible(true);
          armorStand.setNoGravity(true);
-         armorStand.setInvulnerable(true);
+         armorStand.setPermanentlyInvulnerable(true);
          armorStand.setSilent(true);
          world.addFreshEntity(armorStand);
          shieldArmorStands.put(holderId, armorStand);
@@ -834,8 +834,8 @@ public class GrabMechanic {
 
          broadcastShieldMode(holder.level().getServer(), holderId, heldId, true);
       } else {
-         holder.displayClientMessage(Component.literal("§e✋ THROW MODE"), true);
-         held.displayClientMessage(Component.literal("§eBack to throw mode"), true);
+         holder.sendOverlayMessage(Component.literal("§e✋ THROW MODE"));
+         held.sendOverlayMessage(Component.literal("§eBack to throw mode"));
          held.stopRiding();
          ArmorStand armorStand = shieldArmorStands.remove(holderId);
          if (armorStand != null) {
@@ -893,7 +893,7 @@ public class GrabMechanic {
                      p.connection.send(packet);
                   }
 
-                  holder.displayClientMessage(Component.literal("§c Shield dropped!"), true);
+                  holder.sendOverlayMessage(Component.literal("§c Shield dropped!"));
                } else {
                   ServerPlayer heldPlayer = server.getPlayerList().getPlayer(heldId);
                   if (heldPlayer != null && heldPlayer.isAlive()) {
@@ -939,7 +939,7 @@ public class GrabMechanic {
                         p.connection.send(packet);
                      }
 
-                     holder.displayClientMessage(Component.literal("§c Shield died!"), true);
+                     holder.sendOverlayMessage(Component.literal("§c Shield died!"));
                   }
                }
             } else {
@@ -1015,7 +1015,7 @@ public class GrabMechanic {
       }
 
       public static void register() {
-         PayloadTypeRegistry.playS2C().register(ID, StreamCodec.ofMember((payload, buf) -> {
+         PayloadTypeRegistry.clientboundPlay().register(ID, StreamCodec.ofMember((payload, buf) -> {
             buf.writeUUID(payload.holderId);
             buf.writeUUID(payload.heldId);
             buf.writeBoolean(payload.enabled);

@@ -59,16 +59,16 @@ public class DapHoldHandler {
    private static final long RELEASE_WINDOW_MS = 500L;
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.DapHoldStartPayload.ID, DapHoldHandler.DapHoldStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.DapHoldWindowPayload.ID, DapHoldHandler.DapHoldWindowPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.DapHoldLoopPayload.ID, DapHoldHandler.DapHoldLoopPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.DapHoldEndPayload.ID, DapHoldHandler.DapHoldEndPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.DapHoldFreezePayload.ID, DapHoldHandler.DapHoldFreezePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.GroupJoinedPayload.ID, DapHoldHandler.GroupJoinedPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapHoldHandler.GroupResultPayload.ID, DapHoldHandler.GroupResultPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(DapHoldHandler.DapHoldJHoldPayload.ID, DapHoldHandler.DapHoldJHoldPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(DapHoldHandler.DapHoldJReleasePayload.ID, DapHoldHandler.DapHoldJReleasePayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(DapHoldHandler.GroupJoinPayload.ID, DapHoldHandler.GroupJoinPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.DapHoldStartPayload.ID, DapHoldHandler.DapHoldStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.DapHoldWindowPayload.ID, DapHoldHandler.DapHoldWindowPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.DapHoldLoopPayload.ID, DapHoldHandler.DapHoldLoopPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.DapHoldEndPayload.ID, DapHoldHandler.DapHoldEndPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.DapHoldFreezePayload.ID, DapHoldHandler.DapHoldFreezePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.GroupJoinedPayload.ID, DapHoldHandler.GroupJoinedPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapHoldHandler.GroupResultPayload.ID, DapHoldHandler.GroupResultPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapHoldHandler.DapHoldJHoldPayload.ID, DapHoldHandler.DapHoldJHoldPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapHoldHandler.DapHoldJReleasePayload.ID, DapHoldHandler.DapHoldJReleasePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapHoldHandler.GroupJoinPayload.ID, DapHoldHandler.GroupJoinPayload.CODEC);
    }
 
    public static void register() {
@@ -128,8 +128,8 @@ public class DapHoldHandler {
       UUID dapId = dapPlayer.getUUID();
       if (!isInDapHold(hfId) && !isInDapHold(dapId)) {
          if (!arePlayersFacingEachOther(hfPlayer, dapPlayer)) {
-            hfPlayer.displayClientMessage(Component.literal("§cNot facing each other!"), true);
-            dapPlayer.displayClientMessage(Component.literal("§cNot facing each other!"), true);
+            hfPlayer.sendOverlayMessage(Component.literal("§cNot facing each other!"));
+            dapPlayer.sendOverlayMessage(Component.literal("§cNot facing each other!"));
             System.out.println("[DapHold]  FAILED - Players not facing each other!");
          } else {
             System.out.println("[DapHold]  Facing check passed! START! HF=" + hfPlayer.getName().getString() + " DAP=" + dapPlayer.getName().getString());
@@ -183,8 +183,8 @@ public class DapHoldHandler {
                if (!windowOpen.contains(hfId) && elapsed >= 330L) {
                   windowOpen.add(hfId);
                   sendToAll(server, new DapHoldHandler.DapHoldWindowPayload(true));
-                  hfPlayer.displayClientMessage(Component.literal("§e⚡ HOLD J "), true);
-                  dapPlayer.displayClientMessage(Component.literal("§e⚡ HOLD J "), true);
+                  hfPlayer.sendOverlayMessage(Component.literal("§e⚡ HOLD J "));
+                  dapPlayer.sendOverlayMessage(Component.literal("§e⚡ HOLD J "));
                }
 
                if (!impactFired.contains(hfId) && elapsed >= 420L) {
@@ -258,7 +258,7 @@ public class DapHoldHandler {
                      ServerPlayer jp = server.getPlayerList().getPlayer(jId);
                      if (jp != null) {
                         PoseNetworking.broadcastAnimState(jp, 41);
-                        jp.displayClientMessage(Component.literal("§7Left the group"), true);
+                        jp.sendOverlayMessage(Component.literal("§7Left the group"));
                      }
                   }
 
@@ -379,10 +379,10 @@ public class DapHoldHandler {
       DapHoldHandler.GroupJoinedPayload pkt = new DapHoldHandler.GroupJoinedPayload(id, hfId, total);
       sendToAll(server, pkt);
       faceGroupCenter(hfId, server);
-      joiner.displayClientMessage(Component.literal("§a§l⚡ JOINED GROUP DAP! (" + total + " players)"), true);
+      joiner.sendOverlayMessage(Component.literal("§a§l⚡ JOINED GROUP DAP! (" + total + " players)"));
       ServerPlayer hfP = server.getPlayerList().getPlayer(hfId);
       if (hfP != null) {
-         hfP.displayClientMessage(Component.literal("§e§l+" + joiner.getName().getString() + " joined! (" + total + " total)"), true);
+         hfP.sendOverlayMessage(Component.literal("§e§l+" + joiner.getName().getString() + " joined! (" + total + " total)"));
       }
    }
 
@@ -459,7 +459,7 @@ public class DapHoldHandler {
                               p.hurtMarked = true;
                               p.addEffect(new MobEffectInstance(MobEffects.SPEED, 120, Math.min(2, mc - 1)));
                               p.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 120, 0));
-                              p.displayClientMessage(Component.literal("§6§l✨ PERFECT GROUP DAP! §e" + mc + " players!"), true);
+                              p.sendOverlayMessage(Component.literal("§6§l✨ PERFECT GROUP DAP! §e" + mc + " players!"));
                            }
                         }
 
@@ -493,7 +493,7 @@ public class DapHoldHandler {
 
             p.push(dir.x * 0.9, 0.3, dir.z * 0.9);
             p.hurtMarked = true;
-            p.displayClientMessage(Component.literal("§c❌ Release not synced!"), true);
+            p.sendOverlayMessage(Component.literal("§c❌ Release not synced!"));
          }
 
          world.sendParticles(ParticleTypes.POOF, center.x, center.y + 1.0, center.z, 12, 0.4, 0.3, 0.4, 0.05);
@@ -647,11 +647,11 @@ public class DapHoldHandler {
    private static void spawnHandStand(ServerPlayer hf, ServerPlayer dap) {
       ServerLevel world = hf.level();
       Vec3 mid = hf.position().add(0.0, 1.4, 0.0).add(dap.position().add(0.0, 1.4, 0.0)).scale(0.5);
-      ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, world);
+      ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, world);
       stand.setPos(mid.x, mid.y, mid.z);
       stand.setInvisible(true);
       stand.setNoGravity(true);
-      stand.setInvulnerable(true);
+      stand.setPermanentlyInvulnerable(true);
       stand.setSilent(true);
       world.addFreshEntity(stand);
       handStands.put(hf.getUUID(), stand);

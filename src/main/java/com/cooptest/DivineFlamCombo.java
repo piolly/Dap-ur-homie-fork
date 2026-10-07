@@ -29,8 +29,8 @@ public class DivineFlamCombo {
    public static final Identifier DIVINE_START_ID = Identifier.fromNamespaceAndPath("cooptest", "divine_start");
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(DivineFlamCombo.DivineJPressPayload.ID, DivineFlamCombo.DivineJPressPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DivineFlamCombo.DivineStartPayload.ID, DivineFlamCombo.DivineStartPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DivineFlamCombo.DivineJPressPayload.ID, DivineFlamCombo.DivineJPressPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DivineFlamCombo.DivineStartPayload.ID, DivineFlamCombo.DivineStartPayload.CODEC);
       System.out.println("[Divine Flame] Payloads registered");
    }
 

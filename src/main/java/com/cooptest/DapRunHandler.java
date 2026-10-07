@@ -64,7 +64,7 @@ public class DapRunHandler {
    }
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(DapRunHandler.DapRunStartPayload.ID, DapRunHandler.DapRunStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapRunHandler.DapRunStartPayload.ID, DapRunHandler.DapRunStartPayload.CODEC);
    }
 
    public static void register() {

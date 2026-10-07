@@ -11,10 +11,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Join;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class HuddleClientHandler {
@@ -86,7 +84,7 @@ public class HuddleClientHandler {
                      client.player.setYBodyRot(lockedYaw);
                   }
 
-                  boolean gHeld = GLFW.glfwGetKey(win, 71) == 1;
+                  boolean gHeld = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
                   boolean wantHold = inHuddle && !barActive && gHeld;
                   if (wantHold != gHoldSent) {
                      ClientPlayNetworking.send(new HuddleHandler.HuddleHoldOpenPayload(wantHold));
@@ -98,8 +96,8 @@ public class HuddleClientHandler {
                   }
 
                   gWasHeld = gHeld;
-                  boolean shiftHeld = GLFW.glfwGetKey(win, 340) == 1 || GLFW.glfwGetKey(win, 344) == 1;
-                  boolean gForCharge = GLFW.glfwGetKey(win, 71) == 1;
+                  boolean shiftHeld = com.mojang.blaze3d.platform.InputConstants.isKeyDown(340) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(344);
+                  boolean gForCharge = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
                   suppressSneak = shiftHeld && (inHuddle || gForCharge);
                   PoseState pose = PoseNetworking.poseStates.getOrDefault(client.player.getUUID(), PoseState.NONE);
                   boolean poseBlocked = pose == PoseState.GRAB_READY
@@ -117,7 +115,7 @@ public class HuddleClientHandler {
                      shiftWasHeld = shiftHeld;
                   }
 
-                  boolean fHeld = GLFW.glfwGetKey(win, 70) == 1;
+                  boolean fHeld = com.mojang.blaze3d.platform.InputConstants.isKeyDown(70);
                   if (fHeld != fWasHeld) {
                      ClientPlayNetworking.send(new HuddleHandler.HuddleFHoldPayload(fHeld));
                      fWasHeld = fHeld;
@@ -125,7 +123,7 @@ public class HuddleClientHandler {
                }
             }
          );
-      HudRenderCallback.EVENT.register((HudRenderCallback)(ctx, tickDelta) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "huddleclienthandler_hud"), (ctx, tickDelta) -> {
          if (!barActive && holdingCount > 0) {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null && !client.options.hideGui) {
@@ -136,13 +134,13 @@ public class HuddleClientHandler {
                   String sub = "§8release G to start";
                   int tw = client.font.width(top);
                   int sw2 = client.font.width(sub);
-                  ctx.drawString(client.font, Component.literal(top), (screenW - tw) / 2, y, -1, true);
-                  ctx.drawString(client.font, Component.literal(sub), (screenW - sw2) / 2, y + 11, -5592406, true);
+                  ctx.text(client.font, Component.literal(top), (screenW - tw) / 2, y, -1, true);
+                  ctx.text(client.font, Component.literal(sub), (screenW - sw2) / 2, y + 11, -5592406, true);
                }
             }
          }
       });
-      HudRenderCallback.EVENT.register((HudRenderCallback)(ctx, tickDelta) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "huddleclienthandler_hud"), (ctx, tickDelta) -> {
          if (barActive) {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null && !client.options.hideGui) {
@@ -170,11 +168,11 @@ public class HuddleClientHandler {
                ctx.pose().pushMatrix();
                ctx.pose().translate((screenW - gw) / 2.0F + jx, y - 26.0F + jy);
                ctx.pose().scale(1.6F, 1.6F);
-               ctx.drawString(client.font, Component.literal(g), 0, 0, -15360, true);
+               ctx.text(client.font, Component.literal(g), 0, 0, -15360, true);
                ctx.pose().popMatrix();
                String label = "§7×" + barPlayers + "  §8SHIFT leave";
                int lw = client.font.width(label);
-               ctx.drawString(client.font, Component.literal(label), (screenW - lw) / 2, y - 11, 16777215, true);
+               ctx.text(client.font, Component.literal(label), (screenW - lw) / 2, y - 11, 16777215, true);
             }
          }
       });

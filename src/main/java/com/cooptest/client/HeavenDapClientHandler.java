@@ -10,7 +10,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.BeforeEntities;
 import net.minecraft.client.Minecraft;
@@ -46,7 +45,7 @@ public class HeavenDapClientHandler {
          }
       });
       LevelRenderEvents.END_MAIN.register(CoopShockwaveRenderer::render);
-      HudRenderCallback.EVENT.register((HudRenderCallback)(context, tickCounter) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "heavendapclienthandler_hud"), (context, tickCounter) -> {
          HeavenWhiteOverlay.render(context, tickCounter.getGameTimeDeltaTicks());
          if (CoopImpactHandler.playing) {
             int w = context.guiWidth();

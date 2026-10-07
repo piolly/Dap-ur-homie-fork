@@ -190,8 +190,8 @@ public class PerfectDapComboHandler {
                   s.count++;
                   closeFusionBar(p1, p2, s);
                   String msg = comboMessage(s.count);
-                  p1.displayClientMessage(Component.literal(msg), true);
-                  p2.displayClientMessage(Component.literal(msg), true);
+                  p1.sendOverlayMessage(Component.literal(msg));
+                  p2.sendOverlayMessage(Component.literal(msg));
                   Vec3 mid = p1.position().add(p2.position()).scale(0.5);
                   p1.level()
                      .playSound(
@@ -296,22 +296,22 @@ public class PerfectDapComboHandler {
          String otherMsg = "§c✗ Partner missed! (Combo x" + s.count + ")";
          if (misserId == null) {
             if (p1 != null) {
-               p1.displayClientMessage(Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
+               p1.sendOverlayMessage(Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"));
             }
 
             if (p2 != null) {
-               p2.displayClientMessage(Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"), true);
+               p2.sendOverlayMessage(Component.literal("§c✗ Too slow! (Combo x" + s.count + ")"));
             }
          } else {
             ServerPlayer misser = server.getPlayerList().getPlayer(misserId);
             UUID otherId = misserId.equals(s.p1) ? s.p2 : s.p1;
             ServerPlayer other = server.getPlayerList().getPlayer(otherId);
             if (misser != null) {
-               misser.displayClientMessage(Component.literal(failMsg), true);
+               misser.sendOverlayMessage(Component.literal(failMsg));
             }
 
             if (other != null) {
-               other.displayClientMessage(Component.literal(otherMsg), true);
+               other.sendOverlayMessage(Component.literal(otherMsg));
             }
          }
 
@@ -344,7 +344,7 @@ public class PerfectDapComboHandler {
       float pitch = Math.min(2.0F, 1.0F + c * 0.07F);
       float vol = Math.min(1.5F, 0.9F + c * 0.04F);
       if (c >= 5 && isSecond) {
-         LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, world);
+         LightningBolt bolt = new LightningBolt(net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT, world);
          bolt.setPosRaw(pos.x, pos.y, pos.z);
          bolt.setVisualOnly(true);
          world.addFreshEntity(bolt);

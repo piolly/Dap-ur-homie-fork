@@ -166,16 +166,16 @@ public class HighFiveHandler {
    }
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(HighFiveHandler.HighFiveRequestPayload.ID, HighFiveHandler.HighFiveRequestPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighFiveHandler.HighFiveHoldPayload.ID, HighFiveHandler.HighFiveHoldPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveHandler.HighFiveSuccessPayload.ID, HighFiveHandler.HighFiveSuccessPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveHandler.HandRaisedSyncPayload.ID, HighFiveHandler.HandRaisedSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveHandler.HighFiveAnimPayload.ID, HighFiveHandler.HighFiveAnimPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighFiveHandler.ComboRequestPayload.ID, HighFiveHandler.ComboRequestPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveHandler.ComboWindowPayload.ID, HighFiveHandler.ComboWindowPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveHandler.ComboWindowClosePayload.ID, HighFiveHandler.ComboWindowClosePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighFiveHandler.FreezeStatePayload.ID, HighFiveHandler.FreezeStatePayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighFiveHandler.SikeRequestPayload.ID, HighFiveHandler.SikeRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveHandler.HighFiveRequestPayload.ID, HighFiveHandler.HighFiveRequestPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveHandler.HighFiveHoldPayload.ID, HighFiveHandler.HighFiveHoldPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveHandler.HighFiveSuccessPayload.ID, HighFiveHandler.HighFiveSuccessPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveHandler.HandRaisedSyncPayload.ID, HighFiveHandler.HandRaisedSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveHandler.HighFiveAnimPayload.ID, HighFiveHandler.HighFiveAnimPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveHandler.ComboRequestPayload.ID, HighFiveHandler.ComboRequestPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveHandler.ComboWindowPayload.ID, HighFiveHandler.ComboWindowPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveHandler.ComboWindowClosePayload.ID, HighFiveHandler.ComboWindowClosePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighFiveHandler.FreezeStatePayload.ID, HighFiveHandler.FreezeStatePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighFiveHandler.SikeRequestPayload.ID, HighFiveHandler.SikeRequestPayload.CODEC);
    }
 
    public static void register() {
@@ -260,8 +260,8 @@ public class HighFiveHandler {
                      if (player != null && partner != null) {
                         boolean partnerPressed = comboRequested.containsKey(partnerId);
                         if (!partnerPressed) {
-                           player.displayClientMessage(Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"), true);
-                           partner.displayClientMessage(Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed H!"), true);
+                           player.sendOverlayMessage(Component.literal("§c✗ " + partner.getName().getString() + " missed the combo!"));
+                           partner.sendOverlayMessage(Component.literal("§c✗ You missed the combo! " + player.getName().getString() + " pressed H!"));
                         }
                      }
                   }
@@ -486,7 +486,7 @@ public class HighFiveHandler {
       world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.8F, 0.5F);
       world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.SAND_BREAK, SoundSource.PLAYERS, 0.4F, 1.2F);
       world.sendParticles(ParticleTypes.POOF, pos.x, pos.y, pos.z, 6, 0.15, 0.15, 0.15, 0.01);
-      player.displayClientMessage(Component.literal("§7*left hanging*"), true);
+      player.sendOverlayMessage(Component.literal("§7*left hanging*"));
    }
 
    private static void broadcastHighFiveAnim(ServerPlayer player, int animState) {
@@ -525,7 +525,7 @@ public class HighFiveHandler {
             syncHandRaised(player, false);
          } else if (ChargedDapHandler.isInComboCooldown(uuid)) {
             System.out.println("[HighFive] Blocked H raise - combo cooldown active!");
-            player.displayClientMessage(Component.literal("§cWait 1 second after combo!"), true);
+            player.sendOverlayMessage(Component.literal("§cWait 1 second after combo!"));
             syncHandRaised(player, false);
          } else if (!isInBlockingState(uuid)) {
             if (!FallCatchHandler.isInCatchReadyMode(uuid)) {
@@ -912,8 +912,8 @@ public class HighFiveHandler {
          world.playSound(null, mid.x, mid.y, mid.z, SoundEvents.DONKEY_ANGRY, SoundSource.PLAYERS, 0.9F, 0.8F);
          world.sendParticles(ParticleTypes.EXPLOSION, mid.x, mid.y, mid.z, 2, 0.3, 0.3, 0.3, 0.0);
          world.sendParticles(ParticleTypes.ANGRY_VILLAGER, mid.x, mid.y + 1.0, mid.z, 8, 0.4, 0.3, 0.4, 0.05);
-         siker.displayClientMessage(Component.literal("§4§l\ud83d\udca5 MUTUAL SIKE! You both suffer!"), true);
-         victim.displayClientMessage(Component.literal("§4§l\ud83d\udca5 MUTUAL SIKE! You both suffer!"), true);
+         siker.sendOverlayMessage(Component.literal("§4§l\ud83d\udca5 MUTUAL SIKE! You both suffer!"));
+         victim.sendOverlayMessage(Component.literal("§4§l\ud83d\udca5 MUTUAL SIKE! You both suffer!"));
          highFiveCooldown.put(sikerId, now);
          highFiveCooldown.put(victimId, now);
       } else {
@@ -940,8 +940,8 @@ public class HighFiveHandler {
          world.sendParticles(ParticleTypes.POOF, vp.x, vp.y + 0.3, vp.z, 8, 0.2, 0.1, 0.2, 0.03);
          world.sendParticles(ParticleTypes.ANGRY_VILLAGER, vp.x, vp.y + 0.6, vp.z, 4, 0.3, 0.2, 0.3, 0.05);
          world.sendParticles(ParticleTypes.LARGE_SMOKE, vp.x, vp.y, vp.z, 5, 0.15, 0.2, 0.15, 0.01);
-         siker.displayClientMessage(Component.literal("§6§l\ud83d\ude02 SIKE!"), true);
-         victim.displayClientMessage(Component.literal("§c§lSIKE!"), true);
+         siker.sendOverlayMessage(Component.literal("§6§l\ud83d\ude02 SIKE!"));
+         victim.sendOverlayMessage(Component.literal("§c§lSIKE!"));
          SikeFollowUpHandler.onSikeExecuted(siker, victim);
          highFiveCooldown.put(sikerId, now);
       }
@@ -991,8 +991,8 @@ public class HighFiveHandler {
          String label = (String)flav[0];
          if ((Boolean)flav[1]) {
             DapFlair.playRareEffect(world, highFivePos, label);
-            player1.displayClientMessage(Component.literal(label), true);
-            player2.displayClientMessage(Component.literal(label), true);
+            player1.sendOverlayMessage(Component.literal(label));
+            player2.sendOverlayMessage(Component.literal(label));
          }
       }
 
@@ -1055,8 +1055,8 @@ public class HighFiveHandler {
       createBattleShockwave(world, pos, p1, p2, 10.0);
       ChargedDapHandler.applyImpactFreeze(p1, p2, 3);
       applyKnockback(p1, p2, pos, 0.3);
-      p1.displayClientMessage(Component.literal("§6§l⚡ SHOCKWAVE! ⚡"), true);
-      p2.displayClientMessage(Component.literal("§6§l⚡ SHOCKWAVE! ⚡"), true);
+      p1.sendOverlayMessage(Component.literal("§6§l⚡ SHOCKWAVE! ⚡"));
+      p2.sendOverlayMessage(Component.literal("§6§l⚡ SHOCKWAVE! ⚡"));
    }
 
    private static void createBattleShockwave(ServerLevel world, Vec3 pos, ServerPlayer p1, ServerPlayer p2, double radius) {
@@ -1241,8 +1241,8 @@ public class HighFiveHandler {
       PoseNetworking.broadcastAnimState(p1, 21);
       PoseNetworking.broadcastAnimState(p2, 21);
       pendingComboImpacts.put(id1, new HighFiveHandler.ComboImpact(p1, p2, now + 1290L));
-      p1.displayClientMessage(Component.literal("§6§l✨ COMBO! ✨"), true);
-      p2.displayClientMessage(Component.literal("§6§l✨ COMBO! ✨"), true);
+      p1.sendOverlayMessage(Component.literal("§6§l✨ COMBO! ✨"));
+      p2.sendOverlayMessage(Component.literal("§6§l✨ COMBO! ✨"));
    }
 
    private static void executeSecondImpact(ServerPlayer p1, ServerPlayer p2) {
@@ -1252,8 +1252,8 @@ public class HighFiveHandler {
       world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.5F, 1.0F);
       world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.x, pos.y, pos.z, 30, 0.3, 0.3, 0.3, 0.1);
       world.sendParticles(ParticleTypes.CRIT, pos.x, pos.y, pos.z, 20, 0.3, 0.3, 0.3, 0.15);
-      p1.displayClientMessage(Component.literal("§e⚡ PERFECT! ⚡"), true);
-      p2.displayClientMessage(Component.literal("§e⚡ PERFECT! ⚡"), true);
+      p1.sendOverlayMessage(Component.literal("§e⚡ PERFECT! ⚡"));
+      p2.sendOverlayMessage(Component.literal("§e⚡ PERFECT! ⚡"));
    }
 
    private static void spawnComboAura(ServerLevel world, Vec3 pos1, Vec3 pos2) {
@@ -1348,8 +1348,8 @@ public class HighFiveHandler {
       world.playSound(null, mid.x, mid.y, mid.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.2F, 0.7F);
       world.playSound(null, mid.x, mid.y, mid.z, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0F, 0.8F);
       world.playSound(null, mid.x, mid.y, mid.z, SoundEvents.WITCH_CELEBRATE, SoundSource.PLAYERS, 0.8F, 1.2F);
-      p1.displayClientMessage(Component.literal("§c§l\ud83d\udca5 MUTUAL SIKE! You both played dirty!"), true);
-      p2.displayClientMessage(Component.literal("§c§l\ud83d\udca5 MUTUAL SIKE! You both played dirty!"), true);
+      p1.sendOverlayMessage(Component.literal("§c§l\ud83d\udca5 MUTUAL SIKE! You both played dirty!"));
+      p2.sendOverlayMessage(Component.literal("§c§l\ud83d\udca5 MUTUAL SIKE! You both played dirty!"));
    }
 
    private static class BeaconRemoval {

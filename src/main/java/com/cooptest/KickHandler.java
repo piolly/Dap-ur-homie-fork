@@ -60,11 +60,11 @@ public class KickHandler {
    private static final Map<UUID, Vec3> kickPushFwd = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(KickHandler.KickStartPayload.ID, KickHandler.KickStartPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(KickHandler.KickReleasePayload.ID, KickHandler.KickReleasePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(KickHandler.KickChargeSyncPayload.ID, KickHandler.KickChargeSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(KickHandler.KickCooldownPayload.ID, KickHandler.KickCooldownPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(KickHandler.KickResultPayload.ID, KickHandler.KickResultPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(KickHandler.KickStartPayload.ID, KickHandler.KickStartPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(KickHandler.KickReleasePayload.ID, KickHandler.KickReleasePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(KickHandler.KickChargeSyncPayload.ID, KickHandler.KickChargeSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(KickHandler.KickCooldownPayload.ID, KickHandler.KickCooldownPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(KickHandler.KickResultPayload.ID, KickHandler.KickResultPayload.CODEC);
    }
 
    public static boolean isBusy(ServerPlayer player) {

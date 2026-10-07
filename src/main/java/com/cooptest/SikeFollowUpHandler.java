@@ -45,9 +45,9 @@ public class SikeFollowUpHandler {
    private static final Map<UUID, Long> qteOpenedAt = new HashMap<>();
 
    public static void register() {
-      PayloadTypeRegistry.playS2C().register(SikeFollowUpHandler.NoyaFlickerPayload.ID, SikeFollowUpHandler.NoyaFlickerPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SikeFollowUpHandler.SikeWindowPayload.ID, SikeFollowUpHandler.SikeWindowPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(SikeFollowUpHandler.SikePressPayload.ID, SikeFollowUpHandler.SikePressPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SikeFollowUpHandler.NoyaFlickerPayload.ID, SikeFollowUpHandler.NoyaFlickerPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SikeFollowUpHandler.SikeWindowPayload.ID, SikeFollowUpHandler.SikeWindowPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SikeFollowUpHandler.SikePressPayload.ID, SikeFollowUpHandler.SikePressPayload.CODEC);
       ServerPlayNetworking.registerGlobalReceiver(SikeFollowUpHandler.SikePressPayload.ID, (payload, context) -> {
          ServerPlayer player = context.player();
          context.server().execute(() -> onSikePress(player));

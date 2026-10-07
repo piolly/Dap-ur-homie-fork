@@ -74,13 +74,13 @@ public class HighfiveDapHandler {
    private static final List<HighfiveDapHandler.PendingReposition> pendingRepositions = new ArrayList<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(HighfiveDapHandler.HfDapStartPayload.ID, HighfiveDapHandler.HfDapStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighfiveDapHandler.HfDapIdlePayload.ID, HighfiveDapHandler.HfDapIdlePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighfiveDapHandler.HfDapEndPayload.ID, HighfiveDapHandler.HfDapEndPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighfiveDapHandler.HfDapShakePayload.ID, HighfiveDapHandler.HfDapShakePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HighfiveDapHandler.HfDapScorePayload.ID, HighfiveDapHandler.HfDapScorePayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighfiveDapHandler.HfDapCancelPayload.ID, HighfiveDapHandler.HfDapCancelPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HighfiveDapHandler.HfDapSpacePayload.ID, HighfiveDapHandler.HfDapSpacePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighfiveDapHandler.HfDapStartPayload.ID, HighfiveDapHandler.HfDapStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighfiveDapHandler.HfDapIdlePayload.ID, HighfiveDapHandler.HfDapIdlePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighfiveDapHandler.HfDapEndPayload.ID, HighfiveDapHandler.HfDapEndPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighfiveDapHandler.HfDapShakePayload.ID, HighfiveDapHandler.HfDapShakePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HighfiveDapHandler.HfDapScorePayload.ID, HighfiveDapHandler.HfDapScorePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighfiveDapHandler.HfDapCancelPayload.ID, HighfiveDapHandler.HfDapCancelPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HighfiveDapHandler.HfDapSpacePayload.ID, HighfiveDapHandler.HfDapSpacePayload.CODEC);
    }
 
    public static void register() {
@@ -113,8 +113,8 @@ public class HighfiveDapHandler {
             ChargedDapHandler.cooldowns.put(dapId, now + 500L);
             PoseNetworking.broadcastAnimState(hfPlayer, 0);
             PoseNetworking.broadcastAnimState(dapPlayer, 0);
-            hfPlayer.displayClientMessage(Component.literal("§c✗ Not facing each other!"), true);
-            dapPlayer.displayClientMessage(Component.literal("§c✗ Not facing each other!"), true);
+            hfPlayer.sendOverlayMessage(Component.literal("§c✗ Not facing each other!"));
+            dapPlayer.sendOverlayMessage(Component.literal("§c✗ Not facing each other!"));
             return true;
          } else {
             HighFiveHandler.handRaisedTime.remove(hfId);
@@ -230,12 +230,12 @@ public class HighfiveDapHandler {
                ServerPlayer winner = server.getPlayerList().getPlayer(winnerId);
                ServerPlayer loser = server.getPlayerList().getPlayer(loserId);
                if (winner != null) {
-                  winner.displayClientMessage(Component.literal("§6⚡ §lWINNER! §r§6You win the dap!"), true);
+                  winner.sendOverlayMessage(Component.literal("§6⚡ §lWINNER! §r§6You win the dap!"));
                }
 
                if (loser != null && loser.isAlive()) {
                   loser.hurtServer(loser.level(), loser.level().damageSources().magic(), 10.0F);
-                  loser.displayClientMessage(Component.literal("§c☠ §lLOSER! §r§c-5 ❤"), true);
+                  loser.sendOverlayMessage(Component.literal("§c☠ §lLOSER! §r§c-5 ❤"));
                }
             }
          }

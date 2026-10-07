@@ -18,7 +18,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -31,7 +30,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public final class BrosClientHandler {
@@ -121,7 +119,7 @@ public final class BrosClientHandler {
          }
       });
       ClientPlayConnectionEvents.DISCONNECT.register((Disconnect)(handler, client) -> resetAll());
-      HudRenderCallback.EVENT.register((HudRenderCallback)(ctx, tickCounter) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "brosclienthandler_hud"), (ctx, tickCounter) -> {
          try {
             renderHud(ctx);
          } catch (Throwable var3) {
@@ -400,7 +398,7 @@ public final class BrosClientHandler {
 
    private static void debug(Minecraft mc, String text) {
       if (DEBUG && mc.player != null) {
-         mc.player.displayClientMessage(Component.literal("§8[bros] " + text), true);
+         mc.player.sendOverlayMessage(Component.literal("§8[bros] " + text));
       }
    }
 
@@ -589,7 +587,7 @@ public final class BrosClientHandler {
             int y = bottom - 20 + sy;
             boolean bunkered = (t.hud & 2048) != 0;
             int shieldColor = bunkered ? -1 : -9699462;
-            ctx.drawString(tr, label, x, y, shieldColor, true);
+            ctx.text(tr, label, x, y, shieldColor, true);
             int bx = x + tr.width(label) + 4;
             int by = y + 3;
             ctx.fill(bx - 1, by - 1, bx + barW + 1, by + barH + 1, -2013265920);
@@ -605,8 +603,8 @@ public final class BrosClientHandler {
             int x2 = cx - (tr.width(rush) + gap + tr.width(pulse)) / 2;
             int y2 = bottom - 8;
             boolean rushAffordable = (t.hud & 1024) != 0;
-            ctx.drawString(tr, rush, x2, y2, t.rushCd == 0 && rushAffordable ? -9699462 : -7697782, true);
-            ctx.drawString(tr, pulse, x2 + tr.width(rush) + gap, y2, t.pulseCd == 0 && pulseAffordable ? -9699462 : -7697782, true);
+            ctx.text(tr, rush, x2, y2, t.rushCd == 0 && rushAffordable ? -9699462 : -7697782, true);
+            ctx.text(tr, pulse, x2 + tr.width(rush) + gap, y2, t.pulseCd == 0 && pulseAffordable ? -9699462 : -7697782, true);
          }
       }
    }

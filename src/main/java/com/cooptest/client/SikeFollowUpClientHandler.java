@@ -10,9 +10,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Join;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class SikeFollowUpClientHandler {
@@ -81,7 +79,7 @@ public class SikeFollowUpClientHandler {
             flickering = false;
          } else {
             long win = client.getWindow().handle();
-            boolean gPressed = GLFW.glfwGetKey(win, 71) == 1;
+            boolean gPressed = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
             if (gPressed && !gWasPressed && isArmed()) {
                ClientPlayNetworking.send(new SikeFollowUpHandler.SikePressPayload());
                sentThisWindow = true;
@@ -110,7 +108,7 @@ public class SikeFollowUpClientHandler {
             }
          }
       });
-      HudRenderCallback.EVENT.register((HudRenderCallback)(ctx, tickDelta) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "sikefollowupclienthandler_hud"), (ctx, tickDelta) -> {
          if (promptVisible()) {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null && !client.options.hideGui) {
@@ -121,7 +119,7 @@ public class SikeFollowUpClientHandler {
                ctx.pose().scale(1.0F, 1.0F);
                String label = "G";
                int w = client.font.width(label);
-               ctx.drawString(client.font, label, -w / 2, 0, sentThisWindow ? -10027162 : -24576, true);
+               ctx.text(client.font, label, -w / 2, 0, sentThisWindow ? -10027162 : -24576, true);
                ctx.pose().popMatrix();
             }
          }

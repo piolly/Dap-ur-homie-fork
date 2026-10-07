@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 public class DapReleaseClientHandler {
    private static final long RESEND_GAP_MS = 250L;
@@ -40,10 +39,10 @@ public class DapReleaseClientHandler {
 
    private static boolean wantsOut(Minecraft client) {
       long win = client.getWindow().handle();
-      return GLFW.glfwGetKey(win, 87) == 1
-         || GLFW.glfwGetKey(win, 65) == 1
-         || GLFW.glfwGetKey(win, 83) == 1
-         || GLFW.glfwGetKey(win, 68) == 1
-         || GLFW.glfwGetKey(win, 32) == 1;
+      return com.mojang.blaze3d.platform.InputConstants.isKeyDown(87)
+         || com.mojang.blaze3d.platform.InputConstants.isKeyDown(65)
+         || com.mojang.blaze3d.platform.InputConstants.isKeyDown(83)
+         || com.mojang.blaze3d.platform.InputConstants.isKeyDown(68)
+         || com.mojang.blaze3d.platform.InputConstants.isKeyDown(32);
    }
 }

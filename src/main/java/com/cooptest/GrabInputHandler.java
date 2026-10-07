@@ -24,7 +24,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Items;
-import org.lwjgl.glfw.GLFW;
 
 public class GrabInputHandler {
    private static final long MAX_CHARGE_TIME_MS = 1500L;

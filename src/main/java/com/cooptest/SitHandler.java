@@ -35,7 +35,7 @@ public class SitHandler {
    private static final Set<String> activePickup = new HashSet<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(SitHandler.SitFHoldPayload.ID, SitHandler.SitFHoldPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SitHandler.SitFHoldPayload.ID, SitHandler.SitFHoldPayload.CODEC);
    }
 
    public static boolean isSitting(UUID id) {
@@ -87,7 +87,7 @@ public class SitHandler {
       player.teleportTo(player.level(), player.getX(), sitY, player.getZ(), Set.of(), player.getYRot(), player.getXRot(), false);
       ServerPlayNetworking.send(player, new ChargedDapHandler.PerfectDapFreezePayload(true));
       PoseNetworking.broadcastAnimState(player, CoopAnimationHandler.AnimState.SITTING.ordinal());
-      player.displayClientMessage(Component.literal("§7[Sitting — a friend can hold F to help you up]"), true);
+      player.sendOverlayMessage(Component.literal("§7[Sitting — a friend can hold F to help you up]"));
    }
 
    private static void onFHold(ServerPlayer helper, boolean holding) {

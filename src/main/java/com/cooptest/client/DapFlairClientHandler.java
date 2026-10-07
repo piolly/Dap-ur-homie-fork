@@ -8,11 +8,9 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTic
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.Disconnect;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class DapFlairClientHandler {
@@ -69,7 +67,7 @@ public class DapFlairClientHandler {
             promptFrom = 0L;
          } else {
             long win = client.getWindow().handle();
-            boolean pressed = GLFW.glfwGetKey(win, 71) == 1;
+            boolean pressed = com.mojang.blaze3d.platform.InputConstants.isKeyDown(71);
             if (pressed && !wasPressed && armed()) {
                ClientPlayNetworking.send(new DapFlair.FlairPressPayload());
                sentThisWindow = true;
@@ -78,7 +76,7 @@ public class DapFlairClientHandler {
             wasPressed = pressed;
          }
       });
-      HudRenderCallback.EVENT.register((HudRenderCallback)(ctx, tickDelta) -> {
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "dapflairclienthandler_hud"), (ctx, tickDelta) -> {
          if (promptVisible()) {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
@@ -89,7 +87,7 @@ public class DapFlairClientHandler {
                ctx.pose().scale(1.0F, 1.0F);
                String label = sentThisWindow ? "G" : "G";
                int w = client.font.width(label);
-               ctx.drawString(client.font, label, -w / 2, 0, sentThisWindow ? -10027162 : -24576, true);
+               ctx.text(client.font, label, -w / 2, 0, sentThisWindow ? -10027162 : -24576, true);
                ctx.pose().popMatrix();
             }
          }

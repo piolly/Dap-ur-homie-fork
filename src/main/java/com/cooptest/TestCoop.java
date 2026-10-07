@@ -239,13 +239,13 @@ public class TestCoop implements ModInitializer {
       double sx = player.getX() + fwd.x * spawnDist;
       double sy = player.getY();
       double sz = player.getZ() + fwd.z * spawnDist;
-      ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, player.level());
+      ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, player.level());
       stand.setPosRaw(sx, sy, sz);
       float yaw = (float)Math.toDegrees(Math.atan2(-(sx - player.getX()), sz - player.getZ()));
       stand.setYRot(yaw);
       stand.setYHeadRot(yaw);
       stand.setYBodyRot(yaw);
-      stand.setInvulnerable(true);
+      stand.setPermanentlyInvulnerable(true);
       player.level().addFreshEntity(stand);
       long now = System.currentTimeMillis();
       switch (mode) {

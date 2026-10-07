@@ -4,7 +4,6 @@ import com.cooptest.DapFusionHandler;
 import com.cooptest.QTEButtonPressPayload;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -54,7 +53,7 @@ public class FusionClientHandler {
             resetState();
          }
       }));
-      HudRenderCallback.EVENT.register(FusionClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "fusionclienthandler_hud"), FusionClientHandler::renderHUD);
    }
 
    private static void onPhase(DapFusionHandler.FusionPhasePayload p, Minecraft client) {
@@ -307,7 +306,7 @@ public class FusionClientHandler {
 
                   String lbl = gPressed ? "§a✓" : "§6[G]";
                   int lw = client.font.width(lbl);
-                  ctx.drawString(client.font, lbl, (sw - lw) / 2, by - 9, -1, true);
+                  ctx.text(client.font, lbl, (sw - lw) / 2, by - 9, -1, true);
                }
             }
 
@@ -389,7 +388,7 @@ public class FusionClientHandler {
                   int a = (int)(alpha * 255.0F);
                   String keyText = QTEClientHandler.resolveKeyName(expectedButton);
                   int kw = client.font.width(keyText);
-                  ctx.drawString(client.font, keyText, (sw - kw) / 2, by - 9, a << 24 | 16777215, true);
+                  ctx.text(client.font, keyText, (sw - kw) / 2, by - 9, a << 24 | 16777215, true);
                }
 
                if (maxStages > 1) {

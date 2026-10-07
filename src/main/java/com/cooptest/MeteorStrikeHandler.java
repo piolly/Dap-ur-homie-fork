@@ -39,30 +39,30 @@ public class MeteorStrikeHandler {
    private static final Map<UUID, MeteorStrikeHandler.PendingMeteor> pendingMeteors = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(MeteorStrikeHandler.MeteorFirePayload.ID, MeteorStrikeHandler.MeteorFirePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(MeteorStrikeHandler.MeteorGrantPayload.ID, MeteorStrikeHandler.MeteorGrantPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(MeteorStrikeHandler.MeteorStatusPayload.ID, MeteorStrikeHandler.MeteorStatusPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(MeteorStrikeHandler.MeteorExpiredPayload.ID, MeteorStrikeHandler.MeteorExpiredPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(MeteorStrikeHandler.MeteorFirePayload.ID, MeteorStrikeHandler.MeteorFirePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(MeteorStrikeHandler.MeteorGrantPayload.ID, MeteorStrikeHandler.MeteorGrantPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(MeteorStrikeHandler.MeteorStatusPayload.ID, MeteorStrikeHandler.MeteorStatusPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(MeteorStrikeHandler.MeteorExpiredPayload.ID, MeteorStrikeHandler.MeteorExpiredPayload.CODEC);
    }
 
    public static void registerClientPayloads() {
       try {
-         PayloadTypeRegistry.playC2S().register(MeteorStrikeHandler.MeteorFirePayload.ID, MeteorStrikeHandler.MeteorFirePayload.CODEC);
+         PayloadTypeRegistry.serverboundPlay().register(MeteorStrikeHandler.MeteorFirePayload.ID, MeteorStrikeHandler.MeteorFirePayload.CODEC);
       } catch (Exception var4) {
       }
 
       try {
-         PayloadTypeRegistry.playS2C().register(MeteorStrikeHandler.MeteorGrantPayload.ID, MeteorStrikeHandler.MeteorGrantPayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(MeteorStrikeHandler.MeteorGrantPayload.ID, MeteorStrikeHandler.MeteorGrantPayload.CODEC);
       } catch (Exception var3) {
       }
 
       try {
-         PayloadTypeRegistry.playS2C().register(MeteorStrikeHandler.MeteorStatusPayload.ID, MeteorStrikeHandler.MeteorStatusPayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(MeteorStrikeHandler.MeteorStatusPayload.ID, MeteorStrikeHandler.MeteorStatusPayload.CODEC);
       } catch (Exception var2) {
       }
 
       try {
-         PayloadTypeRegistry.playS2C().register(MeteorStrikeHandler.MeteorExpiredPayload.ID, MeteorStrikeHandler.MeteorExpiredPayload.CODEC);
+         PayloadTypeRegistry.clientboundPlay().register(MeteorStrikeHandler.MeteorExpiredPayload.ID, MeteorStrikeHandler.MeteorExpiredPayload.CODEC);
       } catch (Exception var1) {
       }
    }
@@ -138,7 +138,7 @@ public class MeteorStrikeHandler {
             }
 
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 2.0F, 0.5F);
-            player.displayClientMessage(Component.literal("§c☄ METEOR INCOMING §7— impact in 3 seconds!"), true);
+            player.sendOverlayMessage(Component.literal("§c☄ METEOR INCOMING §7— impact in 3 seconds!"));
          }
       }
    }
@@ -168,7 +168,7 @@ public class MeteorStrikeHandler {
             m.invulnGranted = true;
             ServerPlayer p = server.getPlayerList().getPlayer(m.playerId);
             if (p != null) {
-               p.setInvulnerable(true);
+               p.setPermanentlyInvulnerable(true);
             }
          }
 
@@ -188,7 +188,7 @@ public class MeteorStrikeHandler {
                }
 
                ServerPlayer fp = p;
-               server.execute(() -> fp.setInvulnerable(false));
+               server.execute(() -> fp.setPermanentlyInvulnerable(false));
             }
          } else {
             ServerPlayer p = server.getPlayerList().getPlayer(m.playerId);

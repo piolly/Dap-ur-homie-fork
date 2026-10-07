@@ -59,10 +59,10 @@ public class DapFlair {
    };
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(DapFlair.FlairWindowPayload.ID, DapFlair.FlairWindowPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(DapFlair.FlairPressPayload.ID, DapFlair.FlairPressPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapFlair.FlairSuccessPayload.ID, DapFlair.FlairSuccessPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(DapFlair.FlairShakePayload.ID, DapFlair.FlairShakePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFlair.FlairWindowPayload.ID, DapFlair.FlairWindowPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(DapFlair.FlairPressPayload.ID, DapFlair.FlairPressPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFlair.FlairSuccessPayload.ID, DapFlair.FlairSuccessPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(DapFlair.FlairShakePayload.ID, DapFlair.FlairShakePayload.CODEC);
    }
 
    public static void register() {
@@ -139,7 +139,7 @@ public class DapFlair {
       long now = System.currentTimeMillis();
       if (now < f.opensAt) {
          f.burned = true;
-         player.displayClientMessage(Component.literal("§8too early"), true);
+         player.sendOverlayMessage(Component.literal("§8too early"));
          return true;
       }
 
@@ -159,7 +159,7 @@ public class DapFlair {
          return true;
       } else {
          f.burned = true;
-         player.displayClientMessage(Component.literal("§8flair burned"), true);
+         player.sendOverlayMessage(Component.literal("§8flair burned"));
          return true;
       }
    }
@@ -241,12 +241,12 @@ public class DapFlair {
          DapFlair.FlairSuccessPayload ok = new DapFlair.FlairSuccessPayload(shakeAmt, 200);
          if (p1 != null) {
             ServerPlayNetworking.send(p1, ok);
-            p1.displayClientMessage(Component.literal("§b§lFLAIR!"), true);
+            p1.sendOverlayMessage(Component.literal("§b§lFLAIR!"));
          }
 
          if (p2 != null) {
             ServerPlayNetworking.send(p2, ok);
-            p2.displayClientMessage(Component.literal("§b§lFLAIR!"), true);
+            p2.sendOverlayMessage(Component.literal("§b§lFLAIR!"));
          }
 
          return true;
@@ -263,19 +263,19 @@ public class DapFlair {
             int secs = perfectRun ? c.dapRunFlairPerfectSpeedSec : c.dapRunFlairSprintSpeedSec;
             p.addEffect(new MobEffectInstance(MobEffects.SPEED, Math.max(1, secs) * 20, perfectRun ? 1 : 0, false, true));
             DapRunHandler.onRunFlair(p, perfectRun);
-            p.displayClientMessage(Component.literal(perfectRun ? "§b§lRUN FLAIR §7— speed II" : "§b§lRUN FLAIR §7— speed I"), true);
+            p.sendOverlayMessage(Component.literal(perfectRun ? "§b§lRUN FLAIR §7— speed II" : "§b§lRUN FLAIR §7— speed I"));
          } else {
             if (f.perfect) {
                DapHearts.flair(p, false);
                p.addEffect(new MobEffectInstance(MobEffects.HASTE, 700, 2, false, true));
                p.addEffect(new MobEffectInstance(MobEffects.SPEED, 700, 2, false, true));
                p.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 700, 1, false, true));
-               p.displayClientMessage(Component.literal("§e§lPERFECT FLAIR §7— haste III + speed III + strength II"), true);
+               p.sendOverlayMessage(Component.literal("§e§lPERFECT FLAIR §7— haste III + speed III + strength II"));
             } else if (f.clean) {
                DapHearts.flair(p, true);
                p.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 280, 0, false, true));
                p.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 160, 0, false, true));
-               p.displayClientMessage(Component.literal("§6§lCLEAN FLAIR §7— regen + resistance"), true);
+               p.sendOverlayMessage(Component.literal("§6§lCLEAN FLAIR §7— regen + resistance"));
             }
          }
       }

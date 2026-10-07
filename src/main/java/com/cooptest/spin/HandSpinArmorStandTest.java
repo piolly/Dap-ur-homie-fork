@@ -36,16 +36,16 @@ public class HandSpinArmorStandTest {
       ensureTickRegistered();
       UUID id = player.getUUID();
       if (sessions.containsKey(id)) {
-         player.displayClientMessage(Component.literal("§eAlready running — /testspin stop first"), false);
+         player.sendSystemMessage(Component.literal("§eAlready running — /testspin stop first"));
          return 0;
       } else {
          Vec3 fwd = HighFiveHandler.horizontalForward(player);
          double spawnDist = 1.5;
          Vec3 playerPos = player.position();
          Vec3 standPos = new Vec3(playerPos.x + fwd.x * spawnDist, playerPos.y, playerPos.z + fwd.z * spawnDist);
-         ArmorStand stand = new ArmorStand(EntityType.ARMOR_STAND, player.level());
+         ArmorStand stand = new ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND, player.level());
          stand.setPosRaw(standPos.x, standPos.y, standPos.z);
-         stand.setInvulnerable(true);
+         stand.setPermanentlyInvulnerable(true);
          stand.setCustomName(Component.literal("HandSpin Test Partner"));
          stand.setCustomNameVisible(true);
          player.level().addFreshEntity(stand);
@@ -60,7 +60,7 @@ public class HandSpinArmorStandTest {
          world.playSound(null, center.x, center.y + 1.0, center.z, SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0F, 1.3F);
          world.sendParticles(ParticleTypes.CLOUD, center.x, center.y + 1.0, center.z, 14, 0.5, 0.4, 0.5, 0.03);
          world.sendParticles(ParticleTypes.CRIT, center.x, center.y + 1.0, center.z, 10, 0.4, 0.3, 0.4, 0.05);
-         player.displayClientMessage(Component.literal("§aHand Spin test started. §7/testspin cancel | cancel slow | damage | stop"), false);
+         player.sendSystemMessage(Component.literal("§aHand Spin test started. §7/testspin cancel | cancel slow | damage | stop"));
          return 1;
       }
    }
@@ -68,10 +68,10 @@ public class HandSpinArmorStandTest {
    public static int cancel(ServerPlayer player, boolean slow) {
       HandSpinArmorStandTest.TestSession s = sessions.get(player.getUUID());
       if (s == null) {
-         player.displayClientMessage(Component.literal("§cNo test spin running — /testspin first"), false);
+         player.sendSystemMessage(Component.literal("§cNo test spin running — /testspin first"));
          return 0;
       } else if (s.stage != HandSpinArmorStandTest.Stage.RAMPING_UP && s.stage != HandSpinArmorStandTest.Stage.SPINNING) {
-         player.displayClientMessage(Component.literal("§cAlready ending"), false);
+         player.sendSystemMessage(Component.literal("§cAlready ending"));
          return 0;
       } else {
          s.stage = slow ? HandSpinArmorStandTest.Stage.ENDING_SLOW : HandSpinArmorStandTest.Stage.ENDING_FAST;
@@ -85,15 +85,15 @@ public class HandSpinArmorStandTest {
    public static int damage(ServerPlayer player) {
       HandSpinArmorStandTest.TestSession s = sessions.get(player.getUUID());
       if (s == null) {
-         player.displayClientMessage(Component.literal("§cNo test spin running — /testspin first"), false);
+         player.sendSystemMessage(Component.literal("§cNo test spin running — /testspin first"));
          return 0;
       } else if (s.stage != HandSpinArmorStandTest.Stage.RAMPING_UP && s.stage != HandSpinArmorStandTest.Stage.SPINNING) {
-         player.displayClientMessage(Component.literal("§cAlready ending"), false);
+         player.sendSystemMessage(Component.literal("§cAlready ending"));
          return 0;
       } else {
          s.stage = HandSpinArmorStandTest.Stage.DAMAGE_CUT;
          s.endAnimStartTick = -1L;
-         player.displayClientMessage(Component.literal("§cBranch C: damage interrupt — instant cut, big knockback, no end anim."), false);
+         player.sendSystemMessage(Component.literal("§cBranch C: damage interrupt — instant cut, big knockback, no end anim."));
          return 1;
       }
    }
@@ -109,7 +109,7 @@ public class HandSpinArmorStandTest {
       }
 
       PoseNetworking.broadcastAnimState(player, 0);
-      player.displayClientMessage(Component.literal("§7Test spin force-stopped."), false);
+      player.sendSystemMessage(Component.literal("§7Test spin force-stopped."));
       return 1;
    }
 
@@ -165,7 +165,7 @@ public class HandSpinArmorStandTest {
                         PoseNetworking.broadcastAnimState(player, 0);
                         s.stand.discard();
                         sessions.remove(s.playerId);
-                        player.displayClientMessage(Component.literal("§cTest complete — damage cut."), false);
+                        player.sendSystemMessage(Component.literal("§cTest complete — damage cut."));
                      }
                      break;
                   case PUSH_APART:
@@ -188,7 +188,7 @@ public class HandSpinArmorStandTest {
                         PoseNetworking.broadcastAnimState(player, 0);
                         s.stand.discard();
                         sessions.remove(s.playerId);
-                        player.displayClientMessage(Component.literal("§aTest complete."), false);
+                        player.sendSystemMessage(Component.literal("§aTest complete."));
                      }
                }
             } else {

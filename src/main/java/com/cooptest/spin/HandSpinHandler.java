@@ -92,14 +92,14 @@ public class HandSpinHandler {
    private static final Set<UUID> fHeld = new HashSet<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinStartPayload.ID, HandSpinHandler.HandSpinStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinStopPayload.ID, HandSpinHandler.HandSpinStopPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinShakePulsePayload.ID, HandSpinHandler.HandSpinShakePulsePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinStrengthPayload.ID, HandSpinHandler.HandSpinStrengthPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinSyncPayload.ID, HandSpinHandler.HandSpinSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinObserverPayload.ID, HandSpinHandler.HandSpinObserverPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HandSpinHandler.HandSpinMonkeFlyPayload.ID, HandSpinHandler.HandSpinMonkeFlyPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(HandSpinHandler.HandSpinFHoldPayload.ID, HandSpinHandler.HandSpinFHoldPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinStartPayload.ID, HandSpinHandler.HandSpinStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinStopPayload.ID, HandSpinHandler.HandSpinStopPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinShakePulsePayload.ID, HandSpinHandler.HandSpinShakePulsePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinStrengthPayload.ID, HandSpinHandler.HandSpinStrengthPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinSyncPayload.ID, HandSpinHandler.HandSpinSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinObserverPayload.ID, HandSpinHandler.HandSpinObserverPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HandSpinHandler.HandSpinMonkeFlyPayload.ID, HandSpinHandler.HandSpinMonkeFlyPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(HandSpinHandler.HandSpinFHoldPayload.ID, HandSpinHandler.HandSpinFHoldPayload.CODEC);
    }
 
    public static void register() {

@@ -62,10 +62,10 @@ public final class SpearStrikeHandler {
    }
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(SpearStrikeHandler.SpearHoldPayload.ID, SpearStrikeHandler.SpearHoldPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(SpearStrikeHandler.SpearAckPayload.ID, SpearStrikeHandler.SpearAckPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpearStrikeHandler.SpearLockPayload.ID, SpearStrikeHandler.SpearLockPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpearStrikeHandler.SpearPosePayload.ID, SpearStrikeHandler.SpearPosePayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SpearStrikeHandler.SpearHoldPayload.ID, SpearStrikeHandler.SpearHoldPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SpearStrikeHandler.SpearAckPayload.ID, SpearStrikeHandler.SpearAckPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpearStrikeHandler.SpearLockPayload.ID, SpearStrikeHandler.SpearLockPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpearStrikeHandler.SpearPosePayload.ID, SpearStrikeHandler.SpearPosePayload.CODEC);
    }
 
    public static void register() {
@@ -148,7 +148,7 @@ public final class SpearStrikeHandler {
 
    private static void debug(ServerPlayer p, String why) {
       if (p.tickCount % 10 == 0) {
-         p.displayClientMessage(Component.literal("§8[spear] §7" + why), true);
+         p.sendOverlayMessage(Component.literal("§8[spear] §7" + why));
       }
    }
 
@@ -336,7 +336,7 @@ public final class SpearStrikeHandler {
                   null, p.getX(), p.getY(), p.getZ(), (SoundEvent)SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.PLAYERS, 0.5F, nukeArmed ? 0.6F : 1.8F
                );
                if (nukeArmed) {
-                  p.displayClientMessage(Component.literal("§4§l☢ NUKE ARMED"), true);
+                  p.sendOverlayMessage(Component.literal("§4§l☢ NUKE ARMED"));
                }
             }
 
@@ -432,19 +432,19 @@ public final class SpearStrikeHandler {
                sendLock(p, s, -2, 0.0F, 0.0F, true);
                setClientVelocity(p, new Vec3(0.0, c.spearBounce, 0.0));
                p.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 80, 0, false, false));
-               p.displayClientMessage(Component.literal("§c§l\ud83d\udca5 DIRECT HIT §7" + target.getName().getString()), true);
+               p.sendOverlayMessage(Component.literal("§c§l\ud83d\udca5 DIRECT HIT §7" + target.getName().getString()));
                return;
             }
 
             wantDir = target.getBoundingBox().getCenter().subtract(from).normalize();
             if (s.ticks % 5 == 0) {
                double dist = Math.sqrt(target.distanceToSqr(p));
-               p.displayClientMessage(Component.literal((nukeArmed ? "§4§l☢ " : "§c➤ ") + target.getName().getString() + " §7" + (int)dist + "m"), true);
+               p.sendOverlayMessage(Component.literal((nukeArmed ? "§4§l☢ " : "§c➤ ") + target.getName().getString() + " §7" + (int)dist + "m"));
             }
          } else {
             wantDir = p.getLookAngle().normalize();
             if (s.ticks % 10 == 0) {
-               p.displayClientMessage(Component.literal("§7➤ searching… aim at something"), true);
+               p.sendOverlayMessage(Component.literal("§7➤ searching… aim at something"));
             }
          }
 

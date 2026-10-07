@@ -17,7 +17,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -372,9 +371,9 @@ public class ChargedDapClientHandler {
 
                         if (onCooldown) {
                            long remaining = (whiffCooldownEnd - System.currentTimeMillis()) / 100L;
-                           client.player.displayClientMessage(Component.literal("§cDap on cooldown! " + remaining / 10.0 + "s"), true);
+                           client.player.sendOverlayMessage(Component.literal("§cDap on cooldown! " + remaining / 10.0 + "s"));
                         } else if (!client.player.getMainHandItem().isEmpty()) {
-                           client.player.displayClientMessage(Component.literal("§cMain hand must be empty for charged dap!"), true);
+                           client.player.sendOverlayMessage(Component.literal("§cMain hand must be empty for charged dap!"));
                         } else if (!isCharging) {
                            isCharging = true;
                            chargeStartTime = System.currentTimeMillis();
@@ -455,7 +454,7 @@ public class ChargedDapClientHandler {
                }
             }
          );
-      HudRenderCallback.EVENT.register(ChargedDapClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "chargeddapclienthandler_hud"), ChargedDapClientHandler::renderHUD);
    }
 
    private static void onDapResult(double x, double y, double z, UUID player1, UUID player2, int tier, boolean perfectHit) {
@@ -666,7 +665,7 @@ public class ChargedDapClientHandler {
                   int alpha = (int)(pulse * 255.0F);
                   float timeProgress = (float)elapsed / 2200.0F;
                   int color = timeProgress < 0.5F ? alpha << 24 | 16746496 : alpha << 24 | 0xFF0000;
-                  context.drawString(client.font, text, textX, textY, color, true);
+                  context.text(client.font, text, textX, textY, color, true);
                   int barWidth = 100;
                   int barHeight = 3;
                   int barX = (screenWidth - barWidth) / 2;

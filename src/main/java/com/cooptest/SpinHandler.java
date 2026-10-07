@@ -42,10 +42,10 @@ public class SpinHandler {
    static final Map<UUID, UUID> pendingGroundPoundRider = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(SpinHandler.SpinStartPayload.ID, SpinHandler.SpinStartPayload.CODEC);
-      PayloadTypeRegistry.playC2S().register(SpinHandler.SpinStopPayload.ID, SpinHandler.SpinStopPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinHandler.SpinSyncPayload.ID, SpinHandler.SpinSyncPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(SpinHandler.HelicopterLaunchPayload.ID, SpinHandler.HelicopterLaunchPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SpinHandler.SpinStartPayload.ID, SpinHandler.SpinStartPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(SpinHandler.SpinStopPayload.ID, SpinHandler.SpinStopPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinHandler.SpinSyncPayload.ID, SpinHandler.SpinSyncPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(SpinHandler.HelicopterLaunchPayload.ID, SpinHandler.HelicopterLaunchPayload.CODEC);
    }
 
    public static void register() {
@@ -199,8 +199,8 @@ public class SpinHandler {
                world.playSound(null, sPos.x, sPos.y, sPos.z, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.PLAYERS, 1.2F, 0.7F);
                world.playSound(null, sPos.x, sPos.y, sPos.z, ModSounds.HELI, SoundSource.PLAYERS, 1.0F, 1.0F);
                world.playSound(null, sPos.x, sPos.y, sPos.z, ModSounds.EXPLOSION_IMPACT, SoundSource.PLAYERS, 0.8F, 0.5F);
-               spinner.displayClientMessage(Component.literal("§c§l\ud83d\ude80 HELICOPTER! Press SHIFT for MEGA GROUND POUND!"), true);
-               target.displayClientMessage(Component.literal("§c§l\ud83d\ude80 You're riding the helicopter!"), true);
+               spinner.sendOverlayMessage(Component.literal("§c§l\ud83d\ude80 HELICOPTER! Press SHIFT for MEGA GROUND POUND!"));
+               target.sendOverlayMessage(Component.literal("§c§l\ud83d\ude80 You're riding the helicopter!"));
                break;
             }
          }
@@ -249,9 +249,9 @@ public class SpinHandler {
          world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.x, pos.y, pos.z, 20, 0.5, 0.5, 0.5, 0.3);
          world.playSound(null, pos.x, pos.y, pos.z, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.PLAYERS, 1.2F, 0.7F);
          world.playSound(null, pos.x, pos.y, pos.z, ModSounds.EXPLOSION_IMPACT, SoundSource.PLAYERS, 0.8F, 0.5F);
-         spinner.displayClientMessage(Component.literal("§c§l\ud83d\ude80 HELICOPTER LAUNCH!"), true);
+         spinner.sendOverlayMessage(Component.literal("§c§l\ud83d\ude80 HELICOPTER LAUNCH!"));
          if (rider != null) {
-            rider.displayClientMessage(Component.literal("§c§l\ud83d\ude80 Helicopter launched!"), true);
+            rider.sendOverlayMessage(Component.literal("§c§l\ud83d\ude80 Helicopter launched!"));
          }
       }
    }

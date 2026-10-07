@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -65,7 +64,7 @@ public class SpinClientHandler {
             }
          }
       }));
-      HudRenderCallback.EVENT.register(SpinClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "spinclienthandler_hud"), SpinClientHandler::renderHUD);
    }
 
    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
@@ -90,7 +89,7 @@ public class SpinClientHandler {
             int a = (int)(pulse * 200.0F) << 24;
             String label = localHasRider ? "↻ SPINNING  [SHIFT] LAUNCH!" : "↻ SPINNING";
             int lx = (sw - client.font.width(label)) / 2;
-            context.drawString(client.font, Component.literal((localHasRider ? "§e§l" : "§b") + label), lx, sh / 2 - 30, a | 16777215, true);
+            context.text(client.font, Component.literal((localHasRider ? "§e§l" : "§b") + label), lx, sh / 2 - 30, a | 16777215, true);
          }
       }
    }

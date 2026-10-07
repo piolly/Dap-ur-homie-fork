@@ -132,7 +132,7 @@ public class QTEClientHandler {
                alpha = (int)(pulse * 255.0F);
             }
 
-            context.drawString(client.font, keyText, textX, textY, alpha << 24 | 16777215, true);
+            context.text(client.font, keyText, textX, textY, alpha << 24 | 16777215, true);
          }
 
          if (stage > 0 && maxStages > 1) {

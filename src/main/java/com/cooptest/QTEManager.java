@@ -69,12 +69,12 @@ public class QTEManager {
          QTEManager.QTESession session = activeSessions.get(playerId);
          if (session != null) {
             if (!button.equals(session.expectedButton)) {
-               player.displayClientMessage(Component.literal("§c§lWRONG BUTTON!"), true);
+               player.sendOverlayMessage(Component.literal("§c§lWRONG BUTTON!"));
             } else if (session.phase != QTEManager.QTESession.QTEPhase.ACTIVE) {
                if (session.phase == QTEManager.QTESession.QTEPhase.WAIT) {
-                  player.displayClientMessage(Component.literal("§c§lTOO EARLY!"), true);
+                  player.sendOverlayMessage(Component.literal("§c§lTOO EARLY!"));
                } else {
-                  player.displayClientMessage(Component.literal("§c§lTOO LATE!"), true);
+                  player.sendOverlayMessage(Component.literal("§c§lTOO LATE!"));
                }
             } else {
                if (playerId.equals(session.player1Id)) {
@@ -136,12 +136,12 @@ public class QTEManager {
          case GRACE:
             if (session.ticksInStage >= 4) {
                if (session.player1Ref != null) {
-                  session.player1Ref.displayClientMessage(Component.literal("§c§l✖ MISSED!"), true);
+                  session.player1Ref.sendOverlayMessage(Component.literal("§c§l✖ MISSED!"));
                   ServerPlayNetworking.send(session.player1Ref, new QTEClearPayload(session.player1Id));
                }
 
                if (session.player2Ref != null && !session.isSolo) {
-                  session.player2Ref.displayClientMessage(Component.literal("§c§l✖ MISSED!"), true);
+                  session.player2Ref.sendOverlayMessage(Component.literal("§c§l✖ MISSED!"));
                   ServerPlayNetworking.send(session.player2Ref, new QTEClearPayload(session.player2Id));
                }
 
@@ -180,12 +180,12 @@ public class QTEManager {
             session.ticksInStage = 0;
             if (session.player1Ref != null) {
                ServerPlayNetworking.send(session.player1Ref, new QTEClearPayload(session.player1Id));
-               session.player1Ref.displayClientMessage(Component.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"), true);
+               session.player1Ref.sendOverlayMessage(Component.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"));
             }
 
             if (session.player2Ref != null && !session.isSolo) {
                ServerPlayNetworking.send(session.player2Ref, new QTEClearPayload(session.player2Id));
-               session.player2Ref.displayClientMessage(Component.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"), true);
+               session.player2Ref.sendOverlayMessage(Component.literal("§a§l✓ STAGE " + session.currentStage + " CLEAR!"));
             }
          } else {
             session.phase = QTEManager.QTESession.QTEPhase.COMPLETE;
@@ -235,11 +235,11 @@ public class QTEManager {
    private static void sendPrompt(QTEManager.QTESession session) {
       String stageText = session.maxStages > 1 ? " §7(Stage " + session.currentStage + "/" + session.maxStages + ")" : "";
       if (session.player1Ref != null) {
-         session.player1Ref.displayClientMessage(Component.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText), true);
+         session.player1Ref.sendOverlayMessage(Component.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText));
       }
 
       if (session.player2Ref != null && !session.isSolo) {
-         session.player2Ref.displayClientMessage(Component.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText), true);
+         session.player2Ref.sendOverlayMessage(Component.literal("§e§lPRESS [" + session.expectedButton + "]!" + stageText));
       }
    }
 

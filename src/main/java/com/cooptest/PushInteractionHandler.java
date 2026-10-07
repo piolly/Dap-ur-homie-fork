@@ -45,7 +45,7 @@ public class PushInteractionHandler {
    public static final Identifier PUSH_ANIM_ID = Identifier.fromNamespaceAndPath("cooptest", "push_anim");
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(PushInteractionHandler.PushAnimPayload.ID, PushInteractionHandler.PushAnimPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(PushInteractionHandler.PushAnimPayload.ID, PushInteractionHandler.PushAnimPayload.CODEC);
    }
 
    public static void register() {
@@ -151,8 +151,8 @@ public class PushInteractionHandler {
                readyStart.put(pusherId, now);
                Vec3 mid = pusher.position().add(target.position()).scale(0.5);
                pusher.level().playSound(null, mid.x, mid.y, mid.z, (SoundEvent)SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0F, 1.8F);
-               pusher.displayClientMessage(Component.literal("§eTell homie to right-click!"), true);
-               target.displayClientMessage(Component.literal("§e[Right-click to launch!]"), true);
+               pusher.sendOverlayMessage(Component.literal("§eTell homie to right-click!"));
+               target.sendOverlayMessage(Component.literal("§e[Right-click to launch!]"));
             }
          }
       }
@@ -175,7 +175,7 @@ public class PushInteractionHandler {
                      UUID nearbyId = nearby.getUUID();
                      if (!nearbyId.equals(intendedTarget)) {
                         readyPushers.put(pusherId, nearbyId);
-                        nearby.displayClientMessage(Component.literal("§e[Right-click to launch!]"), true);
+                        nearby.sendOverlayMessage(Component.literal("§e[Right-click to launch!]"));
                      }
                      break;
                   }

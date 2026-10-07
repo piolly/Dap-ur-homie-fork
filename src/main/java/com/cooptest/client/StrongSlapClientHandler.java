@@ -7,7 +7,6 @@ import java.util.Map;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
@@ -106,7 +105,7 @@ public class StrongSlapClientHandler {
             }
          }
       });
-      HudRenderCallback.EVENT.register(StrongSlapClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "strongslapclienthandler_hud"), StrongSlapClientHandler::renderHUD);
    }
 
    private static void muteSoundVolumes(Minecraft client) {

@@ -230,7 +230,7 @@ public final class BrosHandler {
                   if (best != null) {
                      start(p, best);
                   } else if (DEBUG && p.tickCount % 20 == 0) {
-                     p.displayClientMessage(Component.literal("§7[bros] armed, no armed bro within 2.5 blocks"), true);
+                     p.sendOverlayMessage(Component.literal("§7[bros] armed, no armed bro within 2.5 blocks"));
                   }
                } else {
                   armedAt.remove(id);

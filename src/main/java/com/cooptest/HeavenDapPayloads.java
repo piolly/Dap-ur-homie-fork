@@ -9,10 +9,10 @@ import net.minecraft.resources.Identifier;
 
 public class HeavenDapPayloads {
    public static void registerPayloads() {
-      PayloadTypeRegistry.playS2C().register(HeavenDapPayloads.HeavenDapStartPayload.ID, HeavenDapPayloads.HeavenDapStartPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HeavenDapPayloads.HeavenDapEndPayload.ID, HeavenDapPayloads.HeavenDapEndPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HeavenDapPayloads.RestoreVolumePayload.ID, HeavenDapPayloads.RestoreVolumePayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(HeavenDapPayloads.HeavenImpactPayload.ID, HeavenDapPayloads.HeavenImpactPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HeavenDapPayloads.HeavenDapStartPayload.ID, HeavenDapPayloads.HeavenDapStartPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HeavenDapPayloads.HeavenDapEndPayload.ID, HeavenDapPayloads.HeavenDapEndPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HeavenDapPayloads.RestoreVolumePayload.ID, HeavenDapPayloads.RestoreVolumePayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(HeavenDapPayloads.HeavenImpactPayload.ID, HeavenDapPayloads.HeavenImpactPayload.CODEC);
    }
 
    public record HeavenDapEndPayload() implements CustomPacketPayload {

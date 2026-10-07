@@ -24,11 +24,11 @@ public class FireDapTestCommand {
          ServerPlayer player = source.getPlayerOrException();
          Vec3 pos = player.position();
          Vec3 fakePartnerPos = pos.add(1.0, 0.0, 0.0);
-         player.displayClientMessage(Component.literal("§a[TEST] Starting Fire Dap test..."), false);
-         player.displayClientMessage(Component.literal("§a[TEST] You are P1, fake partner is P2"), false);
-         player.displayClientMessage(Component.literal("§a[TEST] Press J when window opens!"), false);
+         player.sendSystemMessage(Component.literal("§a[TEST] Starting Fire Dap test..."));
+         player.sendSystemMessage(Component.literal("§a[TEST] You are P1, fake partner is P2"));
+         player.sendSystemMessage(Component.literal("§a[TEST] Press J when window opens!"));
          ChargedDapHandler.startFireDap(player, player, pos);
-         player.displayClientMessage(Component.literal("§a[TEST] Fire dap started! Check console logs!"), false);
+         player.sendSystemMessage(Component.literal("§a[TEST] Fire dap started! Check console logs!"));
          return 1;
       } catch (Exception e) {
          source.sendFailure(Component.literal("§cError: " + e.getMessage()));

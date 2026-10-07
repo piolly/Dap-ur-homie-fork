@@ -32,7 +32,7 @@ public class MahitoTrollHandler {
    private static final long TROLL_DEATH_DELAY_MS = 4000L;
 
    public static void register() {
-      PayloadTypeRegistry.playS2C().register(MahitoTrollHandler.MahitoAnimPayload.ID, MahitoTrollHandler.MahitoAnimPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(MahitoTrollHandler.MahitoAnimPayload.ID, MahitoTrollHandler.MahitoAnimPayload.CODEC);
       ServerTickEvents.END_SERVER_TICK.register((EndTick)server -> {
          long now = System.currentTimeMillis();
          Iterator<Entry<UUID, MahitoTrollHandler.TrollData>> iter = trolledPlayers.entrySet().iterator();
@@ -80,7 +80,7 @@ public class MahitoTrollHandler {
    private static void startMahitoTroll(ServerPlayer victim, ServerPlayer troller) {
       trolledPlayers.put(victim.getUUID(), new MahitoTrollHandler.TrollData(System.currentTimeMillis(), troller.getUUID()));
       if (troller != null) {
-         troller.displayClientMessage(Component.literal("§c§l☠ You cursed " + victim.getName().getString() + "! ☠"), true);
+         troller.sendOverlayMessage(Component.literal("§c§l☠ You cursed " + victim.getName().getString() + "! ☠"));
       }
    }
 
@@ -97,7 +97,7 @@ public class MahitoTrollHandler {
 
       world.sendParticles(ParticleTypes.SOUL, victim.getX(), victim.getY() + 1.0, victim.getZ(), 20, 0.5, 1.0, 0.5, 0.02);
       world.sendParticles(ParticleTypes.SMOKE, victim.getX(), victim.getY() + 1.0, victim.getZ(), 15, 0.4, 0.8, 0.4, 0.01);
-      victim.displayClientMessage(Component.literal("§4§l☠ MAHITO'S CURSE! ☠"), true);
+      victim.sendOverlayMessage(Component.literal("§4§l☠ MAHITO'S CURSE! ☠"));
       world.playSound(null, victim.getX(), victim.getY(), victim.getZ(), SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.5F, 1.5F);
    }
 
@@ -118,7 +118,7 @@ public class MahitoTrollHandler {
 
       for (ServerPlayer player : world.players()) {
          if (player != victim) {
-            player.displayClientMessage(Component.literal("§4" + victim.getName().getString() + " §7was trolled by §cMahito's Curse!"), false);
+            player.sendSystemMessage(Component.literal("§4" + victim.getName().getString() + " §7was trolled by §cMahito's Curse!"));
          }
       }
    }

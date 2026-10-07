@@ -2,7 +2,6 @@ package com.cooptest.client;
 
 import com.cooptest.SlapHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -58,7 +57,7 @@ public class SlapClientHandler {
             }
          }
       }));
-      HudRenderCallback.EVENT.register(SlapClientHandler::renderHUD);
+      net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "slapclienthandler_hud"), SlapClientHandler::renderHUD);
    }
 
    private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker tickCounter) {

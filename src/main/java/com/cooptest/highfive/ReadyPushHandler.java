@@ -53,7 +53,7 @@ public class ReadyPushHandler {
    private static final Map<UUID, Long> lastJumpTime = new HashMap<>();
 
    public static void registerPayloads() {
-      PayloadTypeRegistry.playC2S().register(ReadyPushHandler.PushInputPayload.ID, ReadyPushHandler.PushInputPayload.CODEC);
+      PayloadTypeRegistry.serverboundPlay().register(ReadyPushHandler.PushInputPayload.ID, ReadyPushHandler.PushInputPayload.CODEC);
    }
 
    public static void register() {
@@ -193,7 +193,7 @@ public class ReadyPushHandler {
          PoseNetworking.broadcastAnimState(p, 13);
          Vec3 pos = p.position();
          p.level().playSound(null, pos.x, pos.y, pos.z, (SoundEvent)SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0F, 1.8F);
-         p.displayClientMessage(Component.literal("§eReady to boost — homie right-clicks you!"), true);
+         p.sendOverlayMessage(Component.literal("§eReady to boost — homie right-clicks you!"));
       }
    }
 
@@ -228,7 +228,7 @@ public class ReadyPushHandler {
          tier = "§eMEDIUM";
       }
 
-      launchee.displayClientMessage(Component.literal(tier + " boost!"), true);
+      launchee.sendOverlayMessage(Component.literal(tier + " boost!"));
       pushingUntil.put(pusher.getUUID(), now + 400L);
       PoseNetworking.broadcastAnimState(pusher, 15);
       PushInteractionHandler.PushAnimPayload pkt = new PushInteractionHandler.PushAnimPayload(pusher.getUUID());

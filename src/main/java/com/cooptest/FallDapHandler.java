@@ -41,8 +41,8 @@ public class FallDapHandler {
    private static final long FALL_CHARGE_DURATION_MS = 750L;
 
    public static void register() {
-      PayloadTypeRegistry.playS2C().register(FallDapHandler.FallDapAnimPayload.ID, FallDapHandler.FallDapAnimPayload.CODEC);
-      PayloadTypeRegistry.playS2C().register(FallDapHandler.SquashAnimPayload.ID, FallDapHandler.SquashAnimPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(FallDapHandler.FallDapAnimPayload.ID, FallDapHandler.FallDapAnimPayload.CODEC);
+      PayloadTypeRegistry.clientboundPlay().register(FallDapHandler.SquashAnimPayload.ID, FallDapHandler.SquashAnimPayload.CODEC);
       ServerTickEvents.END_SERVER_TICK.register((EndTick)server -> tick(server));
    }
 
@@ -103,7 +103,7 @@ public class FallDapHandler {
                   if (chargeStart != null && now - chargeStart >= 750L) {
                      fallDapPlayers.put(playerId, FallDapHandler.FallDapState.FALLING);
                      broadcastFallDapAnim(player, 2);
-                     player.displayClientMessage(Component.literal("§c§l FALL DAP READY! "), true);
+                     player.sendOverlayMessage(Component.literal("§c§l FALL DAP READY! "));
                   }
 
                   if (isOnGround) {
@@ -138,7 +138,7 @@ public class FallDapHandler {
       fallDapPlayers.put(playerId, FallDapHandler.FallDapState.CHARGING);
       fallChargeStartTime.put(playerId, System.currentTimeMillis());
       broadcastFallDapAnim(player, 1);
-      player.displayClientMessage(Component.literal("§e§l⚡ FALL DAP CHARGING! ⚡"), true);
+      player.sendOverlayMessage(Component.literal("§e§l⚡ FALL DAP CHARGING! ⚡"));
    }
 
    private static void resetToNormalCharge(ServerPlayer player) {
@@ -148,7 +148,7 @@ public class FallDapHandler {
       fallChargeStartTime.remove(playerId);
       broadcastFallDapAnim(player, 0);
       PoseNetworking.broadcastAnimState(player, CoopAnimationHandler.AnimState.DAP_CHARGE_IDLE.ordinal());
-      player.displayClientMessage(Component.literal("§7Fall dap reset - touched ground"), true);
+      player.sendOverlayMessage(Component.literal("§7Fall dap reset - touched ground"));
    }
 
    public static boolean isInFallDapState(UUID playerId) {
@@ -186,8 +186,8 @@ public class FallDapHandler {
          ServerPlayNetworking.send(p, new FallDapHandler.SquashAnimPayload(victim.getUUID()));
       }
 
-      attacker.displayClientMessage(Component.literal("§c§l\ud83d\udc80 SQUASHED! \ud83d\udc80"), true);
-      victim.displayClientMessage(Component.literal("§c§lYOU GOT SQUASHED FOR 25 SECONDS!"), true);
+      attacker.sendOverlayMessage(Component.literal("§c§l\ud83d\udc80 SQUASHED! \ud83d\udc80"));
+      victim.sendOverlayMessage(Component.literal("§c§lYOU GOT SQUASHED FOR 25 SECONDS!"));
    }
 
    private static void dropHandItems(ServerPlayer player, ServerLevel world, Vec3 pos) {
