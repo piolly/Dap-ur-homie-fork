@@ -202,7 +202,7 @@ public class HighFiveClientHandler {
             }
             wasKeyPressed = isKeyPressed;
         });
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "highfiveclienthandler_renderhud"), HighFiveClientHandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "highfiveclienthandler_renderhud"), HighFiveClientHandler::renderHUD);
     }
     private static void onHighFiveSuccess(double x, double y, double z, UUID player1, UUID player2, int tier) {
         Minecraft client = Minecraft.getInstance();

@@ -53,7 +53,7 @@ public class KickClientHandler {
                         hitFlashStart  = System.currentTimeMillis();
                     }
                 }));
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "kickclienthandler_renderhud"), KickClientHandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "kickclienthandler_renderhud"), KickClientHandler::renderHUD);
     }
     public static void handleKickTick(Minecraft client,
                                       boolean keyHeld,

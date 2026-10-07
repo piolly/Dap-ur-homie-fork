@@ -534,7 +534,7 @@ public class ChargedDapClientHandler {
             wasKeyPressed = isKeyPressed;
         });
 
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "chargeddapclienthandler_renderhud"), ChargedDapClientHandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "chargeddapclienthandler_renderhud"), ChargedDapClientHandler::renderHUD);
     }
 
     private static void onDapResult(double x, double y, double z, UUID player1, UUID player2, int tier, boolean perfectHit) {

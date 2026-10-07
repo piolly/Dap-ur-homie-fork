@@ -37,7 +37,7 @@ public class MeteorStrikeClientHandler {
             }
             wasGPressed = g;
         });
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "meteorstrikeclienthandler_renderhud"), MeteorStrikeClientHandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "meteorstrikeclienthandler_renderhud"), MeteorStrikeClientHandler::renderHUD);
     }
     private static void renderHUD(GuiGraphicsExtractor ctx, DeltaTracker ticker) {
         if (!hasAbility) return;

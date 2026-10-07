@@ -76,11 +76,6 @@ public abstract class ImpactModelPartMixin {
             }
 
             @Override
-            public VertexConsumer setLineWidth(float width) {
-                return this;
-            }
-
-            @Override
             public VertexConsumer setNormal(float x, float y, float z) {
                 return null;
             }

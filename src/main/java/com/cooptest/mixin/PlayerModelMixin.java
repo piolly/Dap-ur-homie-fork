@@ -126,7 +126,7 @@ public class PlayerModelMixin<T extends LivingEntity> {
         float baseRightYaw = rightArm.yRot;
         float baseLeftYaw = leftArm.yRot;
 
-        boolean isSwinging = player.swinging;
+        boolean isSwinging = player.isSwinging();
         boolean isUsingItem = player.isUsingItem();
 
         // ==================== GRABBED/THROWN POSE (superman) ====================

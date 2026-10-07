@@ -37,7 +37,7 @@ public class FusionClientHandler {
                     if (payload.active()) blackScreenStartTime = System.currentTimeMillis();
                     if (!payload.active() && currentPhase == 4) resetState();
                 }));
-        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "fusionclienthandler_renderhud"), FusionClientHandler::renderhud);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "fusionclienthandler_renderhud"), FusionClientHandler::renderHUD);
     }
     private static void onPhase(DapFusionHandler.FusionPhasePayload p, Minecraft client) {
         if (client.player == null) return;
