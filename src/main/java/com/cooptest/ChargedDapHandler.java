@@ -1878,7 +1878,7 @@ public class ChargedDapHandler {
             trio[i].teleportTo(world, px, p1.getY(), pz, java.util.Set.of(), yaw, 0,false);
             trio[i].setYRot(yaw); trio[i].setYBodyRot(yaw); trio[i].setYHeadRot(yaw);
             trio[i].yBodyRotO = yaw;
-            trio[i].swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+            trio[i].swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
         }
 
 
@@ -1995,8 +1995,8 @@ public class ChargedDapHandler {
         }
 
 
-        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
-        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
 
 
         MahitoTrollHandler.checkForMahitoTroll(p1, p2);
@@ -2367,8 +2367,8 @@ public class ChargedDapHandler {
         float yaw2 = yaw1 + 180f;
         p1.setYRot(yaw1); p1.setYBodyRot(yaw1); p1.setYHeadRot(yaw1);
         p2.setYRot(yaw2); p2.setYBodyRot(yaw2); p2.setYHeadRot(yaw2);
-        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
 
 
         Vec3 p1Hand = p1.position().add(0, 1.4, 0);
@@ -3913,8 +3913,8 @@ public class ChargedDapHandler {
         fireDapStartTime.put(id2, now);
 
 
-        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
 
 
         Vec3 p1Hand = p1.position().add(0, 1.4, 0);
@@ -4040,8 +4040,8 @@ public class ChargedDapHandler {
         DapSessionManager.removeSessionForPlayer(id1);
 
 
-        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
 
 
 

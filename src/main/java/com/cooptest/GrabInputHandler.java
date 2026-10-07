@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,15 +35,15 @@ public class GrabInputHandler {
 
     public static void register() {
         grabKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.coopmoves.grab", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, ModKeyCategories.COOPMOVES
+                "key.coopmoves.grab", InputConstants.Type.KEYBOARD, InputConstants.KEY_R, ModKeyCategories.COOPMOVES
         ));
 
         throwKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.coopmoves.throw", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_T, ModKeyCategories.COOPMOVES
+                "key.coopmoves.throw", InputConstants.Type.KEYBOARD, InputConstants.KEY_T, ModKeyCategories.COOPMOVES
         ));
 
         shieldKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.coopmoves.shield", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, ModKeyCategories.COOPMOVES
+                "key.coopmoves.shield", InputConstants.Type.KEYBOARD, InputConstants.KEY_V, ModKeyCategories.COOPMOVES
         ));
 
         // Register shield mode receiver for client-side sync

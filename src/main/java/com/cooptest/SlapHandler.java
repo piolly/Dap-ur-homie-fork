@@ -115,8 +115,8 @@ public class SlapHandler {
         attacker.setYBodyRot(yaw);
         attacker.setYHeadRot(yaw);
         attacker.yBodyRotO = yaw;
-        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
-        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
         PoseNetworking.broadcastAnimState(attacker, ANIM_SLAP);
         final UUID victimId = victim.getUUID();
         new Thread(() -> {
@@ -153,8 +153,8 @@ public class SlapHandler {
         Vec3 diff = victim.position().subtract(attacker.position());
         float yaw = (float) Math.toDegrees(Math.atan2(-diff.x, diff.z));
         attacker.setYRot(yaw); attacker.setYBodyRot(yaw); attacker.setYHeadRot(yaw);
-        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
-        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+        attacker.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
         PoseNetworking.broadcastAnimState(attacker, ANIM_SLAP_FRONT);
         final UUID victimId = victim.getUUID();
         new Thread(() -> {

@@ -155,8 +155,8 @@ public class NormalFacingDapHandler {
         p2.teleportTo(p2.level(), pos2.x, p2.getY(), pos2.z, java.util.Set.of(), yaw2, p2.getXRot(), false);
         p1.setYRot(yaw1); p1.setYBodyRot(yaw1); p1.setYHeadRot(yaw1);
         p2.setYRot(yaw2); p2.setYBodyRot(yaw2); p2.setYHeadRot(yaw2);
-        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
-        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        p1.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
+        p2.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
         ServerPlayNetworking.send(p1, new ChargedDapHandler.PerfectDapFreezePayload(true));
         ServerPlayNetworking.send(p2, new ChargedDapHandler.PerfectDapFreezePayload(true));
         ServerPlayNetworking.send(p1, new FaceDapSessionPayload(true));

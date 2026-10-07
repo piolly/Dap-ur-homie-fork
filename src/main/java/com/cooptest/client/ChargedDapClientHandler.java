@@ -13,7 +13,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -152,7 +151,7 @@ public class ChargedDapClientHandler {
 
     public static void register() {
         chargedDapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.coopmoves.dap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, ModKeyCategories.COOPMOVES
+                "key.coopmoves.dap", InputConstants.Type.KEYBOARD, InputConstants.KEY_G, ModKeyCategories.COOPMOVES
         ));
 
         ClientPlayNetworking.registerGlobalReceiver(ChargedDapHandler.ChargeSyncPayload.ID,
@@ -310,8 +309,8 @@ public class ChargedDapClientHandler {
 
         fireDapComboKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.fire_dap_combo",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_J,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_J,
                 ModKeyCategories.COOPMOVES
         ));
 

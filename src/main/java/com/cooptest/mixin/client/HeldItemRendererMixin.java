@@ -135,7 +135,7 @@ public class HeldItemRendererMixin {
             return;
         }
         matrices.translate(0.0, currUp + shakeOffset, -currForward + shakeOffset * 0.5f);
-        matrices.mulPose(Axis.XP.rotationDegrees(currPitch + shakeOffset * 20f));
+        matrices.rotate(Axis.XP.rotationDegrees(currPitch + shakeOffset * 20f));
     }
     @Unique
     private static float lerp(float a, float b, float t) {

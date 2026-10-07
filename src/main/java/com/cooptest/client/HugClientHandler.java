@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,8 +16,8 @@ public class HugClientHandler {
     public static void register() {
         hugKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.coopmoves.hug",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_F,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_F,
                 ModKeyCategories.COOPMOVES
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

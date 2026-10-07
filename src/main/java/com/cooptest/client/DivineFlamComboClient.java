@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
-import org.lwjgl.glfw.GLFW;
 
 
 public class DivineFlamComboClient {
@@ -18,8 +17,8 @@ public class DivineFlamComboClient {
     public static void register() {
         divineFlameKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.cooptest.divine_flame",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_J,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_J,
                 ModKeyCategories.COOPMOVES
         ));
 

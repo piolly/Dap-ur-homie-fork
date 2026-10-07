@@ -107,7 +107,7 @@ public class SitHandler {
         float sitterYaw  = helperYaw + 180f;
         helper.setYRot(helperYaw); helper.setYBodyRot(helperYaw); helper.setYHeadRot(helperYaw);
         sitter.setYRot(sitterYaw); sitter.setYBodyRot(sitterYaw); sitter.setYHeadRot(sitterYaw);
-        helper.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        helper.swing(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, true);
         ServerPlayNetworking.send(helper, new ChargedDapHandler.PerfectDapFreezePayload(true));
         ServerPlayNetworking.send(sitter, new ChargedDapHandler.PerfectDapFreezePayload(true));
         PoseNetworking.broadcastAnimState(helper,

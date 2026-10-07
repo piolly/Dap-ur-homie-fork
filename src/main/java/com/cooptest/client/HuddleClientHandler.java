@@ -1,4 +1,5 @@
 package com.cooptest.client;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.cooptest.HuddleHandler;
 import com.cooptest.PoseNetworking;
 import com.cooptest.PoseState;
@@ -32,8 +33,7 @@ public class HuddleClientHandler {
                 return;
             }
             long win  = client.getWindow().handle();
-            boolean fHeld = org.lwjgl.glfw.GLFW.glfwGetKey(win, org.lwjgl.glfw.GLFW.GLFW_KEY_F)
-                    == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+            boolean fHeld = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_F);
             if (fHeld && !fWasHeld) {
                 ClientPlayNetworking.send(new HuddleHandler.HuddleFHoldPayload(true));
                 fWasHeld = true;

@@ -1,4 +1,5 @@
 package com.cooptest.client;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.cooptest.MeteorStrikeHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -6,7 +7,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import org.lwjgl.glfw.GLFW;
 public class MeteorStrikeClientHandler {
     private static boolean hasAbility  = false;
     private static long abilityLeftMs  = 0;
@@ -32,7 +32,7 @@ public class MeteorStrikeClientHandler {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!hasAbility || client.player == null) return;
             long win = client.getWindow().handle();
-            boolean g = GLFW.glfwGetKey(win, GLFW.GLFW_KEY_G) == GLFW.GLFW_PRESS;
+            boolean g = InputConstants.isKeyDown(InputConstants.KEY_G);
             if (g && !wasGPressed && countdownMs < 0) {
                 ClientPlayNetworking.send(new MeteorStrikeHandler.MeteorFirePayload());
             }

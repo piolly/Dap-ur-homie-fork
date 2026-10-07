@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import org.lwjgl.glfw.GLFW;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +34,7 @@ public class HighFiveClientHandler {
     private static final Map<UUID, Boolean> frozenPlayers = new HashMap<>();
     public static void register() {
         highFiveKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.coopmoves.highfive", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, ModKeyCategories.COOPMOVES
+                "key.coopmoves.highfive", InputConstants.Type.KEYBOARD, InputConstants.KEY_H, ModKeyCategories.COOPMOVES
         ));
         ClientPlayNetworking.registerGlobalReceiver(HighFiveHandler.HandRaisedSyncPayload.ID,
                 (payload, context) -> {
@@ -182,7 +181,7 @@ public class HighFiveClientHandler {
             }
             {
                 long win = Minecraft.getInstance().getWindow().handle();
-                boolean fHeld = GLFW.glfwGetKey(win, GLFW.GLFW_KEY_F) == GLFW.GLFW_PRESS;
+                boolean fHeld = InputConstants.isKeyDown(InputConstants.KEY_F);
                 if (fHeld) {
                     ClientPlayNetworking.send(new HighFiveHugHandler.HugHoldPayload());
                 }
@@ -224,7 +223,7 @@ public class HighFiveClientHandler {
         if (myId.equals(player1) || myId.equals(player2)) {
             flashStartTime = now;
             currentTier = tier;
-            client.player.swing(InteractionHand.MAIN_HAND);
+            client.player.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
             String message = switch (tier) {
                 case 0 -> "§6 High Five!";
                 case 1 -> "§e Nice High Five! ";
