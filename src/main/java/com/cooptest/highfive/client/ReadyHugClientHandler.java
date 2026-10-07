@@ -49,7 +49,7 @@ public class ReadyHugClientHandler {
             } else {
                long win = client.getWindow().handle();
                boolean held = com.mojang.blaze3d.platform.InputConstants.isKeyDown(340) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(344);
-               boolean rightClick = GLFW.glfwGetMouseButton(win, 1) == 1;
+               boolean rightClick = net.minecraft.client.Minecraft.getInstance().options.keyUse.isDown();
                if (held != shiftWasHeld) {
                   ClientPlayNetworking.send(new ReadyHugHandler.HugShiftPayload(held, rightClick));
                   shiftWasHeld = held;

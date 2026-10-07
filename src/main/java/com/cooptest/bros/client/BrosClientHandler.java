@@ -455,7 +455,7 @@ public final class BrosClientHandler {
       }
 
       long win = mc.getWindow().handle();
-      return code <= 7 ? GLFW.glfwGetMouseButton(win, code) == 1 : GLFW.glfwGetKey(win, code) == 1;
+      return code <= 7 ? GLFW.glfwGetMouseButton(win, code) == 1 : com.mojang.blaze3d.platform.InputConstants.isKeyDown(code);
    }
 
    private static void integrate(BrosClientHandler.Track t) {

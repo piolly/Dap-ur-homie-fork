@@ -31,7 +31,7 @@ public class ReadyPushClientHandler {
             } else {
                long win = client.getWindow().handle();
                boolean shift = com.mojang.blaze3d.platform.InputConstants.isKeyDown(340) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(344);
-               boolean right = GLFW.glfwGetMouseButton(win, 1) == 1;
+               boolean right = net.minecraft.client.Minecraft.getInstance().options.keyUse.isDown();
                boolean changed = shift != lastShift || right != lastRight;
                if (changed || shift && ++refreshTicks >= 5) {
                   if (!changed) {

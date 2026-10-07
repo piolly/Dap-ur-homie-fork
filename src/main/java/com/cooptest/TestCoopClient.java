@@ -116,7 +116,7 @@ public class TestCoopClient implements ClientModInitializer {
                         .hasEffect((Holder)BuiltInRegistries.MOB_EFFECT.get(Identifier.fromNamespaceAndPath("testcoop", "todo")).orElse(null));
                      if (hasTodo) {
                         long win = client.getWindow().handle();
-                        boolean rmbHeld = GLFW.glfwGetMouseButton(win, 1) == 1;
+                        boolean rmbHeld = net.minecraft.client.Minecraft.getInstance().options.keyUse.isDown();
                         ClientPlayNetworking.send(new ClapHandler.TodoRightClickPayload(rmbHeld));
                      }
                   }

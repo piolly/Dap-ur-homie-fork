@@ -81,12 +81,12 @@ public class GrabInputHandler {
 
    private static boolean isRightMouseHeld(Minecraft client) {
       long window = client.getWindow().handle();
-      return GLFW.glfwGetMouseButton(window, 1) == 1;
+      return net.minecraft.client.Minecraft.getInstance().options.keyUse.isDown();
    }
 
    private static boolean isLeftMouseHeld(Minecraft client) {
       long window = client.getWindow().handle();
-      return GLFW.glfwGetMouseButton(window, 0) == 1;
+      return net.minecraft.client.Minecraft.getInstance().options.keyAttack.isDown();
    }
 
    public static void register() {
@@ -150,7 +150,7 @@ public class GrabInputHandler {
                      && !client.player.isPassenger()
                      && client.screen == null
                      && SpearStrikeHandler.isSpear(client.player.getMainHandItem())
-                     && GLFW.glfwGetMouseButton(client.getWindow().handle(), 1) == 1;
+                     && net.minecraft.client.Minecraft.getInstance().options.keyUse.isDown();
                   if (spearHold != spearHoldSent) {
                      ClientPlayNetworking.send(new SpearStrikeHandler.SpearHoldPayload(spearHold));
                      spearHoldSent = spearHold;
