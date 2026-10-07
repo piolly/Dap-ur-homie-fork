@@ -144,9 +144,9 @@ public class StrongSlapClientHandler {
    private static void coop$setVolume(OptionInstance<?> opt, double value) {
       Object current = opt.get();
       if (current instanceof Float) {
-         opt.set((float)value);
+         ((OptionInstance<Object>)opt).set(Float.valueOf((float)value));
       } else {
-         opt.set(value);
+         ((OptionInstance<Object>)opt).set(Double.valueOf(value));
       }
    }
 

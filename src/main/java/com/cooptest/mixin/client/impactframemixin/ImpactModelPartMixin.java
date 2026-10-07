@@ -86,6 +86,16 @@ public abstract class ImpactModelPartMixin {
             return this;
          }
 
+         @Override
+         public VertexConsumer setUv3(float u, float v) {
+            return this;
+         }
+
+         @Override
+         public VertexConsumer setLineWidth(float width) {
+            return this;
+         }
+
          public VertexConsumer setNormal(float x, float y, float z) {
             original.setNormal(x, y, z);
             return this;

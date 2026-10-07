@@ -45,7 +45,7 @@ public class CoopImpactRenderType {
       return LAYER_CACHE.computeIfAbsent(
          name + "/" + texture,
          key -> RenderType.create(
-            name, RenderSetup.builder(pipeline).withTexture("Sampler0", texture).useLightmap().useOverlay().bufferSize(1536).createRenderSetup()
+            name, RenderSetup.builder(pipeline).withTexture("Sampler0", texture).useLightmap().useOverlay().createRenderSetup()
          )
       );
    }
