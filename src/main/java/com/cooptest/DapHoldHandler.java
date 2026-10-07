@@ -430,8 +430,8 @@ public class DapHoldHandler {
                         p.displayClientMessage(net.minecraft.network.chat.Component.literal("§6§l✨ PERFECT GROUP DAP! §e" + mc + " players!"), true);
                     }
                     for (int i = 0; i < mc * 3; i++) {
-                        double ox = (worldFinal.random.nextDouble() - 0.5) * 3;
-                        double oz = (worldFinal.random.nextDouble() - 0.5) * 3;
+                        double ox = (worldFinal.getRandom().nextDouble() - 0.5) * 3;
+                        double oz = (worldFinal.getRandom().nextDouble() - 0.5) * 3;
                         worldFinal.sendParticles(ParticleTypes.FIREWORK,
                                 centerFinal.x + ox, centerFinal.y + 2 + i * 0.5, centerFinal.z + oz,
                                 6, 0.3, 0.1, 0.3, 0.12);

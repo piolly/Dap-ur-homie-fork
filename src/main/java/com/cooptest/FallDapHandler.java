@@ -282,9 +282,9 @@ public class FallDapHandler {
                     world, pos.x, pos.y + 0.5, pos.z, mainStack.copy()
             );
             mainItem.setDeltaMovement(
-                    (world.random.nextDouble() - 0.5) * 0.3,
-                    world.random.nextDouble() * 0.2 + 0.1,
-                    (world.random.nextDouble() - 0.5) * 0.3
+                    (world.getRandom().nextDouble() - 0.5) * 0.3,
+                    world.getRandom().nextDouble() * 0.2 + 0.1,
+                    (world.getRandom().nextDouble() - 0.5) * 0.3
             );
             world.addFreshEntity(mainItem);
             player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY);
@@ -296,9 +296,9 @@ public class FallDapHandler {
                     world, pos.x, pos.y + 0.5, pos.z, offStack.copy()
             );
             offItem.setDeltaMovement(
-                    (world.random.nextDouble() - 0.5) * 0.3,
-                    world.random.nextDouble() * 0.2 + 0.1,
-                    (world.random.nextDouble() - 0.5) * 0.3
+                    (world.getRandom().nextDouble() - 0.5) * 0.3,
+                    world.getRandom().nextDouble() * 0.2 + 0.1,
+                    (world.getRandom().nextDouble() - 0.5) * 0.3
             );
             world.addFreshEntity(offItem);
             player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, net.minecraft.world.item.ItemStack.EMPTY);

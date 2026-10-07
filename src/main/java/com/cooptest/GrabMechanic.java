@@ -194,9 +194,9 @@ public class GrabMechanic {
         Vec3 pos = holder.position();
 
         for (int i = 0; i < 10; i++) {
-            double offsetX = (world.random.nextDouble() - 0.5) * 0.5;
-            double offsetY = world.random.nextDouble() * 0.5 + 0.5;
-            double offsetZ = (world.random.nextDouble() - 0.5) * 0.5;
+            double offsetX = (world.getRandom().nextDouble() - 0.5) * 0.5;
+            double offsetY = world.getRandom().nextDouble() * 0.5 + 0.5;
+            double offsetZ = (world.getRandom().nextDouble() - 0.5) * 0.5;
 
             world.sendParticles(ParticleTypes.CLOUD,
                     pos.x + offsetX, pos.y + offsetY, pos.z + offsetZ,
@@ -525,9 +525,9 @@ public class GrabMechanic {
                     ParticleTypes.BLOCK, groundBlock);
 
             for (int i = 0; i < 30; i++) {
-                double offsetX = (world.random.nextDouble() - 0.5) * 1.5;
-                double offsetZ = (world.random.nextDouble() - 0.5) * 1.5;
-                double velY = world.random.nextDouble() * 0.5 + 0.2;
+                double offsetX = (world.getRandom().nextDouble() - 0.5) * 1.5;
+                double offsetZ = (world.getRandom().nextDouble() - 0.5) * 1.5;
+                double velY = world.getRandom().nextDouble() * 0.5 + 0.2;
 
                 world.sendParticles(blockParticle,
                         pos.x + offsetX, pos.y + 0.1, pos.z + offsetZ,
@@ -789,9 +789,9 @@ public class GrabMechanic {
         player.hurtClient(world.damageSources().onFire());
 
         for (int i = 0; i < 20; i++) {
-            double offsetX = (world.random.nextDouble() - 0.5) * 3;
-            double offsetY = world.random.nextDouble() * 2;
-            double offsetZ = (world.random.nextDouble() - 0.5) * 3;
+            double offsetX = (world.getRandom().nextDouble() - 0.5) * 3;
+            double offsetY = world.getRandom().nextDouble() * 2;
+            double offsetZ = (world.getRandom().nextDouble() - 0.5) * 3;
 
             world.sendParticles(ParticleTypes.FLAME,
                     pos.x + offsetX, pos.y + offsetY, pos.z + offsetZ,

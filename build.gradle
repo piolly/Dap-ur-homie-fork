@@ -1,6 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
-    id 'maven-publish'
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
 version = project.mod_version
@@ -33,12 +32,12 @@ fabricApi {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    modImplementation "com.zigythebird.playeranim:PlayerAnimationLibFabric:$pal_version"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    implementation "com.zigythebird.playeranim:PlayerAnimationLibFabric:$pal_version"
 }
+
 processResources {
     inputs.property "version", project.version
 
@@ -48,14 +47,15 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release = 21
+    options.release = 25
+    options.compilerArgs << "-Xmaxerrs" << "2000"
 }
 
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
@@ -63,29 +63,5 @@ jar {
 
     from("LICENSE") {
         rename { "${it}_${inputs.properties.archivesName}" }
-    }
-}
-
-
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
-
-            artifact(remapJar) {
-                builtBy remapJar
-            }
-
-            artifact(sourcesJar)
-        }
-    }
-
-    repositories {
-        maven {
-            name = "RedlanceMinecraft"
-            url = uri("https://repo.redlance.org/public")
-
-
-        }
     }
 }
