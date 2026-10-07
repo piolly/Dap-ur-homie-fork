@@ -25,7 +25,7 @@ public class HeavenDapClientHandler {
    private static final RenderPipeline INVERT_GUI = RenderPipelines.register(
       RenderPipeline.builder(new Snippet[]{RenderPipelines.GUI_SNIPPET})
          .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/invert_gui"))
-         .withBlend(new BlendFunction(BlendFactor.ONE_MINUS_DST_COLOR, BlendFactor.ZERO, BlendFactor.ZERO, BlendFactor.ONE))
+         .withColorTargetState(new com.mojang.renderpearl.api.pipeline.ColorTargetState(new BlendFunction(BlendFactor.ONE_MINUS_DST_COLOR, BlendFactor.ZERO, BlendFactor.ZERO, BlendFactor.ONE)))
          .build()
    );
 

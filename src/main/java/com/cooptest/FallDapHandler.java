@@ -194,7 +194,7 @@ public class FallDapHandler {
       ItemStack mainStack = player.getMainHandItem();
       if (!mainStack.isEmpty()) {
          ItemEntity mainItem = new ItemEntity(world, pos.x, pos.y + 0.5, pos.z, mainStack.copy());
-         mainItem.setDeltaMovement((world.random.nextDouble() - 0.5) * 0.3, world.random.nextDouble() * 0.2 + 0.1, (world.random.nextDouble() - 0.5) * 0.3);
+         mainItem.setDeltaMovement((world.getRandom().nextDouble() - 0.5) * 0.3, world.getRandom().nextDouble() * 0.2 + 0.1, (world.getRandom().nextDouble() - 0.5) * 0.3);
          world.addFreshEntity(mainItem);
          player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
       }
@@ -202,7 +202,7 @@ public class FallDapHandler {
       ItemStack offStack = player.getOffhandItem();
       if (!offStack.isEmpty()) {
          ItemEntity offItem = new ItemEntity(world, pos.x, pos.y + 0.5, pos.z, offStack.copy());
-         offItem.setDeltaMovement((world.random.nextDouble() - 0.5) * 0.3, world.random.nextDouble() * 0.2 + 0.1, (world.random.nextDouble() - 0.5) * 0.3);
+         offItem.setDeltaMovement((world.getRandom().nextDouble() - 0.5) * 0.3, world.getRandom().nextDouble() * 0.2 + 0.1, (world.getRandom().nextDouble() - 0.5) * 0.3);
          world.addFreshEntity(offItem);
          player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
       }
@@ -210,7 +210,7 @@ public class FallDapHandler {
       ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
       if (!helmet.isEmpty()) {
          ItemEntity helmetItem = new ItemEntity(world, pos.x, pos.y + 1.0, pos.z, helmet.copy());
-         helmetItem.setDeltaMovement((world.random.nextDouble() - 0.5) * 0.4, world.random.nextDouble() * 0.4 + 0.3, (world.random.nextDouble() - 0.5) * 0.4);
+         helmetItem.setDeltaMovement((world.getRandom().nextDouble() - 0.5) * 0.4, world.getRandom().nextDouble() * 0.4 + 0.3, (world.getRandom().nextDouble() - 0.5) * 0.4);
          world.addFreshEntity(helmetItem);
          player.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
       }

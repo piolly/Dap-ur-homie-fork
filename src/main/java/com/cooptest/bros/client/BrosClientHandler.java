@@ -574,8 +574,8 @@ public final class BrosClientHandler {
             int sx = 0;
             int sy = 0;
             if (filling) {
-               sx = mc.level.random.nextInt(3) - 1;
-               sy = mc.level.random.nextInt(3) - 1;
+               sx = mc.level.getRandom().nextInt(3) - 1;
+               sy = mc.level.getRandom().nextInt(3) - 1;
             }
 
             float hearts = t.shield * t.shieldMax / 2.0F;

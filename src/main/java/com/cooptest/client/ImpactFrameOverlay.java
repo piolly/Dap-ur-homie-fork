@@ -17,13 +17,13 @@ public class ImpactFrameOverlay {
    private static final RenderPipeline SKETCH_MULTIPLY = RenderPipelines.register(
       RenderPipeline.builder(new Snippet[]{RenderPipelines.GUI_TEXTURED_SNIPPET})
          .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/sketch_multiply"))
-         .withBlend(new BlendFunction(BlendFactor.DST_COLOR, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO))
+         .withColorTargetState(new com.mojang.renderpearl.api.pipeline.ColorTargetState(new BlendFunction(BlendFactor.DST_COLOR, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO)))
          .build()
    );
    private static final RenderPipeline SKETCH_ADDITIVE = RenderPipelines.register(
       RenderPipeline.builder(new Snippet[]{RenderPipelines.GUI_TEXTURED_SNIPPET})
          .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/sketch_additive"))
-         .withBlend(new BlendFunction(BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ZERO))
+         .withColorTargetState(new com.mojang.renderpearl.api.pipeline.ColorTargetState(new BlendFunction(BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ZERO)))
          .build()
    );
    private static final Random RANDOM = new Random();
