@@ -188,7 +188,7 @@ public class HighfiveDapClientHandler {
    private static void renderHud(GuiGraphicsExtractor ctx, DeltaTracker tickCounter) {
       if (active && inIdle) {
          Minecraft client = Minecraft.getInstance();
-         if (client.player != null && !client.options.hideGui) {
+         if (client.player != null && !client.gui.hud.isHidden()) {
             int screenW = ctx.guiWidth();
             int win = 10;
             int barW = 80;

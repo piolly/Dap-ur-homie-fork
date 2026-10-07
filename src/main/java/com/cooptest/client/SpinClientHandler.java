@@ -69,7 +69,7 @@ public class SpinClientHandler {
 
    private static void renderHUD(GuiGraphicsExtractor context, DeltaTracker tc) {
       Minecraft client = Minecraft.getInstance();
-      if (client.player != null && !client.options.hideGui) {
+      if (client.player != null && !client.gui.hud.isHidden()) {
          int sw = context.guiWidth();
          int sh = context.guiHeight();
          if (launchFlashActive) {

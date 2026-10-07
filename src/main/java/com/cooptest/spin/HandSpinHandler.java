@@ -11,9 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AfterPlayerChange;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AllowDamage;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -138,8 +137,8 @@ public class HandSpinHandler {
             cleanup(player.getUUID(), server);
          }
       });
-      ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD
-         .register((AfterPlayerChange)(player, origin, destination) -> cleanup(player.getUUID(), player.level().getServer()));
+      ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_WORLD
+         .register((player, origin, destination) -> cleanup(player.getUUID(), player.level().getServer()));
       ServerLifecycleEvents.SERVER_STOPPING.register((ServerStopping)server -> clearAll());
    }
 

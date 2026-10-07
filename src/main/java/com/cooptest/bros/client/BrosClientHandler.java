@@ -565,7 +565,7 @@ public final class BrosClientHandler {
    private static void renderHud(GuiGraphicsExtractor ctx) {
       Minecraft mc = Minecraft.getInstance();
       BrosClientHandler.Track t = localTrack;
-      if (t != null && mc.player != null && !mc.options.hideGui) {
+      if (t != null && mc.player != null && !mc.gui.hud.isHidden()) {
          if (t.phase == 2) {
             Font tr = mc.font;
             int cx = ctx.guiWidth() / 2;

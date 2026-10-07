@@ -1,6 +1,6 @@
 package com.cooptest.client;
 
-import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;

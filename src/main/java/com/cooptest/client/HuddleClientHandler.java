@@ -126,7 +126,7 @@ public class HuddleClientHandler {
       net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "huddleclienthandler_hud"), (ctx, tickDelta) -> {
          if (!barActive && holdingCount > 0) {
             Minecraft client = Minecraft.getInstance();
-            if (client.player != null && !client.options.hideGui) {
+            if (client.player != null && !client.gui.hud.isHidden()) {
                if (CoopAnimationHandler.isInHuddleAnim(client.player.getUUID())) {
                   int screenW = ctx.guiWidth();
                   int y = ctx.guiHeight() - 84;
@@ -143,7 +143,7 @@ public class HuddleClientHandler {
       net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "huddleclienthandler_hud"), (ctx, tickDelta) -> {
          if (barActive) {
             Minecraft client = Minecraft.getInstance();
-            if (client.player != null && !client.options.hideGui) {
+            if (client.player != null && !client.gui.hud.isHidden()) {
                int screenW = ctx.guiWidth();
                int screenH = ctx.guiHeight();
                int x = (screenW - 120) / 2;

@@ -1,7 +1,7 @@
 package com.cooptest.client;
 
 import com.cooptest.HeavenDapPayloads;
-import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
 import com.mojang.blaze3d.platform.DestFactor;
@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents.BeforeEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -31,7 +30,7 @@ public class HeavenDapClientHandler {
    );
 
    public static void register() {
-      LevelRenderEvents.BEFORE_ENTITIES.register((BeforeEntities)ctx -> {
+      LevelRenderEvents.BEFORE_ENTITIES.register(ctx -> {
          if (CoopImpactHandler.playing) {
             int argb = switch (CoopImpactHandler.currentFrameType) {
                case BLACK -> -16777216;

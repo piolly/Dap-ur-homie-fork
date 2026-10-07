@@ -111,7 +111,7 @@ public class SikeFollowUpClientHandler {
       net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "sikefollowupclienthandler_hud"), (ctx, tickDelta) -> {
          if (promptVisible()) {
             Minecraft client = Minecraft.getInstance();
-            if (client.player != null && !client.options.hideGui) {
+            if (client.player != null && !client.gui.hud.isHidden()) {
                int cx = client.getWindow().getGuiScaledWidth() / 2;
                int cy = client.getWindow().getGuiScaledHeight() - 62;
                ctx.pose().pushMatrix();

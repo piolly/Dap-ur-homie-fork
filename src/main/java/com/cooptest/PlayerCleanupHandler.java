@@ -10,9 +10,8 @@ import com.cooptest.highfive.ReadyPushHandler;
 import com.cooptest.meme.SpinYeetHandler;
 import com.cooptest.spin.HandSpinHandler;
 import java.util.UUID;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents.AfterPlayerChange;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AfterDeath;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.Disconnect;
@@ -33,7 +32,7 @@ public class PlayerCleanupHandler {
             }
          }
       });
-      ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((AfterPlayerChange)(player, origin, destination) -> {
+      ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
          MinecraftServer server = player.level().getServer();
          if (server != null) {
             runFullCleanup(server, player, player.getUUID(), "DIMENSION");
