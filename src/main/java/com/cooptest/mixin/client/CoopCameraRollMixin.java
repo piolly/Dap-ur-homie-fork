@@ -30,7 +30,7 @@ public class CoopCameraRollMixin {
    private void coopApplyRoll(DeltaTracker tickCounter, CallbackInfo ci, @Local PoseStack matrixStack) {
       if (CoopCameraShakeHandler.isActive()) {
          if (this.minecraft.player != null) {
-            matrixStack.mulPose(Axis.ZP.rotationDegrees(CoopCameraShakeHandler.rollOffset));
+            matrixStack.rotate(Axis.ZP.rotationDegrees(CoopCameraShakeHandler.rollOffset));
          }
       }
    }

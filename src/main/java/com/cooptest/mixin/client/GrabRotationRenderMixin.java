@@ -35,9 +35,9 @@ public class GrabRotationRenderMixin {
             if (facingYaw != null) {
                matrices.pushPose();
                float counterRotation = -state.bodyRot + facingYaw;
-               matrices.mulPose(Axis.YP.rotationDegrees(counterRotation));
+               matrices.rotate(Axis.YP.rotationDegrees(counterRotation));
                matrices.translate(0.0, 0.9, 0.0);
-               matrices.mulPose(Axis.XP.rotationDegrees(90.0F));
+               matrices.rotate(Axis.XP.rotationDegrees(90.0F));
                matrices.translate(0.0, -0.9, 0.0);
                coop$matrixPushed.put(snap.uuid(), true);
             } else {

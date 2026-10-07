@@ -185,9 +185,9 @@ public class GrabMechanic {
       Vec3 pos = holder.position();
 
       for (int i = 0; i < 10; i++) {
-         double offsetX = (world.random.nextDouble() - 0.5) * 0.5;
-         double offsetY = world.random.nextDouble() * 0.5 + 0.5;
-         double offsetZ = (world.random.nextDouble() - 0.5) * 0.5;
+         double offsetX = (world.getRandom().nextDouble() - 0.5) * 0.5;
+         double offsetY = world.getRandom().nextDouble() * 0.5 + 0.5;
+         double offsetZ = (world.getRandom().nextDouble() - 0.5) * 0.5;
          world.sendParticles(ParticleTypes.CLOUD, pos.x + offsetX, pos.y + offsetY, pos.z + offsetZ, 1, 0.0, 0.0, 0.0, 0.05);
       }
    }
@@ -464,9 +464,9 @@ public class GrabMechanic {
          BlockParticleOption blockParticle = new BlockParticleOption(ParticleTypes.BLOCK, groundBlock);
 
          for (int i = 0; i < 30; i++) {
-            double offsetX = (world.random.nextDouble() - 0.5) * 1.5;
-            double offsetZ = (world.random.nextDouble() - 0.5) * 1.5;
-            double velY = world.random.nextDouble() * 0.5 + 0.2;
+            double offsetX = (world.getRandom().nextDouble() - 0.5) * 1.5;
+            double offsetZ = (world.getRandom().nextDouble() - 0.5) * 1.5;
+            double velY = world.getRandom().nextDouble() * 0.5 + 0.2;
             world.sendParticles(blockParticle, pos.x + offsetX, pos.y + 0.1, pos.z + offsetZ, 1, 0.0, velY, 0.0, 0.15);
          }
       }
@@ -672,9 +672,9 @@ public class GrabMechanic {
       player.hurtServer(world, world.damageSources().onFire(), 16.0F);
 
       for (int i = 0; i < 20; i++) {
-         double offsetX = (world.random.nextDouble() - 0.5) * 3.0;
-         double offsetY = world.random.nextDouble() * 2.0;
-         double offsetZ = (world.random.nextDouble() - 0.5) * 3.0;
+         double offsetX = (world.getRandom().nextDouble() - 0.5) * 3.0;
+         double offsetY = world.getRandom().nextDouble() * 2.0;
+         double offsetZ = (world.getRandom().nextDouble() - 0.5) * 3.0;
          world.sendParticles(ParticleTypes.FLAME, pos.x + offsetX, pos.y + offsetY, pos.z + offsetZ, 1, 0.0, 0.0, 0.0, 0.1);
       }
    }
