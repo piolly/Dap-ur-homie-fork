@@ -30,19 +30,7 @@ public class HeavenDapClientHandler {
    );
 
    public static void register() {
-      LevelRenderEvents.BEFORE_ENTITIES.register(ctx -> {
-         if (CoopImpactHandler.playing) {
-            int argb = switch (CoopImpactHandler.currentFrameType) {
-               case BLACK -> -16777216;
-               case INVERT -> -16777216;
-               case WHITE -> -1;
-               case RED -> -65536;
-               case CYAN -> -16711681;
-            };
-            Minecraft client = Minecraft.getInstance();
-            RenderSystem.getDevice().createCommandEncoder().clearColorTexture(client.getMainRenderTarget().getColorTexture(), argb);
-         }
-      });
+      // TODO(26.3 port): BEFORE_ENTITIES was removed; the screen-clear effect is disabled.
       LevelRenderEvents.END_MAIN.register(CoopShockwaveRenderer::render);
       net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("cooptest", "heavendapclienthandler_hud"), (context, tickCounter) -> {
          HeavenWhiteOverlay.render(context, tickCounter.getGameTimeDeltaTicks());

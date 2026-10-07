@@ -1,10 +1,10 @@
 package com.cooptest.client;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 public class CoopCameraShakeHandler {
-   private static final ImprovedNoise NOISE = new ImprovedNoise(RandomSource.create());
+   private static final PerlinNoise NOISE = new PerlinNoise(RandomSource.create());
    private static final float AMPLITUDE = 4.0F;
    private static final float SHAKE_SPEED = 0.7F;
    private static float trauma = 0.0F;
@@ -19,9 +19,9 @@ public class CoopCameraShakeHandler {
          trauma = Math.min(3.0F, amount);
          endAtMs = System.currentTimeMillis() + durationMs;
          float t2 = trauma * trauma;
-         pitchOffset = (float)(4.0F * t2 * NOISE.noise(3.0, noiseY, 0.0));
-         yawOffset = (float)(4.0F * t2 * NOISE.noise(25.0, noiseY, 0.0));
-         rollOffset = (float)(4.0F * t2 * NOISE.noise(75.0, noiseY, 0.0));
+         pitchOffset = (float)(4.0F * t2 * NOISE.get(3.0, noiseY, 0.0));
+         yawOffset = (float)(4.0F * t2 * NOISE.get(25.0, noiseY, 0.0));
+         rollOffset = (float)(4.0F * t2 * NOISE.get(75.0, noiseY, 0.0));
       }
    }
 
@@ -49,9 +49,9 @@ public class CoopCameraShakeHandler {
          }
 
          float t2 = trauma * trauma;
-         pitchOffset = (float)(4.0F * t2 * NOISE.noise(3.0, noiseY, 0.0));
-         yawOffset = (float)(4.0F * t2 * NOISE.noise(25.0, noiseY, 0.0));
-         rollOffset = (float)(4.0F * t2 * NOISE.noise(75.0, noiseY, 0.0));
+         pitchOffset = (float)(4.0F * t2 * NOISE.get(3.0, noiseY, 0.0));
+         yawOffset = (float)(4.0F * t2 * NOISE.get(25.0, noiseY, 0.0));
+         rollOffset = (float)(4.0F * t2 * NOISE.get(75.0, noiseY, 0.0));
       }
    }
 

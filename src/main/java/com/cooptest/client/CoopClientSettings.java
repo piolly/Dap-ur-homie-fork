@@ -171,8 +171,8 @@ public class CoopClientSettings {
          this.addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.onClose()).bounds(cx + 2, y + 64, 108, 20).build());
       }
 
-      public void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-         super.render(ctx, mouseX, mouseY, delta);
+      public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+         super.extractRenderState(ctx, mouseX, mouseY, delta);
          int cx = this.width / 2;
          ctx.centeredText(this.font, this.title, cx, this.height / 4 - 4, -1);
          ctx.centeredText(this.font, Component.literal("§7These apply to your client only"), cx, this.height / 4 + 8, -5592406);
