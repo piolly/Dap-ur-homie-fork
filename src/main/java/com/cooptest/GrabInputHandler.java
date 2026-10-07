@@ -148,7 +148,7 @@ public class GrabInputHandler {
 
                   boolean spearHold = !client.player.onGround()
                      && !client.player.isPassenger()
-                     && client.screen == null
+                     && client.gui.screen() == null
                      && SpearStrikeHandler.isSpear(client.player.getMainHandItem())
                      && net.minecraft.client.Minecraft.getInstance().options.keyUse.isDown();
                   if (spearHold != spearHoldSent) {

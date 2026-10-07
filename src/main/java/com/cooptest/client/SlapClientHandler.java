@@ -43,7 +43,7 @@ public class SlapClientHandler {
          Minecraft client = ctx.client();
          if (client.player != null) {
             if (client.player.getUUID().equals(payload.playerId())) {
-               if (client.screen != null) {
+               if (client.gui.screen() != null) {
                   client.setScreenAndShow(null);
                }
             }

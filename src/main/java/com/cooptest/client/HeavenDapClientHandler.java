@@ -4,8 +4,8 @@ import com.cooptest.HeavenDapPayloads;
 import com.mojang.renderpearl.api.pipeline.BlendFunction;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
-import com.mojang.blaze3d.platform.DestFactor;
-import com.mojang.blaze3d.platform.SourceFactor;
+import com.mojang.blaze3d.platform.BlendFactor;
+import com.mojang.blaze3d.platform.BlendFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
@@ -25,7 +25,7 @@ public class HeavenDapClientHandler {
    private static final RenderPipeline INVERT_GUI = RenderPipelines.register(
       RenderPipeline.builder(new Snippet[]{RenderPipelines.GUI_SNIPPET})
          .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/invert_gui"))
-         .withBlend(new BlendFunction(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ZERO, SourceFactor.ZERO, DestFactor.ONE))
+         .withBlend(new BlendFunction(BlendFactor.ONE_MINUS_DST_COLOR, BlendFactor.ZERO, BlendFactor.ZERO, BlendFactor.ONE))
          .build()
    );
 

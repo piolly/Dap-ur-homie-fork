@@ -137,7 +137,7 @@ public class HandSpinHandler {
             cleanup(player.getUUID(), server);
          }
       });
-      ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_WORLD
+      ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL
          .register((player, origin, destination) -> cleanup(player.getUUID(), player.level().getServer()));
       ServerLifecycleEvents.SERVER_STOPPING.register((ServerStopping)server -> clearAll());
    }

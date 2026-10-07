@@ -3,8 +3,8 @@ package com.cooptest.client;
 import com.mojang.renderpearl.api.pipeline.BlendFunction;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline.Snippet;
-import com.mojang.blaze3d.platform.DestFactor;
-import com.mojang.blaze3d.platform.SourceFactor;
+import com.mojang.blaze3d.platform.BlendFactor;
+import com.mojang.blaze3d.platform.BlendFactor;
 import java.util.Random;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -17,13 +17,13 @@ public class ImpactFrameOverlay {
    private static final RenderPipeline SKETCH_MULTIPLY = RenderPipelines.register(
       RenderPipeline.builder(new Snippet[]{RenderPipelines.GUI_TEXTURED_SNIPPET})
          .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/sketch_multiply"))
-         .withBlend(new BlendFunction(SourceFactor.DST_COLOR, DestFactor.ZERO, SourceFactor.ONE, DestFactor.ZERO))
+         .withBlend(new BlendFunction(BlendFactor.DST_COLOR, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO))
          .build()
    );
    private static final RenderPipeline SKETCH_ADDITIVE = RenderPipelines.register(
       RenderPipeline.builder(new Snippet[]{RenderPipelines.GUI_TEXTURED_SNIPPET})
          .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/sketch_additive"))
-         .withBlend(new BlendFunction(SourceFactor.ONE, DestFactor.ONE, SourceFactor.ONE, DestFactor.ZERO))
+         .withBlend(new BlendFunction(BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ZERO))
          .build()
    );
    private static final Random RANDOM = new Random();

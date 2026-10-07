@@ -12,7 +12,7 @@ public class SitClientHandler {
 
    public static void register() {
       ClientTickEvents.END_CLIENT_TICK.register((EndTick)client -> {
-         if (client.player != null && client.screen == null) {
+         if (client.player != null && client.gui.screen() == null) {
             boolean fHeld = InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), 70);
             if (fHeld != wasFHeld) {
                wasFHeld = fHeld;

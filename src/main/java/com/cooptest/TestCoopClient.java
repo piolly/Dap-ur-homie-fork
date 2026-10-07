@@ -52,7 +52,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.EndTick;
@@ -252,12 +252,12 @@ public class TestCoopClient implements ClientModInitializer {
       }
 
       ClientCommandRegistrationCallback.EVENT.register((ClientCommandRegistrationCallback)(dispatcher, registryAccess) -> {
-         dispatcher.register((LiteralArgumentBuilder)ClientCommandManager.literal("impacttest").executes(ctx -> {
+         dispatcher.register((LiteralArgumentBuilder)ClientCommands.literal("impacttest").executes(ctx -> {
             CoopImpactHandler.start(CoopImpactHandler.REGULAR_DAP_SEQUENCE, 33L, true);
             CoopCameraShakeHandler.shake(0.6F, CoopImpactHandler.REGULAR_DAP_SEQUENCE.length * 33L);
             return 1;
          }));
-         dispatcher.register((LiteralArgumentBuilder)ClientCommandManager.literal("impactperfect").executes(ctx -> {
+         dispatcher.register((LiteralArgumentBuilder)ClientCommands.literal("impactperfect").executes(ctx -> {
             CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 33L, true);
             CoopCameraShakeHandler.shake(0.6F, CoopImpactHandler.REGULAR_DAP_SEQUENCE.length * 33L);
             CoopChromaHandler.start();
@@ -271,7 +271,7 @@ public class TestCoopClient implements ClientModInitializer {
 
             return 1;
          }));
-         dispatcher.register((LiteralArgumentBuilder)ClientCommandManager.literal("impactheaven").executes(ctx -> {
+         dispatcher.register((LiteralArgumentBuilder)ClientCommands.literal("impactheaven").executes(ctx -> {
             CoopImpactHandler.start(CoopImpactHandler.HEAVEN_DAP_SEQUENCE, 33L, false);
             CoopCameraShakeHandler.shake(0.6F, CoopImpactHandler.REGULAR_DAP_SEQUENCE.length * 33L);
             return 1;

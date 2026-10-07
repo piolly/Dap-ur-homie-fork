@@ -54,7 +54,7 @@ public class SpinYeetClientHandler {
       }));
       ClientTickEvents.END_CLIENT_TICK.register((EndTick)client -> {
          if (client.player != null && client.level != null) {
-            if (client.screen == null) {
+            if (client.gui.screen() == null) {
                boolean isHeld = InputConstants.isKeyDown(client.getWindow(), 77);
                if (isHeld && !wasHeld) {
                   System.out.println("[SpinYeet-DEBUG] M pressed");

@@ -8,7 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.loader.api.FabricLoader;
@@ -73,21 +73,21 @@ public class CoopClientSettings {
          .register(
             (ClientCommandRegistrationCallback)(dispatcher, access) -> {
                dispatcher.register(
-                  (LiteralArgumentBuilder)ClientCommandManager.literal("dap")
+                  (LiteralArgumentBuilder)ClientCommands.literal("dap")
                      .then(
-                        ((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)ClientCommandManager.literal("settings")
+                        ((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)ClientCommands.literal("settings")
                                     .executes(ctx -> open((FabricClientCommandSource)ctx.getSource())))
                                  .then(
-                                    ((LiteralArgumentBuilder)ClientCommandManager.literal("shake")
-                                          .then(ClientCommandManager.literal("on").executes(c -> setShake((FabricClientCommandSource)c.getSource(), true))))
-                                       .then(ClientCommandManager.literal("off").executes(c -> setShake((FabricClientCommandSource)c.getSource(), false)))
+                                    ((LiteralArgumentBuilder)ClientCommands.literal("shake")
+                                          .then(ClientCommands.literal("on").executes(c -> setShake((FabricClientCommandSource)c.getSource(), true))))
+                                       .then(ClientCommands.literal("off").executes(c -> setShake((FabricClientCommandSource)c.getSource(), false)))
                                  ))
                               .then(
-                                 ((LiteralArgumentBuilder)ClientCommandManager.literal("impactframes")
-                                       .then(ClientCommandManager.literal("on").executes(c -> setFrames((FabricClientCommandSource)c.getSource(), true))))
-                                    .then(ClientCommandManager.literal("off").executes(c -> setFrames((FabricClientCommandSource)c.getSource(), false)))
+                                 ((LiteralArgumentBuilder)ClientCommands.literal("impactframes")
+                                       .then(ClientCommands.literal("on").executes(c -> setFrames((FabricClientCommandSource)c.getSource(), true))))
+                                    .then(ClientCommands.literal("off").executes(c -> setFrames((FabricClientCommandSource)c.getSource(), false)))
                               ))
-                           .then(ClientCommandManager.literal("reset").executes(c -> {
+                           .then(ClientCommands.literal("reset").executes(c -> {
                               get().cameraShakeEnabled = true;
                               get().impactFramesEnabled = true;
                               save();
@@ -97,11 +97,11 @@ public class CoopClientSettings {
                      )
                );
                dispatcher.register(
-                  (LiteralArgumentBuilder)ClientCommandManager.literal("coopshake")
+                  (LiteralArgumentBuilder)ClientCommands.literal("coopshake")
                      .executes(c -> setShake((FabricClientCommandSource)c.getSource(), !get().cameraShakeEnabled))
                );
                dispatcher.register(
-                  (LiteralArgumentBuilder)ClientCommandManager.literal("coopflash")
+                  (LiteralArgumentBuilder)ClientCommands.literal("coopflash")
                      .executes(c -> setFrames((FabricClientCommandSource)c.getSource(), !get().impactFramesEnabled))
                );
             }

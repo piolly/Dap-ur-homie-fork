@@ -32,7 +32,7 @@ public class PlayerCleanupHandler {
             }
          }
       });
-      ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+      ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register((player, origin, destination) -> {
          MinecraftServer server = player.level().getServer();
          if (server != null) {
             runFullCleanup(server, player, player.getUUID(), "DIMENSION");

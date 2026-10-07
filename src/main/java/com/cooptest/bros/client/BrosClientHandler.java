@@ -292,7 +292,7 @@ public final class BrosClientHandler {
    }
 
    private static void handleKeys(Minecraft mc) {
-      boolean screen = mc.screen != null;
+      boolean screen = mc.gui.screen() != null;
       boolean g = !screen && isDown(chargeKey());
       boolean h = !screen && isDown(handKey());
       long now = System.currentTimeMillis();
@@ -410,7 +410,7 @@ public final class BrosClientHandler {
       float f = 0.0F;
       float r = 0.0F;
       boolean sprint = false;
-      if (mc.screen == null) {
+      if (mc.gui.screen() == null) {
          if (isDown(mc.options.keyUp)) {
             f++;
          }
