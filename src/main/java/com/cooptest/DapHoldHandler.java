@@ -422,7 +422,7 @@ public class DapHoldHandler {
                     for (ServerPlayer p : allFinal) {
                         if (!p.isAlive()) continue;
                         p.push(0, 0.4 + mc * 0.1, 0);
-                        p.hurtMarked = true;
+                        p.syncVelocity = true;
                         p.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                                 net.minecraft.world.effect.MobEffects.SPEED, 120, Math.min(2, mc - 1)));
                         p.addEffect(new net.minecraft.world.effect.MobEffectInstance(
@@ -452,7 +452,7 @@ public class DapHoldHandler {
                 Vec3 dir = p.position().subtract(center).normalize();
                 if (dir.lengthSqr() < 0.01) dir = new Vec3(1, 0, 0);
                 p.push(dir.x * 0.9, 0.3, dir.z * 0.9);
-                p.hurtMarked = true;
+                p.syncVelocity = true;
                 p.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c❌ Release not synced!"));
             }
             world.sendParticles(ParticleTypes.POOF,
@@ -560,7 +560,7 @@ public class DapHoldHandler {
         stand.setPos(mid.x, mid.y, mid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);
-        stand.setInvulnerable(true);
+        stand.setPermanentlyInvulnerable(true);
         stand.setSilent(true);
         world.addFreshEntity(stand);
         handStands.put(hf.getUUID(), stand);

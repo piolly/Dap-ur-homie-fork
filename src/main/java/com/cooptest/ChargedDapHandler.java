@@ -927,7 +927,7 @@ public class ChargedDapHandler {
 
                         player.stopFallFlying();
                         player.setDeltaMovement(Vec3.ZERO);
-                        player.hurtMarked = true;
+                        player.syncVelocity = true;
 
 
                         ServerPlayNetworking.send(player, new PerfectDapFreezePayload(false));
@@ -1325,7 +1325,7 @@ public class ChargedDapHandler {
                                     0.5,
                                     direction.z * 2.0
                             );
-                            entity.hurtMarked = true;
+                            entity.syncVelocity = true;
 
 
                             if (entity instanceof net.minecraft.world.entity.LivingEntity living) {
@@ -1407,7 +1407,7 @@ public class ChargedDapHandler {
                     if (remaining > 0) {
 
                         player.setDeltaMovement(0, Math.min(0, player.getDeltaMovement().y), 0);
-                        player.hurtMarked = true;
+                        player.syncVelocity = true;
                         impactFreezeTicks.put(id, remaining - 1);
                     } else {
                         impactFreezeTicks.remove(id);
@@ -1863,7 +1863,7 @@ public class ChargedDapHandler {
         net.minecraft.world.entity.decoration.ArmorStand stand =
                 new net.minecraft.world.entity.decoration.ArmorStand(world, center.x, center.y, center.z);
         stand.setInvisible(true); stand.setNoGravity(true);
-        stand.setInvulnerable(true); stand.setSilent(true);
+        stand.setPermanentlyInvulnerable(true); stand.setSilent(true);
         world.addFreshEntity(stand);
 
         double radius = 0.7;
@@ -2937,8 +2937,8 @@ public class ChargedDapHandler {
                     p2.stopFallFlying();
                     p1.setDeltaMovement(Vec3.ZERO);
                     p2.setDeltaMovement(Vec3.ZERO);
-                    p1.hurtMarked = true;
-                    p2.hurtMarked = true;
+                    p1.syncVelocity = true;
+                    p2.syncVelocity = true;
 
 
                     ServerPlayNetworking.send(p1, new PerfectDapFreezePayload(true));
@@ -3165,7 +3165,7 @@ public class ChargedDapHandler {
                     knockbackStrength * 1.5,
                     knockDir.z * knockbackStrength * 2.0
             );
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
         }
 
 
@@ -3303,7 +3303,7 @@ public class ChargedDapHandler {
         stand.snapTo(pos.x, pos.y, pos.z, 0.0f, 0.0f);
         stand.setInvisible(true);
         stand.setNoGravity(true);
-        stand.setInvulnerable(true);
+        stand.setPermanentlyInvulnerable(true);
         stand.setCustomNameVisible(false);
 
 
@@ -3413,8 +3413,8 @@ public class ChargedDapHandler {
         p1.setDeltaMovement(0, 0, 0);
         p2.setDeltaMovement(0, 0, 0);
 
-        p1.hurtMarked = true;
-        p2.hurtMarked = true;
+        p1.syncVelocity = true;
+        p2.syncVelocity = true;
     }
 
     public static void applyImpactFreeze(ServerPlayer p1, ServerPlayer p2, int ticks) {
@@ -3423,8 +3423,8 @@ public class ChargedDapHandler {
 
         p1.setDeltaMovement(0, 0, 0);
         p2.setDeltaMovement(0, 0, 0);
-        p1.hurtMarked = true;
-        p2.hurtMarked = true;
+        p1.syncVelocity = true;
+        p2.syncVelocity = true;
 
 
         impactFreezeTicks.put(p1.getUUID(), ticks);
@@ -3447,7 +3447,7 @@ public class ChargedDapHandler {
             double knockbackStrength = (1.0 - dist / radius) * 2.0;
             Vec3 knockDir = entity.position().subtract(pos).normalize();
             entity.push(knockDir.x * knockbackStrength, knockbackStrength * 0.5, knockDir.z * knockbackStrength);
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
 
             if (entity instanceof ServerPlayer target) {
                 float damage = (float)((1.0 - dist / radius) * maxDamage);
@@ -3491,7 +3491,7 @@ public class ChargedDapHandler {
                     knockbackStrength * 0.6,
                     knockDir.z * knockbackStrength * 1.5
             );
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
 
 
             if (entity instanceof ServerPlayer target) {
@@ -3550,7 +3550,7 @@ public class ChargedDapHandler {
             double knockbackStrength = (1.0 - dist / radius) * 3.0;
             Vec3 knockDir = entity.position().subtract(pos).normalize();
             entity.push(knockDir.x * knockbackStrength, knockbackStrength * 0.7, knockDir.z * knockbackStrength);
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
 
             float damage;
             if (entity instanceof ServerPlayer) {
@@ -3589,7 +3589,7 @@ public class ChargedDapHandler {
                     knockbackStrength * 1.5,
                     knockDir.z * knockbackStrength
             );
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
 
 
             entity.igniteForSeconds(5);
@@ -3926,7 +3926,7 @@ public class ChargedDapHandler {
         stand.setPos(handMid.x, handMid.y, handMid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);
-        stand.setInvulnerable(true);
+        stand.setPermanentlyInvulnerable(true);
         stand.setSilent(true);
         stand.setRemainingFireTicks(0);
         world.addFreshEntity(stand);
@@ -4458,7 +4458,7 @@ public class ChargedDapHandler {
                         0.8 + (strength * 0.5),
                         direction.z * strength
                 );
-                entity.hurtMarked = true;
+                entity.syncVelocity = true;
 
 
                 if (entity instanceof net.minecraft.world.entity.LivingEntity living) {

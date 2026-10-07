@@ -259,7 +259,7 @@ public class FallDapHandler {
         victim.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 300, 0, false, false));
 
         victim.setDeltaMovement(0, 0, 0);
-        victim.hurtMarked = true;
+        victim.syncVelocity = true;
 
         squashedPlayers.put(victim.getUUID(), System.currentTimeMillis() + SQUASHED_DURATION_MS);
 

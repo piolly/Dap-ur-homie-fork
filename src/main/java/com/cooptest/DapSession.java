@@ -99,8 +99,8 @@ public class DapSession {
         // Stop velocity completely
         playerA.setDeltaMovement(Vec3.ZERO);
         playerB.setDeltaMovement(Vec3.ZERO);
-        playerA.hurtMarked = true;
-        playerB.hurtMarked = true;
+        playerA.syncVelocity = true;
+        playerB.syncVelocity = true;
 
         playerA.fallDistance = 0;
         playerB.fallDistance = 0;

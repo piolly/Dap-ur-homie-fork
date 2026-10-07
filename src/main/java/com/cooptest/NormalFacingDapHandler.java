@@ -264,7 +264,7 @@ public class NormalFacingDapHandler {
     }
     private static void pin(MinecraftServer server, UUID id) {
         ServerPlayer p = server.getPlayerList().getPlayer(id);
-        if (p != null) { p.setDeltaMovement(0, 0, 0); p.hurtMarked = true; }
+        if (p != null) { p.setDeltaMovement(0, 0, 0); p.syncVelocity = true; }
     }
     private static int anim(CoopAnimationHandler.AnimState state) { return state.ordinal(); }
     private static void schedule(MinecraftServer server, long delayMs, Runnable task) {

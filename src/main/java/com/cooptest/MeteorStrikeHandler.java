@@ -155,7 +155,7 @@ public class MeteorStrikeHandler {
             if (msLeft <= 500 && !m.invulnGranted) {
                 m.invulnGranted = true;
                 ServerPlayer p = server.getPlayerList().getPlayer(m.playerId);
-                if (p != null) p.setInvulnerable(true);
+                if (p != null) p.setPermanentlyInvulnerable(true);
             }
             if (server.getTickCount() % 2 == 0) {
                 spawnCountdownPillar(m.world, m.target, (float) msLeft / COUNTDOWN_MS);
@@ -169,7 +169,7 @@ public class MeteorStrikeHandler {
                     try { ServerPlayNetworking.send(p, new MeteorExpiredPayload()); } catch (Exception ignored) {}
                     final ServerPlayer fp = p;
                     server.execute(() -> {
-                        fp.setInvulnerable(false);
+                        fp.setPermanentlyInvulnerable(false);
                     });
                 }
             } else {
@@ -244,7 +244,7 @@ public class MeteorStrikeHandler {
             Vec3 dir = e.position().subtract(center).normalize();
             if (dir.lengthSqr() < 0.001) dir = new Vec3(0, 1, 0);
             living.push(dir.x * 3.0, 2.0, dir.z * 3.0);
-            living.hurtMarked = true;
+            living.syncVelocity = true;
         }
         world.sendParticles(ParticleTypes.EXPLOSION_EMITTER, center.x, center.y, center.z, 20, 5, 5, 5, 0);
         world.sendParticles(ParticleTypes.FLAME, center.x, center.y, center.z, 200, 8, 4, 8, 0.5);

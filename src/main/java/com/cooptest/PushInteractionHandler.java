@@ -169,13 +169,13 @@ public class PushInteractionHandler {
             if (c != null) {
                 LaunchedPlayerTracker.markPlayerAsLaunched(c.getUUID());
                 c.push(0, velocity + 0.2, 0);
-                c.hurtMarked = true;
+                c.syncVelocity = true;
                 pushImmunity.put(c.getUUID(), now);
             }
         }
 
         target.push(0, velocity, 0);
-        target.hurtMarked = true;
+        target.syncVelocity = true;
         pushImmunity.put(target.getUUID(), now);
 
         cooldowns.put(pusher.getUUID(), now);

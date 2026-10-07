@@ -232,7 +232,7 @@ public class GrabMechanic {
                 ServerPlayer held = pending.held;
                 if (held != null && held.isAlive()) {
                     held.setDeltaMovement(pending.velocity);
-                    held.hurtMarked = true;
+                    held.syncVelocity = true;
                     held.connection.send(new ClientboundSetEntityMotionPacket(held));
 
                     boolean wasOnFire = held.isOnFire();
@@ -275,7 +275,7 @@ public class GrabMechanic {
 
                 Vec3 currentVel = player.getDeltaMovement();
                 player.setDeltaMovement(currentVel.add(driftX, 0, driftZ));
-                player.hurtMarked = true;
+                player.syncVelocity = true;
             }
 
             long timeSinceThrow = System.currentTimeMillis() - data.throwTimeMs;
@@ -288,7 +288,7 @@ public class GrabMechanic {
                             look.y * boostStrength + 0.5,
                             look.z * boostStrength
                         ));
-                        player.hurtMarked = true;
+                        player.syncVelocity = true;
 
                         player.startFallFlying();
 
@@ -406,7 +406,7 @@ public class GrabMechanic {
 
                     // Slow down slightly after breaking
                     player.setDeltaMovement(velocity.scale(0.7));
-                    player.hurtMarked = true;
+                    player.syncVelocity = true;
                     player.connection.send(new ClientboundSetEntityMotionPacket(player));
 
                     // Particles
@@ -900,7 +900,7 @@ public class GrabMechanic {
             armorStand.setYRot(holder.getYRot()); 
             armorStand.setInvisible(true);
             armorStand.setNoGravity(true);
-            armorStand.setInvulnerable(true);
+            armorStand.setPermanentlyInvulnerable(true);
             armorStand.setSilent(true);
 
             world.addFreshEntity(armorStand);

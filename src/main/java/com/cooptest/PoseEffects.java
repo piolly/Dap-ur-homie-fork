@@ -84,7 +84,7 @@ public class PoseEffects {
 
         // Push pusher down slightly
         pusher.setDeltaMovement(pusher.getDeltaMovement().add(0, -0.15, 0));
-        pusher.hurtMarked = true;
+        pusher.syncVelocity = true;
     }
 
     public static void playLaunchTrailEffects(ServerPlayer target) {

@@ -192,7 +192,7 @@ public class FallCatchHandler {
                 x, y, z, 6, 0.2, 0.2, 0.2, 0.02);
 
         caught.setDeltaMovement(0, 0, 0);
-        caught.hurtMarked = true;
+        caught.syncVelocity = true;
 
         CatchAnimPayload payload = new CatchAnimPayload(catcher.getUUID(), caught.getUUID());
         for (ServerPlayer nearby : PlayerLookup.tracking(catcher)) {

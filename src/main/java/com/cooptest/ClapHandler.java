@@ -82,7 +82,7 @@ public class ClapHandler {
                 if (away.horizontalDistanceSqr() < 0.001) away = new net.minecraft.world.phys.Vec3(1, 0, 0);
                 away = away.normalize();
                 animal.setDeltaMovement(away.x * 0.55, 0.35, away.z * 0.55);
-                animal.hurtMarked = true;
+                animal.syncVelocity = true;
                 if (animal instanceof net.minecraft.world.entity.Mob mob) {
                     mob.setTarget(null);
                     net.minecraft.world.phys.Vec3 fleeTarget = animal.position().add(away.scale(8.0));

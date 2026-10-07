@@ -176,7 +176,7 @@ public class KickHandler {
                     if (dot < 0.2) continue;
                     Vec3 vel = target.getDeltaMovement();
                     target.setDeltaMovement(vel.add(fwd.x * 0.12, 0.06, fwd.z * 0.12));
-                    ((LivingEntity)target).hurtMarked = true;
+                    ((LivingEntity)target).syncVelocity = true;
                 }
             }
             Iterator<Map.Entry<UUID, Long>> applyIt = slowApplyAt.entrySet().iterator();
@@ -232,7 +232,7 @@ public class KickHandler {
                     Vec3 vel2 = living.getDeltaMovement();
                     living.setDeltaMovement(vel2.x, upwardPop, vel2.z);
                 }
-                living.hurtMarked = true;
+                living.syncVelocity = true;
             }
             if (target instanceof ServerPlayer hitPlayer) {
                 playerHits.add(hitPlayer);
@@ -284,12 +284,12 @@ public class KickHandler {
         kickPushFwd.put(id, new Vec3(fwdX, 0, fwdZ));
         if (!isDropKick) {
             player.push(fwdX * 0.3, 0, fwdZ * 0.3);
-            player.hurtMarked = true;
+            player.syncVelocity = true;
             applySlowdown(player, KICK_SLOW_AMOUNT);
             slowRemoveAt.put(id, now + KICK_ANIM_MS);
         } else {
             player.push(fwdX * 0.5, 0, fwdZ * 0.5);
-            player.hurtMarked = true;
+            player.syncVelocity = true;
             slowApplyAt.put(id, now + DROP_KICK_SLOW_DELAY);
             slowRemoveAt.put(id, now + DROP_KICK_ANIM_MS);
             slowAmount.put(id, DROP_KICK_SLOW_AMOUNT);

@@ -410,8 +410,8 @@ public class DapFusionHandler {
         Vec3 away2 = s.p2Ref.position().subtract(mid).normalize().scale(4.0).add(0, 0.8, 0);
         s.p1Ref.push(away1.x, away1.y, away1.z);
         s.p2Ref.push(away2.x, away2.y, away2.z);
-        s.p1Ref.hurtMarked = true;
-        s.p2Ref.hurtMarked = true;
+        s.p1Ref.syncVelocity = true;
+        s.p2Ref.syncVelocity = true;
         broadcast(s, new FusionPhasePayload(s.p1Id, s.p2Id, 99));
         s.p1Ref.sendOverlayMessage(net.minecraft.network.chat.Component.literal(reason));
         s.p2Ref.sendOverlayMessage(net.minecraft.network.chat.Component.literal(reason));
@@ -560,8 +560,8 @@ public class DapFusionHandler {
         Vec3 away2 = s.p2Ref.position().subtract(mid).normalize().scale(4.0).add(0, 1.0, 0);
         s.p1Ref.push(away1.x, away1.y, away1.z);
         s.p2Ref.push(away2.x, away2.y, away2.z);
-        s.p1Ref.hurtMarked = true;
-        s.p2Ref.hurtMarked = true;
+        s.p1Ref.syncVelocity = true;
+        s.p2Ref.syncVelocity = true;
         broadcast(s, new FusionPhasePayload(s.p1Id, s.p2Id, 99));
         s.p1Ref.sendSystemMessage(net.minecraft.network.chat.Component.literal(reason));
         s.p2Ref.sendSystemMessage(net.minecraft.network.chat.Component.literal(reason));
@@ -583,8 +583,8 @@ public class DapFusionHandler {
                 net.minecraft.world.effect.MobEffects.RESISTANCE, 300, 255, false, false);
         s.p1Ref.addEffect(invuln1);
         s.p2Ref.addEffect(invuln2);
-        s.p1Ref.setInvulnerable(true);
-        s.p2Ref.setInvulnerable(true);
+        s.p1Ref.setPermanentlyInvulnerable(true);
+        s.p2Ref.setPermanentlyInvulnerable(true);
         fusedPairs.put(s.p1Id, s.p2Id);
         fusedPairs.put(s.p2Id, s.p1Id);
         try { ServerPlayNetworking.send(s.p1Ref, new FusionFusedPayload(true)); } catch (Exception ignored) {}
@@ -611,8 +611,8 @@ public class DapFusionHandler {
                     }
                     s.p1Ref.setDeltaMovement(Vec3.ZERO);
                     s.p2Ref.setDeltaMovement(Vec3.ZERO);
-                    s.p1Ref.hurtMarked = true;
-                    s.p2Ref.hurtMarked = true;
+                    s.p1Ref.syncVelocity = true;
+                    s.p2Ref.syncVelocity = true;
                 });
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(500);
@@ -659,8 +659,8 @@ public class DapFusionHandler {
                         ModSounds.GALACTIC_DAP, SoundSource.PLAYERS, 4.0f, 0.8f);
                 s.world.playSound(null, mid.x, mid.y, mid.z,
                         ModSounds.EPIC_DAP, SoundSource.PLAYERS, 3.0f, 0.5f);
-                s.p1Ref.setInvulnerable(false);
-                s.p2Ref.setInvulnerable(false);
+                s.p1Ref.setPermanentlyInvulnerable(false);
+                s.p2Ref.setPermanentlyInvulnerable(false);
                 try { ServerPlayNetworking.send(s.p1Ref, new FusionBlackScreenPayload(false)); } catch (Exception ignored) {}
                 try { ServerPlayNetworking.send(s.p2Ref, new FusionBlackScreenPayload(false)); } catch (Exception ignored) {}
                 try { broadcast(s, new FusionPhasePayload(s.p1Id, s.p2Id, 4)); } catch (Exception ignored) {}
@@ -757,7 +757,7 @@ public class DapFusionHandler {
         double z = start.z + (end.z - start.z) * t;
         player.teleportTo(player.level(), x, y, z, java.util.Set.of(), player.getYRot(), player.getXRot(), false);
         player.setDeltaMovement(Vec3.ZERO);
-        player.hurtMarked = true;
+        player.syncVelocity = true;
         if (tick >= SMOOTH_TP_TICKS) {
             smoothTpTargets.remove(id);
             smoothTpProgress.remove(id);
@@ -905,8 +905,8 @@ public class DapFusionHandler {
         UUID id2 = p2 != null ? p2.getUUID() : id1;
         fusedPairs.remove(id1);
         fusedPairs.remove(id2);
-        p1.setInvulnerable(false);
-        if (p2 != null) p2.setInvulnerable(false);
+        p1.setPermanentlyInvulnerable(false);
+        if (p2 != null) p2.setPermanentlyInvulnerable(false);
         Vec3 mid = p2 != null
                 ? p1.position().add(p2.position()).scale(0.5)
                 : p1.position();
@@ -914,13 +914,13 @@ public class DapFusionHandler {
         if (away1.lengthSqr() < 0.001) away1 = new Vec3(1, 0, 0);
         away1 = away1.scale(2.5).add(0, 0.6, 0);
         p1.push(away1.x, away1.y, away1.z);
-        p1.hurtMarked = true;
+        p1.syncVelocity = true;
         if (p2 != null) {
             Vec3 away2 = p2.position().subtract(mid).normalize();
             if (away2.lengthSqr() < 0.001) away2 = new Vec3(-1, 0, 0);
             away2 = away2.scale(2.5).add(0, 0.6, 0);
             p2.push(away2.x, away2.y, away2.z);
-            p2.hurtMarked = true;
+            p2.syncVelocity = true;
         }
         p1.level().playSound(null, mid.x, mid.y, mid.z,
                 SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.5f, 1.5f);

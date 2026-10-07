@@ -403,7 +403,7 @@ public class HighFiveHandler {
                     if (currentPos.distanceToSqr(frozenPos) > 0.01) {
                         player.teleportTo(frozenPos.x, frozenPos.y, frozenPos.z);
                         player.setDeltaMovement(Vec3.ZERO);
-                        player.hurtMarked = true;
+                        player.syncVelocity = true;
                     }
                 }
             }
@@ -707,9 +707,9 @@ public class HighFiveHandler {
             Vec3 toVictim = victim.position().subtract(siker.position()).normalize();
             if (toVictim.lengthSqr() < 0.001) toVictim = new Vec3(1, 0, 0);
             siker.push(toVictim.reverse().x * 0.6, 0.5, toVictim.reverse().z * 0.6);
-            siker.hurtMarked = true;
+            siker.syncVelocity = true;
             victim.push(toVictim.x * 0.6, 0.5, toVictim.z * 0.6);
-            victim.hurtMarked = true;
+            victim.syncVelocity = true;
             broadcastHighFiveAnim(siker,  ANIM_SIKE);
             broadcastHighFiveAnim(victim, ANIM_SIKE);
             PoseNetworking.broadcastAnimState(siker,  63);
@@ -742,7 +742,7 @@ public class HighFiveHandler {
         sikeStunEnd.put(victimId, now + SIKE_ANIM_MS);
         frozenPositions.put(victimId, victim.position());
         victim.setDeltaMovement(Vec3.ZERO);
-        victim.hurtMarked = true;
+        victim.syncVelocity = true;
         for (ServerPlayer p : PlayerLookup.all(siker.level().getServer())) {
             ServerPlayNetworking.send(p, new FreezeStatePayload(victimId, true));
         }
@@ -867,7 +867,7 @@ public class HighFiveHandler {
                 dir = new Vec3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
             }
             entity.push(dir.x * strength, strength * 0.6, dir.z * strength);
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
             world.sendParticles(ParticleTypes.CRIT,
                     entity.getX(), entity.getY() + 1, entity.getZ(),
                     5, 0.2, 0.2, 0.2, 0.1);
@@ -889,8 +889,8 @@ public class HighFiveHandler {
         double push = 0.15 * strength;
         p1.setDeltaMovement(dir1.x * push, 0.05, dir1.z * push);
         p2.setDeltaMovement(dir2.x * push, 0.05, dir2.z * push);
-        p1.hurtMarked = true;
-        p2.hurtMarked = true;
+        p1.syncVelocity = true;
+        p2.syncVelocity = true;
     }
     private static void createHighFiveExplosion(ServerLevel world, Vec3 pos, ServerPlayer p1, ServerPlayer p2) {
         double radius = 4.0;
@@ -905,7 +905,7 @@ public class HighFiveHandler {
             double knockbackStrength = (1.0 - dist / radius) * 2.0;
             Vec3 knockDir = entity.position().subtract(pos).normalize();
             entity.push(knockDir.x * knockbackStrength, knockbackStrength * 0.5, knockDir.z * knockbackStrength);
-            entity.hurtMarked = true;
+            entity.syncVelocity = true;
             if (entity instanceof ServerPlayer target) {
                 float damage = (float)((1.0 - dist / radius) * 8.0);
                 target.hurtClient(world.damageSources().explosion(null));
@@ -984,8 +984,8 @@ public class HighFiveHandler {
         frozenPositions.put(id2, p2.position());
         p1.setDeltaMovement(Vec3.ZERO);
         p2.setDeltaMovement(Vec3.ZERO);
-        p1.hurtMarked = true;
-        p2.hurtMarked = true;
+        p1.syncVelocity = true;
+        p2.syncVelocity = true;
         for (ServerPlayer p : PlayerLookup.all(p1.level().getServer())) {
             ServerPlayNetworking.send(p, new FreezeStatePayload(id1, true));
             ServerPlayNetworking.send(p, new FreezeStatePayload(id2, true));
@@ -1087,9 +1087,9 @@ public class HighFiveHandler {
         p1.hurtClient(world.damageSources().genericKill());
         p2.hurtClient(world.damageSources().genericKill());
         p1.setDeltaMovement(toP2.reverse().scale(0.65).add(0, 0.5, 0));
-        p1.hurtMarked = true;
+        p1.syncVelocity = true;
         p2.setDeltaMovement(toP2.scale(0.65).add(0, 0.5, 0));
-        p2.hurtMarked = true;
+        p2.syncVelocity = true;
         Vec3 mid = p1.position().add(p2.position()).scale(0.5).add(0, 1.0, 0);
         world.sendParticles(ParticleTypes.CRIT,          mid.x, mid.y, mid.z, 24, 0.4, 0.4, 0.4, 0.2);
         world.sendParticles(ParticleTypes.SMOKE,         mid.x, mid.y, mid.z, 12, 0.3, 0.3, 0.3, 0.02);

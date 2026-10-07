@@ -332,7 +332,7 @@ public class HuddleHandler {
                 new net.minecraft.world.entity.decoration.ArmorStand(world, mid.x, mid.y, mid.z);
         stand.setInvisible(true);
         stand.setNoGravity(true);
-        stand.setInvulnerable(true);
+        stand.setPermanentlyInvulnerable(true);
         stand.setSilent(true);
         world.addFreshEntity(stand);
         centerStands.put(key(s.p1, s.p2), stand);
@@ -668,7 +668,7 @@ public class HuddleHandler {
             for (ServerPlayer lp : live) {
                 Vec3 dir = lp.position().subtract(center).normalize();
                 lp.push(dir.x * 0.6, 0.4, dir.z * 0.6);
-                lp.hurtMarked = true;
+                lp.syncVelocity = true;
             }
             live.get(0).level().sendParticles(ParticleTypes.ANGRY_VILLAGER,
                     center.x, center.y + 1, center.z, 8, 0.3, 0.3, 0.3, 0.05);

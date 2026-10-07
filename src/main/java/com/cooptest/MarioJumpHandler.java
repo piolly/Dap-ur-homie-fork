@@ -178,7 +178,7 @@ public class MarioJumpHandler {
 
         Vec3 velocity = jumper.getDeltaMovement();
         jumper.setDeltaMovement(velocity.x, LAUNCH_VELOCITY, velocity.z);
-        jumper.hurtMarked = true;
+        jumper.syncVelocity = true;
         PoseNetworking.broadcastAnimState(jumper, 30); // MARIO_JUMP
         PoseNetworking.broadcastAnimState(target, 31); // POP
 

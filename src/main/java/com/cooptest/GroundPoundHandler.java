@@ -67,7 +67,7 @@ public class GroundPoundHandler {
                 diveStartY.put(id, player.getY());
                 diveStartTime.put(id, System.currentTimeMillis());
                 player.setDeltaMovement(0, DIVE_SPEED, 0);
-                player.hurtMarked = true;
+                player.syncVelocity = true;
                 PoseNetworking.broadcastAnimState(player, ANIM_DIVE);
                 broadcastDiveSync(player.level().getServer(), id, true);
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -117,7 +117,7 @@ public class GroundPoundHandler {
             }
             Vec3 vel = player.getDeltaMovement();
             player.setDeltaMovement(vel.x * 0.1, DIVE_SPEED, vel.z * 0.1);
-            player.hurtMarked = true;
+            player.syncVelocity = true;
             player.setYRot(player.getYRot());
         }
     }
@@ -145,7 +145,7 @@ public class GroundPoundHandler {
                 living.setDeltaMovement(nx * KB_STRENGTH * falloff * kbMult,
                         upwardPop * falloff,
                         nz * KB_STRENGTH * falloff * kbMult);
-                living.hurtMarked = true;
+                living.syncVelocity = true;
                 double dmg = scaledPower * (isMega ? 8.0 : 4.0) * falloff;
                 if (dmg > 0.5) {
                     living.hurtClient(world.damageSources().playerAttack(player));
@@ -189,7 +189,7 @@ public class GroundPoundHandler {
         PoseNetworking.broadcastAnimState(player, ANIM_LAND);
         landStunEnd.put(player.getUUID(), System.currentTimeMillis() + LAND_STUN_MS);
         player.setDeltaMovement(0, 0, 0);
-        player.hurtMarked = true;
+        player.syncVelocity = true;
         if (scaledPower >= 0.6) {
             player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c§l GROUND POUND!"));
         } else {
