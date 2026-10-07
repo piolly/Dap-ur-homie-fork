@@ -126,6 +126,9 @@ public class TestCoopClient implements ClientModInitializer {
       CoopAnimationHandler.register();
       SitClientHandler.register();
       BlackHoodClientHandler.register();
+      com.cooptest.meme.SpinYeetClientHandler.register();
+      com.cooptest.client.BonkClientHandler.register();
+      com.cooptest.client.DivineFlamComboClient.register();
       ClientPlayNetworking.registerGlobalReceiver(
          NormalFacingDapHandler.FaceDapSessionPayload.ID,
          (payload, context) -> context.client().execute(() -> ChargedDapClientHandler.setInFaceDapSession(payload.active()))

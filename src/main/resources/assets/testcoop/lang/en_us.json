@@ -14,5 +14,10 @@
   "item.minecraft.lingering_potion.effect.mahito_stuff": "Lingering Mahito Stuff Potion",
   "item.minecraft.tipped_arrow.effect.mahito_stuff": "Arrow of Mahito's Curse",
   "key.categories.coopmoves.coopmoves": "Dap Ur HOMIES",
-  "key.categories.cooptest.cooptest": "Dap Ur HOMIES (Test)"
+  "key.categories.cooptest.cooptest": "Dap Ur HOMIES (Test)",
+  "key.category.coopmoves.coopmoves": "Dap Ur HOMIES",
+  "key.category.cooptest.cooptest": "Dap Ur HOMIES (Test)",
+  "key.coopmoves.spin_yeet": "Spin Yeet",
+  "key.cooptest.bonk": "Bonk",
+  "key.cooptest.divine_flame": "Divine Flame Combo"
 }
