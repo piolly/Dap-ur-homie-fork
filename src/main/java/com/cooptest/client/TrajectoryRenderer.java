@@ -77,9 +77,30 @@ public class TrajectoryRenderer {
         renderTrajectoryDots(context, points, chargeProgress);
     }
 
+    private static boolean trajectoryWarned = false;
+
     private static void renderTrajectoryDots(LevelRenderContext context, Vec3[] points, float charge) {
-        // TODO(26.3 port): DISABLED. context.matrices(), consumers() and getMainCamera() no longer exist.
-        // Re-implement with the new level render context (poseStack + submitNodeCollector).
-        // The original body is in git history, in the commit before this one.
+        try {
+            int r = (int)(charge * 255.0F);
+            int g = (int)((1.0F - charge) * 255.0F);
+            int b = 50;
+            int n = 0;
+            while (n < points.length && points[n] != null) n++;
+            for (int i = 0; i < n; i++) {
+                Vec3 p = points[i];
+                float t = (float)i / n;
+                int a = (int)(200 * (1.0F - t));
+                float size = 0.08F * (1.0F - t * 0.5F);
+                int color = (a << 24) | (r << 16) | (g << 8) | b;
+                net.minecraft.gizmos.Gizmos.cuboid(
+                    new net.minecraft.world.phys.AABB(p.x - size, p.y - size, p.z - size, p.x + size, p.y + size, p.z + size),
+                    net.minecraft.gizmos.GizmoStyle.fill(color));
+            }
+        } catch (Throwable t) {
+            if (!trajectoryWarned) {
+                trajectoryWarned = true;
+                System.out.println("[Trajectory] gizmo draw failed: " + t);
+            }
+        }
     }
 }

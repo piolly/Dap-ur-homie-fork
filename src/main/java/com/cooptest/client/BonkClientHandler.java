@@ -15,7 +15,7 @@ public class BonkClientHandler {
    private static boolean jerkPending = false;
 
    public static void register() {
-      keyBonk = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.cooptest.bonk", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 76, CoopKeyCategories.COOPTEST));
+      keyBonk = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.cooptest.bonk", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 66, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(
          BonkHandler.BonkMoveLockPayload.ID, (payload, context) -> context.client().execute(() -> movementLocked = payload.locked())
       );

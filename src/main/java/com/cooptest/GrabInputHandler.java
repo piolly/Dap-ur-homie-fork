@@ -91,7 +91,7 @@ public class GrabInputHandler {
 
    public static void register() {
       grabKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.grab", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 82, CoopKeyCategories.COOPMOVES));
-      throwKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.throw", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 84, CoopKeyCategories.COOPMOVES));
+      throwKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.throw", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 89, CoopKeyCategories.COOPMOVES));
       shieldKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.coopmoves.shield", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 86, CoopKeyCategories.COOPMOVES));
       ClientPlayNetworking.registerGlobalReceiver(GrabMechanic.ShieldModePayload.ID, (payload, context) -> context.client().execute(() -> {
          clientShieldMode.put(payload.holderId(), payload.enabled());

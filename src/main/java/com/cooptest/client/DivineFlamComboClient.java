@@ -12,7 +12,7 @@ public class DivineFlamComboClient {
    private static long divineFlameEndTime = 0L;
 
    public static void register() {
-      divineFlameKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.cooptest.divine_flame", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 74, CoopKeyCategories.COOPTEST));
+      divineFlameKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.cooptest.divine_flame", com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD, 75, CoopKeyCategories.COOPMOVES));
       ClientTickEvents.END_CLIENT_TICK.register((EndTick)client -> {
          if (divineFlameKey.consumeClick()) {
             ClientPlayNetworking.send(new DivineFlamCombo.DivineJPressPayload());

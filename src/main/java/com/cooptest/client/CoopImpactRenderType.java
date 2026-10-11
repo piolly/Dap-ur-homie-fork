@@ -21,6 +21,7 @@ public class CoopImpactRenderType {
             .withLocation(Identifier.fromNamespaceAndPath("cooptest", "pipeline/" + name))
             .withVertexShader(Identifier.fromNamespaceAndPath("minecraft", "core/entity"))
             .withFragmentShader(Identifier.fromNamespaceAndPath("cooptest", "core/" + name))
+            .withBindGroupLayout(net.minecraft.client.renderer.BindGroupLayouts.SAMPLER1)
             .build()
       );
    }
