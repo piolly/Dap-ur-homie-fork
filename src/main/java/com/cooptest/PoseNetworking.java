@@ -158,7 +158,7 @@ public class PoseNetworking {
                         if (isParticipant) {
                            if (isPerfectDap) {
                               long shakeDuration = CoopImpactHandler.PERFECT_DAP_SEQUENCE.length * 33L;
-                              CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 33L, true);
+                              CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 45L, true);
                               CoopCameraShakeHandler.shake(1.2F, shakeDuration);
                               CoopChromaHandler.start();
                               CoopRadialBlurHandler.start();

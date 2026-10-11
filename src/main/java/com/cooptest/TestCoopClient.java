@@ -191,7 +191,7 @@ public class TestCoopClient implements ClientModInitializer {
             return 1;
          }));
          dispatcher.register((LiteralArgumentBuilder)ClientCommands.literal("impactperfect").executes(ctx -> {
-            CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 33L, true);
+            CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 45L, true);
             CoopCameraShakeHandler.shake(0.6F, CoopImpactHandler.REGULAR_DAP_SEQUENCE.length * 33L);
             CoopChromaHandler.start();
             CoopRadialBlurHandler.start();

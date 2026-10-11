@@ -22,6 +22,7 @@ public class CoopImpactRenderType {
             .withVertexShader(Identifier.fromNamespaceAndPath("minecraft", "core/entity"))
             .withFragmentShader(Identifier.fromNamespaceAndPath("cooptest", "core/" + name))
             .withBindGroupLayout(net.minecraft.client.renderer.BindGroupLayouts.SAMPLER1)
+            .withColorTargetState(com.mojang.renderpearl.api.pipeline.ColorTargetState.DEFAULT)
             .build()
       );
    }

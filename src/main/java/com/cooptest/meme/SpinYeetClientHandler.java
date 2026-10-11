@@ -33,7 +33,7 @@ public class SpinYeetClientHandler {
          }
       }));
       ClientPlayNetworking.registerGlobalReceiver(
-         SpinYeetImpactPayload.ID, (payload, ctx) -> ctx.client().execute(() -> CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 33L, true))
+         SpinYeetImpactPayload.ID, (payload, ctx) -> ctx.client().execute(() -> CoopImpactHandler.start(CoopImpactHandler.PERFECT_DAP_SEQUENCE, 45L, true))
       );
       ClientPlayNetworking.registerGlobalReceiver(SpinYeetStartPayload.ID, (payload, ctx) -> ctx.client().execute(() -> {
          if (ctx.client().player != null) {
